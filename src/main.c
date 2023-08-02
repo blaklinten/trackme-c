@@ -10,6 +10,6 @@ int main(int argc, char *argv[]) {
   mg_mgr_init(&mgr);       // Initialise event manager
   printf("Hello Git and Mongoose!\n");
   git_libgit2_shutdown();
-  mg_mgr_init(&mgr);
+  mg_mgr_free(&mgr);
   return EXIT_SUCCESS;
 }

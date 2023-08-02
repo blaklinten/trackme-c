@@ -33,8 +33,6 @@ ErrorCode start(Timer *t, StartInfo *si) {
 ErrorCode stop(Timer *t, TimerResult *tr) {
   assert(t != NULL);
 
-  ValueOrError result;
-
   tr->name = t->name;
   tr->client = t->client;
   tr->project = t->project;
