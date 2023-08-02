@@ -1,26 +1,52 @@
 #include "timer.h"
+#include "assert.h"
+#include <stdlib.h>
 
-time_t start_timer(struct Timer *t, struct StartInfo *si) {
+void reset(Timer *t) {
+  assert(t != NULL);
+
+  t->name = NULL;
+  t->client = NULL;
+  t->project = NULL;
+  t->description = NULL;
+  t->start_time = -1;
+}
+
+ErrorCode start(Timer *t, StartInfo *si) {
+  assert(t != NULL);
+  assert(si != NULL);
+
   t->name = si->name;
   t->client = si->client;
   t->project = si->project;
   t->description = si->description;
-  t->start_time = time(NULL);
-  t->end_time = -1;
+  time(&t->start_time);
 
-  return t->start_time;
+  if (t->start_time <= 0) {
+    reset(t);
+    return E_COULD_NOT_GET_SYSTEM_TIME;
+  }
+
+  return E_OK;
 }
 
-struct Timer *create_timer()
-{
-  struct Timer *t_ptr = malloc(sizeof(struct Timer));
-  
-  t_ptr->name = NULL;
-  t_ptr->client = NULL;
-  t_ptr->project = NULL;
-  t_ptr->description = NULL;
-  t_ptr->start_time = -1;
-  t_ptr->end_time = -1;
+ErrorCode stop(Timer *t, TimerResult *tr) {
+  assert(t != NULL);
 
-  return t_ptr;
+  ValueOrError result;
+
+  tr->name = t->name;
+  tr->client = t->client;
+  tr->project = t->project;
+  tr->description = t->description;
+  tr->start_time = t->start_time;
+
+  time(&tr->end_time);
+  if (tr->end_time <= 0) {
+    return E_COULD_NOT_GET_SYSTEM_TIME;
+  }
+
+  tr->duration = tr->end_time - tr->start_time;
+
+  return E_OK;
 }
