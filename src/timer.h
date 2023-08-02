@@ -1,29 +1,37 @@
-#ifndef TIMER
-#define TIMER
+#ifndef TIMER_H
+#define TIMER_H
 
 #include "time.h"
+#include "valueOrError.h"
 #include <stdlib.h>
 
-enum { TIMER_NOT_STARTED = -1 };
-
-struct StartInfo {
+typedef struct StartInfo {
   char *name;
   char *client;
   char *project;
   char *description;
-};
+} StartInfo;
 
-struct Timer {
+typedef struct TimerResult {
   char *name;
   char *client;
   char *project;
   char *description;
   time_t start_time;
   time_t end_time;
-};
+  time_t duration;
+} TimerResult;
 
-struct Timer *create_timer();
+typedef struct Timer {
+  char *name;
+  char *client;
+  char *project;
+  char *description;
+  time_t start_time;
+} Timer;
 
-time_t start_timer(struct Timer *, struct StartInfo *);
+void reset(Timer *);
+ErrorCode start(Timer *, StartInfo *);
+ErrorCode stop(Timer *, TimerResult *);
 
-#endif // !TIMER
+#endif // !TIMER_H
