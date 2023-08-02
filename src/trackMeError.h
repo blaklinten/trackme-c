@@ -8,9 +8,4 @@ typedef enum ErrorCode {
   E_COULD_NOT_GET_SYSTEM_TIME, // 1
 } ErrorCode;
 
-typedef struct ValueOrError {
-  ErrorCode err;
-  void *value;
-} ValueOrError;
-
 #endif // !VALUE_OR_ERROR
