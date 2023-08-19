@@ -25,7 +25,7 @@ time_t __wrap_time(time_t *__timer) {
 }
 
 // Timer
-void timer_reset_test() {
+void timer_reset() {
   // Given
   Timer t;
   // When
@@ -39,7 +39,7 @@ void timer_reset_test() {
   assert_int_equal(-1, t.start_time);
 }
 
-void timer_start_test() {
+void timer_start() {
   // Given
   StartInfo si = {"test_name", "test_client", "test_project",
                   "this is a test description"};
@@ -62,7 +62,7 @@ void timer_start_test() {
   assert_true(t.start_time == TEST_START_TIME_MS);
 }
 
-void timer_stop_test() {
+void timer_stop() {
   // Given
   StartInfo si = {"test_name", "test_client", "test_project",
                   "this is a test description"};
