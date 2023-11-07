@@ -76,11 +76,3 @@ void db_connect() {
   mongoc_client_destroy(client);
   mongoc_cleanup();
 }
-
-void db_save() { fail(); }
-
-void db_get_by_name() { fail(); }
-
-void db_get_by_client() { fail(); }
-
-void db_get_by_project() { fail(); }
