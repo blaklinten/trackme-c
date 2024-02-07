@@ -91,3 +91,26 @@ void timer_stop() {
   assert_non_null(tr.duration);
   assert_int_equal(tr.duration, TEST_END_TIME_MS - TEST_START_TIME_MS);
 }
+
+void timer_get_duration() {
+  // Given
+  Timer t;
+  reset(&t);
+
+  // When
+  expect_value(__wrap_time, __timer, &t.start_time);
+  will_return(__wrap_time, TEST_START_TIME_MS);
+  expect_value(__wrap_time, __timer, NULL);
+  will_return(__wrap_time, TEST_END_TIME_MS);
+
+  (void)start(&t, &start_info);
+
+  time_t duration;
+  ErrorCode err = get_duration(&t, &duration);
+
+  // Then
+  assert_int_equal(err, E_OK);
+  assert_non_null(duration);
+  assert_int_equal(duration, TEST_END_TIME_MS - TEST_START_TIME_MS);
+
+}

@@ -33,5 +33,6 @@ typedef struct Timer {
 void reset(Timer *);
 ErrorCode start(Timer *, StartInfo *);
 ErrorCode stop(Timer *, TimerResult *);
+ErrorCode get_duration(Timer *, time_t *);
 
 #endif // !TIMER_H

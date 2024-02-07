@@ -6,6 +6,7 @@
 typedef enum ErrorCode {
   E_OK = 0,
   E_COULD_NOT_GET_SYSTEM_TIME, // 1
+  E_START_TIME_IN_FUTURE, // 2
 } ErrorCode;
 
 #endif // !VALUE_OR_ERROR
