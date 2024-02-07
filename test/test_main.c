@@ -16,6 +16,7 @@ int main(void) {
       cmocka_unit_test(timer_reset),
       cmocka_unit_test(timer_start),
       cmocka_unit_test(timer_stop),
+      cmocka_unit_test(timer_get_duration),
       cmocka_unit_test(db_connect),
   };
 

@@ -48,3 +48,16 @@ ErrorCode stop(Timer *t, TimerResult *tr) {
 
   return E_OK;
 }
+
+ErrorCode get_duration(Timer *t, time_t *duration) {
+  time_t now = time(NULL);
+  if (now <= 0) {
+    return E_COULD_NOT_GET_SYSTEM_TIME;
+  }
+  if (now - t->start_time < 0){
+    return E_START_TIME_IN_FUTURE;
+  }
+
+  *duration = now - t->start_time;
+  return E_OK;
+}
