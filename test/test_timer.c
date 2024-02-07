@@ -11,6 +11,9 @@
 const time_t TEST_START_TIME_MS = 1690876956; // Tue  1 Aug 10:02:36 CEST 2023
 const time_t TEST_END_TIME_MS = 1690879255;   // Tue  1 Aug 10:40:55 CEST 2023
 
+  StartInfo start_info = {"test_name", "test_client", "test_project",
+                  "this is a test description"};
+
 // Mock time(time_t * __timer)
 time_t __wrap_time(time_t *__timer) {
   check_expected_ptr(__timer);
@@ -41,8 +44,6 @@ void timer_reset() {
 
 void timer_start() {
   // Given
-  StartInfo si = {"test_name", "test_client", "test_project",
-                  "this is a test description"};
   Timer t;
   reset(&t);
 
@@ -50,28 +51,26 @@ void timer_start() {
   expect_value(__wrap_time, __timer, &t.start_time);
   will_return(__wrap_time, TEST_START_TIME_MS);
 
-  ErrorCode started = start(&t, &si);
+  ErrorCode started = start(&t, &start_info);
 
   // Then
   assert_int_equal(started, E_OK);
-  assert_string_equal(si.name, t.name);
-  assert_string_equal(si.client, t.client);
-  assert_string_equal(si.project, t.project);
-  assert_string_equal(si.description, t.description);
+  assert_string_equal(start_info.name, t.name);
+  assert_string_equal(start_info.client, t.client);
+  assert_string_equal(start_info.project, t.project);
+  assert_string_equal(start_info.description, t.description);
   assert_true(t.start_time > 0);
   assert_true(t.start_time == TEST_START_TIME_MS);
 }
 
 void timer_stop() {
   // Given
-  StartInfo si = {"test_name", "test_client", "test_project",
-                  "this is a test description"};
   Timer t;
   reset(&t);
 
   expect_value(__wrap_time, __timer, &t.start_time);
   will_return(__wrap_time, TEST_START_TIME_MS);
-  (void)start(&t, &si);
+  (void)start(&t, &start_info);
 
   // When
   TimerResult tr;
@@ -82,10 +81,10 @@ void timer_stop() {
 
   // Then
   assert_int_equal(stopped, E_OK);
-  assert_string_equal(tr.name, si.name);
-  assert_string_equal(tr.client, si.client);
-  assert_string_equal(tr.project, si.project);
-  assert_string_equal(tr.description, si.description);
+  assert_string_equal(tr.name, start_info.name);
+  assert_string_equal(tr.client, start_info.client);
+  assert_string_equal(tr.project, start_info.project);
+  assert_string_equal(tr.description, start_info.description);
   assert_true(t.start_time == tr.start_time);
   assert_int_equal(tr.start_time, TEST_START_TIME_MS);
   assert_int_equal(tr.end_time, TEST_END_TIME_MS);
