@@ -2,8 +2,6 @@
 This is a version of TrackMe written in C. 
 
 # Dependencies
-    - libgit2
-    - mongoose
     - libmongoc
     - cmocka
 # Building
