@@ -9,4 +9,6 @@ typedef enum ErrorCode {
   E_START_TIME_IN_FUTURE, // 2
 } ErrorCode;
 
+void error(ErrorCode ec);
+
 #endif // !VALUE_OR_ERROR

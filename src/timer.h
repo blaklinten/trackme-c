@@ -19,7 +19,7 @@ typedef struct TimerResult {
   char *description;
   time_t start_time;
   time_t end_time;
-  time_t duration;
+  int duration;
 } TimerResult;
 
 typedef struct Timer {
@@ -31,8 +31,13 @@ typedef struct Timer {
 } Timer;
 
 void reset(Timer *);
-ErrorCode start(Timer *, StartInfo *);
-ErrorCode stop(Timer *, TimerResult *);
-ErrorCode get_duration(Timer *, time_t *);
+void start(Timer *, StartInfo const *);
+TimerResult *stop(Timer const *);
+char *get_name(Timer const *);
+char *get_client(Timer const *);
+char *get_project(Timer const *);
+char *get_description(Timer const *);
+int get_duration(Timer const *);
+time_t get_starttime(Timer const *);
 
 #endif // !TIMER_H

@@ -12,7 +12,7 @@ void reset(Timer *t) {
   t->start_time = -1;
 }
 
-ErrorCode start(Timer *t, StartInfo *si) {
+void start(Timer *t, StartInfo const *si) {
   assert(t != NULL);
   assert(si != NULL);
 
@@ -20,17 +20,16 @@ ErrorCode start(Timer *t, StartInfo *si) {
   t->client = si->client;
   t->project = si->project;
   t->description = si->description;
-  time(&t->start_time);
+  t->start_time = time(NULL);
 
   if (t->start_time <= 0) {
     reset(t);
-    return E_COULD_NOT_GET_SYSTEM_TIME;
+    error(E_COULD_NOT_GET_SYSTEM_TIME);
+    return;
   }
-
-  return E_OK;
 }
 
-ErrorCode stop(Timer *t, TimerResult *tr) {
+TimerResult *stop(Timer const *t) {
   assert(t != NULL);
 
   tr->name = t->name;
@@ -41,23 +40,26 @@ ErrorCode stop(Timer *t, TimerResult *tr) {
 
   time(&tr->end_time);
   if (tr->end_time <= 0) {
-    return E_COULD_NOT_GET_SYSTEM_TIME;
+    error(E_COULD_NOT_GET_SYSTEM_TIME);
+    return NULL;
   }
 
   tr->duration = tr->end_time - tr->start_time;
 
-  return E_OK;
+  return tr;
 }
 
-ErrorCode get_duration(Timer *t, time_t *duration) {
+int get_duration(Timer const *t) {
+
   time_t now = time(NULL);
   if (now <= 0) {
-    return E_COULD_NOT_GET_SYSTEM_TIME;
+    error(E_COULD_NOT_GET_SYSTEM_TIME);
+    return NULL;
   }
-  if (now - t->start_time < 0){
-    return E_START_TIME_IN_FUTURE;
+  if (now - t->start_time < 0) {
+    error(E_START_TIME_IN_FUTURE);
+    return NULL;
   }
 
-  *duration = now - t->start_time;
-  return E_OK;
+  return now - t->start_time;
 }
