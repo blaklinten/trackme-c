@@ -46,19 +46,18 @@ void timer_start() {
   // Given
   Timer t;
   reset(&t);
-
-  // When
-  expect_value(__wrap_time, __timer, &t.start_time);
+  expect_value(__wrap_time, __timer, NULL);
   will_return(__wrap_time, TEST_START_TIME_MS);
 
-  ErrorCode started = start(&t, &start_info);
+  // When
+  start(&t, &start_info);
 
   // Then
-  assert_int_equal(started, E_OK);
   assert_string_equal(start_info.name, t.name);
   assert_string_equal(start_info.client, t.client);
   assert_string_equal(start_info.project, t.project);
   assert_string_equal(start_info.description, t.description);
+
   assert_true(t.start_time > 0);
   assert_true(t.start_time == TEST_START_TIME_MS);
 }
@@ -68,19 +67,16 @@ void timer_stop() {
   Timer t;
   reset(&t);
 
-  expect_value(__wrap_time, __timer, &t.start_time);
+  expect_value(__wrap_time, __timer, NULL);
   will_return(__wrap_time, TEST_START_TIME_MS);
-  (void)start(&t, &start_info);
-
-  // When
-  TimerResult tr;
-  expect_value(__wrap_time, __timer, &tr.end_time);
+  start(&t, &start_info);
+  expect_value(__wrap_time, __timer, NULL);
   will_return(__wrap_time, TEST_END_TIME_MS); // diff = 38m 19s
 
-  ErrorCode stopped = stop(&t, &tr);
+  // When
+  TimerResult *tr = stop(&t);
 
   // Then
-  assert_int_equal(stopped, E_OK);
   assert_string_equal(tr.name, start_info.name);
   assert_string_equal(tr.client, start_info.client);
   assert_string_equal(tr.project, start_info.project);
@@ -96,20 +92,16 @@ void timer_get_duration() {
   // Given
   Timer t;
   reset(&t);
-
-  // When
-  expect_value(__wrap_time, __timer, &t.start_time);
+  expect_value(__wrap_time, __timer, NULL);
   will_return(__wrap_time, TEST_START_TIME_MS);
   expect_value(__wrap_time, __timer, NULL);
   will_return(__wrap_time, TEST_END_TIME_MS);
 
-  (void)start(&t, &start_info);
-
-  time_t duration;
-  ErrorCode err = get_duration(&t, &duration);
+  // When
+  start(&t, &start_info);
+  int duration = get_duration(&t);
 
   // Then
-  assert_int_equal(err, E_OK);
   assert_non_null(duration);
   assert_int_equal(duration, TEST_END_TIME_MS - TEST_START_TIME_MS);
 
