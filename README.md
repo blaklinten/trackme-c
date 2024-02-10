@@ -8,13 +8,13 @@ This is a version of TrackMe written in C.
     - cmocka
 # Building
 Build the project with CMake:
-    ```shell
-    cd $PROJECT_ROOT
-    mkdir build
-    cd build/
-    cmake ..
-    make
-    ```
+```
+cd $PROJECT_ROOT
+mkdir build
+cd build/
+cmake ..
+make
+```
 # Testing
 Tests are written with the `cmocka` testing library.
 Test the project by running the `test_main` after successful compilation.
