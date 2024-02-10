@@ -120,7 +120,54 @@ TimerResult *stop(Timer const *t) {
   return tr;
 }
 
+char *get_name(Timer const *t) {
+  assert(t != NULL);
+
+  if (!t->name) {
+    error(E_TIMER_NOT_STARTED);
+  }
+  char *name = "";
+  return name;
+}
+
+char *get_client(Timer const *t) {
+  assert(t != NULL);
+
+  if (!t->client) {
+    error(E_TIMER_NOT_STARTED);
+  }
+
+  char *client = "";
+
+  return client;
+}
+
+char *get_project(Timer const *t) {
+  assert(t != NULL);
+
+  if (!t->project) {
+    error(E_TIMER_NOT_STARTED);
+  }
+
+  char *project = "";
+
+  return project;
+}
+
+char *get_description(Timer const *t) {
+  assert(t != NULL);
+
+  if (!t->description) {
+    error(E_TIMER_NOT_STARTED);
+  }
+
+  char *description = "";
+
+  return description;
+}
+
 int get_duration(Timer const *t) {
+  assert(t != NULL);
 
   time_t now = time(NULL);
   if (now <= 0) {
