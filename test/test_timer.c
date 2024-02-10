@@ -11,8 +11,8 @@
 const time_t TEST_START_TIME_MS = 1690876956; // Tue  1 Aug 10:02:36 CEST 2023
 const time_t TEST_END_TIME_MS = 1690879255;   // Tue  1 Aug 10:40:55 CEST 2023
 
-  StartInfo start_info = {"test_name", "test_client", "test_project",
-                  "this is a test description"};
+StartInfo start_info = {"test_name", "test_client", "test_project",
+                        "this is a test description"};
 
 // Mock time(time_t * __timer)
 time_t __wrap_time(time_t *__timer) {
@@ -114,6 +114,6 @@ void timer_get_duration() {
 
   // Then
   assert_non_null(duration);
-  assert_int_equal(duration, TEST_END_TIME_MS - TEST_START_TIME_MS);
-
+  assert_int_equal(duration,
+                   TEST_END_TIME_MS - TEST_START_TIME_MS); // duration = 38m 19s
 }
