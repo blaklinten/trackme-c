@@ -53,6 +53,11 @@ void timer_start() {
   start(&t, &start_info);
 
   // Then
+  assert_ptr_not_equal(start_info.name, t.name);
+  assert_ptr_not_equal(start_info.client, t.client);
+  assert_ptr_not_equal(start_info.project, t.project);
+  assert_ptr_not_equal(start_info.description, t.description);
+
   assert_string_equal(start_info.name, t.name);
   assert_string_equal(start_info.client, t.client);
   assert_string_equal(start_info.project, t.project);
@@ -77,15 +82,21 @@ void timer_stop() {
   TimerResult *tr = stop(&t);
 
   // Then
-  assert_string_equal(tr.name, start_info.name);
-  assert_string_equal(tr.client, start_info.client);
-  assert_string_equal(tr.project, start_info.project);
-  assert_string_equal(tr.description, start_info.description);
-  assert_true(t.start_time == tr.start_time);
-  assert_int_equal(tr.start_time, TEST_START_TIME_MS);
-  assert_int_equal(tr.end_time, TEST_END_TIME_MS);
-  assert_non_null(tr.duration);
-  assert_int_equal(tr.duration, TEST_END_TIME_MS - TEST_START_TIME_MS);
+  assert_ptr_not_equal(start_info.name, tr->name);
+  assert_ptr_not_equal(start_info.client, tr->client);
+  assert_ptr_not_equal(start_info.project, tr->project);
+  assert_ptr_not_equal(start_info.description, tr->description);
+
+  assert_string_equal(start_info.name, tr->name);
+  assert_string_equal(start_info.client, tr->client);
+  assert_string_equal(start_info.project, tr->project);
+  assert_string_equal(start_info.description, tr->description);
+
+  assert_int_equal(tr->start_time, TEST_START_TIME_MS);
+  assert_int_equal(tr->end_time, TEST_END_TIME_MS);
+
+  assert_non_null(tr->duration);
+  assert_int_equal(tr->duration, TEST_END_TIME_MS - TEST_START_TIME_MS);
 }
 
 void timer_get_duration() {

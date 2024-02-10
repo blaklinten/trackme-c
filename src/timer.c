@@ -1,6 +1,7 @@
 #include "timer.h"
 #include "assert.h"
 #include <stdlib.h>
+#include <string.h>
 
 void reset(Timer *t) {
   assert(t != NULL);
@@ -16,14 +17,45 @@ void start(Timer *t, StartInfo const *si) {
   assert(t != NULL);
   assert(si != NULL);
 
-  t->name = si->name;
-  t->client = si->client;
-  t->project = si->project;
-  t->description = si->description;
+  char *name = malloc(strlen(si->name) + 1);
+  if (!name) {
+    error(E_COULD_NOT_ALLOCATE_ENOUGH_MEMORY);
+    return;
+  }
+  char *client = malloc(strlen(si->client) + 1);
+  if (!client) {
+    free(name);
+    error(E_COULD_NOT_ALLOCATE_ENOUGH_MEMORY);
+    return;
+  }
+  char *project = malloc(strlen(si->project) + 1);
+  if (!project) {
+    free(name);
+    free(client);
+    error(E_COULD_NOT_ALLOCATE_ENOUGH_MEMORY);
+    return;
+  }
+  char *description = malloc(strlen(si->description) + 1);
+  if (!description) {
+    free(name);
+    free(client);
+    free(project);
+    error(E_COULD_NOT_ALLOCATE_ENOUGH_MEMORY);
+    return;
+  }
+
+  t->name = strcpy(name, si->name);
+  t->client = strcpy(client, si->client);
+  t->project = strcpy(project, si->project);
+  t->description = strcpy(description, si->description);
   t->start_time = time(NULL);
 
   if (t->start_time <= 0) {
     reset(t);
+    free(name);
+    free(client);
+    free(project);
+    free(description);
     error(E_COULD_NOT_GET_SYSTEM_TIME);
     return;
   }
@@ -31,15 +63,54 @@ void start(Timer *t, StartInfo const *si) {
 
 TimerResult *stop(Timer const *t) {
   assert(t != NULL);
+  TimerResult *tr = malloc(sizeof(TimerResult));
+  if (!tr) {
+    error(E_COULD_NOT_GET_SYSTEM_TIME);
+    return NULL;
+  }
+  char *name = malloc(strlen(t->name) + 1);
+  if (!name) {
+    free(tr);
+    error(E_COULD_NOT_ALLOCATE_ENOUGH_MEMORY);
+    return NULL;
+  }
+  char *client = malloc(strlen(t->client) + 1);
+  if (!client) {
+    free(tr);
+    free(name);
+    error(E_COULD_NOT_ALLOCATE_ENOUGH_MEMORY);
+    return NULL;
+  }
+  char *project = malloc(strlen(t->project) + 1);
+  if (!project) {
+    free(tr);
+    free(name);
+    free(client);
+    error(E_COULD_NOT_ALLOCATE_ENOUGH_MEMORY);
+    return NULL;
+  }
+  char *description = malloc(strlen(t->description) + 1);
+  if (!description) {
+    free(tr);
+    free(name);
+    free(client);
+    free(project);
+    error(E_COULD_NOT_ALLOCATE_ENOUGH_MEMORY);
+    return NULL;
+  }
 
-  tr->name = t->name;
-  tr->client = t->client;
-  tr->project = t->project;
-  tr->description = t->description;
+  tr->name = strcpy(name, t->name);
+  tr->client = strcpy(client, t->client);
+  tr->project = strcpy(project, t->project);
+  tr->description = strcpy(description, t->description);
   tr->start_time = t->start_time;
-
-  time(&tr->end_time);
+  tr->end_time = time(NULL);
   if (tr->end_time <= 0) {
+    free(tr);
+    free(name);
+    free(client);
+    free(project);
+    free(description);
     error(E_COULD_NOT_GET_SYSTEM_TIME);
     return NULL;
   }
