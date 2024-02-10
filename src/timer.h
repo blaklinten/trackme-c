@@ -3,7 +3,6 @@
 
 #include "time.h"
 #include "trackMeError.h"
-#include <stdlib.h>
 
 typedef struct StartInfo {
   char *name;
