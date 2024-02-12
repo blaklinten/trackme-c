@@ -99,17 +99,77 @@ void timer_stop() {
   assert_int_equal(tr->duration, TEST_END_TIME_MS - TEST_START_TIME_MS);
 }
 
-void timer_get_duration() {
+void timer_get_name() {
   // Given
   Timer t;
   reset(&t);
   expect_value(__wrap_time, __timer, NULL);
   will_return(__wrap_time, TEST_START_TIME_MS);
+  start(&t, &start_info);
+
+  // When
+  char *name = get_name(&t);
+
+  // Then
+  assert_string_equal(start_info.name, name);
+}
+
+void timer_get_client() {
+  // Given
+  Timer t;
+  reset(&t);
+  expect_value(__wrap_time, __timer, NULL);
+  will_return(__wrap_time, TEST_START_TIME_MS);
+  start(&t, &start_info);
+
+  // When
+  char *client = get_client(&t);
+
+  // Then
+  assert_string_equal(start_info.client, client);
+}
+
+void timer_get_project() {
+  // Given
+  Timer t;
+  reset(&t);
+  expect_value(__wrap_time, __timer, NULL);
+  will_return(__wrap_time, TEST_START_TIME_MS);
+  start(&t, &start_info);
+
+  // When
+  char *project = get_project(&t);
+
+  // Then
+  assert_string_equal(start_info.project, project);
+}
+
+void timer_get_description() {
+  // Given
+  Timer t;
+  reset(&t);
+  expect_value(__wrap_time, __timer, NULL);
+  will_return(__wrap_time, TEST_START_TIME_MS);
+  start(&t, &start_info);
+
+  // When
+  char *description = get_description(&t);
+
+  // Then
+  assert_string_equal(start_info.description, description);
+}
+
+void timer_get_duration() {
+  // Given
+  Timer t;
+  reset(&t);
+  will_return(__wrap_time, TEST_START_TIME_MS);
+  expect_value(__wrap_time, __timer, NULL);
+  start(&t, &start_info);
   expect_value(__wrap_time, __timer, NULL);
   will_return(__wrap_time, TEST_END_TIME_MS);
 
   // When
-  start(&t, &start_info);
   int duration = get_duration(&t);
 
   // Then
