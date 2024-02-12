@@ -172,11 +172,11 @@ int get_duration(Timer const *t) {
   time_t now = time(NULL);
   if (now <= 0) {
     error(E_COULD_NOT_GET_SYSTEM_TIME);
-    return NULL;
+    return 0;
   }
   if (now - t->start_time < 0) {
     error(E_START_TIME_IN_FUTURE);
-    return NULL;
+    return 0;
   }
 
   return now - t->start_time;
