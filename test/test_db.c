@@ -1,4 +1,3 @@
-#include "db.h"
 #include <libmongoc-1.0/mongoc.h>
 #include <setjmp.h>
 #include <stdarg.h>

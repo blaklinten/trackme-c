@@ -24,7 +24,6 @@ find_package(mongoc-1.0 1.7 REQUIRED)
 
 target_link_libraries(main
   mongoose
-  git2
   mongo::mongoc_shared)
 
 target_link_libraries(test_main
