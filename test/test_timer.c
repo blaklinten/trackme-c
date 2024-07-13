@@ -43,13 +43,15 @@ void test_timer_start(void **state) {
 
   // Then
   assert_ptr_not_equal(s->default_test_info->name, t.name);
-  assert_ptr_not_equal(s->default_test_info->client, t.client);
-  assert_ptr_not_equal(s->default_test_info->project, t.project);
-  assert_ptr_not_equal(s->default_test_info->description, t.description);
-
   assert_string_equal(s->default_test_info->name, t.name);
+
+  assert_ptr_not_equal(s->default_test_info->client, t.client);
   assert_string_equal(s->default_test_info->client, t.client);
+
+  assert_ptr_not_equal(s->default_test_info->project, t.project);
   assert_string_equal(s->default_test_info->project, t.project);
+
+  assert_ptr_not_equal(s->default_test_info->description, t.description);
   assert_string_equal(s->default_test_info->description, t.description);
 
   assert_true(t.start_time > 0);
