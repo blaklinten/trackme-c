@@ -4,8 +4,14 @@ project(trackme)
 
 set(CMAKE_BUILD_TYPE Debug)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+set(TRACKME_LOG_LEVEL 2)
 
-set(SOURCES src/timer.c)
+set(SOURCES
+  src/main.c
+  src/timer.c
+  src/mongoose.c
+  src/log.c)
+
 set(TEST_SOURCES
   test/test_main.c
   test/test_timer.c
