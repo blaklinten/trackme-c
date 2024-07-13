@@ -90,6 +90,8 @@ void test_timer_stop(void **state) {
   assert_non_null(tr->duration);
   assert_int_equal(tr->duration, s->TEST_END_TIME_MS - s->TEST_START_TIME_MS);
 
+  free_timer_result(tr);
+  reset(&t);
 }
 
 void test_timer_get_name(void **state) {
@@ -106,6 +108,9 @@ void test_timer_get_name(void **state) {
 
   // Then
   assert_string_equal(s->default_test_info->name, name);
+
+  reset(&t);
+  free(name);
 }
 
 void test_timer_get_client(void **state) {
@@ -123,6 +128,8 @@ void test_timer_get_client(void **state) {
   // Then
   assert_string_equal(s->default_test_info->client, client);
 
+  reset(&t);
+  free(client);
 }
 
 void test_timer_get_project(void **state) {
@@ -139,6 +146,9 @@ void test_timer_get_project(void **state) {
 
   // Then
   assert_string_equal(s->default_test_info->project, project);
+
+  reset(&t);
+  free(project);
 }
 
 void test_timer_get_description(void **state) {
@@ -155,6 +165,9 @@ void test_timer_get_description(void **state) {
 
   // Then
   assert_string_equal(s->default_test_info->description, description);
+
+  reset(&t);
+  free(description);
 }
 
 void test_timer_get_duration(void **state) {
@@ -176,4 +189,6 @@ void test_timer_get_duration(void **state) {
   assert_int_equal(duration,
                    s->TEST_END_TIME_MS -
                        s->TEST_START_TIME_MS); // duration = 38m 19s
+
+  reset(&t);
 }
