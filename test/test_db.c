@@ -8,50 +8,30 @@
 #include <cmocka.h>
 
 void db_connect() {
-  const char *uri_string = "mongodb://blaklinten:test-psw@localhost:27017";
-  const char *TEST_DB_NAME = "trackme-test";
-  mongoc_uri_t *uri;
-  mongoc_client_t *client;
-  mongoc_database_t *database;
-  bson_t *command, reply;
+  bson_t *command_ptr = NULL, reply;
   bson_error_t error;
-  bool retval;
+  bool sucess = false;
 
   /*
-   * Required to initialize libmongoc's internals
+   * Do work. This example pings the database.
    */
-  mongoc_init();
+  command_ptr = BCON_NEW("ping", BCON_INT32(1));
 
-  /*
-   * Safely create a MongoDB URI object from the given string
-   */
-  uri = mongoc_uri_new_with_error(uri_string, &error);
-  if (!uri) {
-    fprintf(stderr,
-            "failed to parse URI: %s\n"
-            "error message:       %s\n",
-            uri_string, error.message);
+  sucess = mongoc_client_command_simple(db_client_ptr, "admin", command_ptr,
+                                        NULL, &reply, &error);
+
+  if (!sucess) {
+    fprintf(stderr, "Failed to ping db\n");
     fail();
   }
 
   /*
-   * Create a new client instance
+   * Release our handles and clean up libmongoc
    */
-  client = mongoc_client_new_from_uri(uri);
-  if (!client) {
-    fail();
-  }
+  bson_destroy(&reply);
+  bson_destroy(command_ptr);
+}
 
-  /*
-   * Register the application name so we can track it in the profile logs
-   * on the server. This can also be done from the URI (see other examples).
-   */
-  mongoc_client_set_appname(client, "trackme-test-app");
-
-  /*
-   * Get a handle on the database "db_name"
-   */
-  database = mongoc_client_get_database(client, TEST_DB_NAME);
 
   /*
    * Do work. This example pings the database.
