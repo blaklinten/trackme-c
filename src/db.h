@@ -11,5 +11,7 @@ extern mongoc_client_t *db_client_ptr;
 
 int init_db(const char *);
 int free_db(void);
+bool save(bson_t *);
+bson_t *get_by_id(int);
 
 #endif // !DB_H
