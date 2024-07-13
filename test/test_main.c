@@ -59,6 +59,7 @@ int main(void) {
       cmocka_unit_test(test_timer_get_project),
       cmocka_unit_test(test_timer_get_description),
       cmocka_unit_test(db_connect),
+      cmocka_unit_test(db_save),
   };
 
   return cmocka_run_group_tests(tests, group_setup, group_teardown);
