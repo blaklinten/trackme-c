@@ -2,15 +2,54 @@
 #include "assert.h"
 #include <stdlib.h>
 #include <string.h>
+#include "trackMeError.h"
 
-void reset(Timer *t) {
-  assert(t != NULL);
+void reset(Timer *t_ptr) {
+  assert(t_ptr != NULL);
 
-  t->name = NULL;
-  t->client = NULL;
-  t->project = NULL;
-  t->description = NULL;
-  t->start_time = -1;
+  if (t_ptr->name) {
+    free(t_ptr->name);
+    t_ptr->name = NULL;
+  }
+
+  if (t_ptr->client) {
+    free(t_ptr->client);
+    t_ptr->client = NULL;
+  }
+
+  if (t_ptr->project) {
+    free(t_ptr->project);
+    t_ptr->project = NULL;
+  }
+
+  if (t_ptr->description) {
+    free(t_ptr->description);
+    t_ptr->description = NULL;
+  }
+
+  t_ptr->start_time = -1;
+}
+
+void free_timer_result(TimerResult *tr_ptr) {
+  assert(tr_ptr != NULL);
+
+  if (tr_ptr->name) {
+    free(tr_ptr->name);
+  }
+
+  if (tr_ptr->client) {
+    free(tr_ptr->client);
+  }
+
+  if (tr_ptr->project) {
+    free(tr_ptr->project);
+  }
+
+  if (tr_ptr->description) {
+    free(tr_ptr->description);
+  }
+
+  free(tr_ptr);
 }
 
 void start(Timer *t, StartInfo const *si) {

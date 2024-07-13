@@ -2,7 +2,6 @@
 #define TIMER_H
 
 #include "time.h"
-#include "trackMeError.h"
 
 typedef struct StartInfo {
   char *name;
@@ -30,6 +29,7 @@ typedef struct Timer {
 } Timer;
 
 void reset(Timer *);
+void free_timer_result(TimerResult *);
 void start(Timer *, StartInfo const *);
 TimerResult *stop(Timer const *);
 char *get_name(Timer const *);
