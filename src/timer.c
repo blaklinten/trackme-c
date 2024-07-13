@@ -168,7 +168,7 @@ char *get_name(Timer const *t) {
   }
 
   char *name = malloc(strlen(t->name) + 1);
-  if (!name){
+  if (!name) {
     error(E_COULD_NOT_ALLOCATE_ENOUGH_MEMORY);
     return NULL;
   }
@@ -184,7 +184,7 @@ char *get_client(Timer const *t) {
   }
 
   char *client = malloc(strlen(t->client) + 1);
-  if (!client){
+  if (!client) {
     error(E_COULD_NOT_ALLOCATE_ENOUGH_MEMORY);
     return NULL;
   }
@@ -200,7 +200,7 @@ char *get_project(Timer const *t) {
   }
 
   char *project = malloc(strlen(t->project) + 1);
-  if (!project){
+  if (!project) {
     error(E_COULD_NOT_ALLOCATE_ENOUGH_MEMORY);
     return NULL;
   }
@@ -216,7 +216,7 @@ char *get_description(Timer const *t) {
   }
 
   char *description = malloc(strlen(t->description) + 1);
-  if (!description){
+  if (!description) {
     error(E_COULD_NOT_ALLOCATE_ENOUGH_MEMORY);
     return NULL;
   }
