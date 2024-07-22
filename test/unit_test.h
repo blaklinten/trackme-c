@@ -1,7 +1,6 @@
-#ifndef TEST_MAIN
-#define TEST_MAIN
+#ifndef UNIT_TEST
+#define UNIT_TEST
 
-#include <bson/bson.h>
 #include <setjmp.h>
 #include <stdarg.h>
 
@@ -15,9 +14,8 @@ typedef struct {
   time_t TEST_START_TIME_MS;
   time_t TEST_END_TIME_MS; //
   StartInfo *default_test_info;
-  char *KEY;
-  char *VALUE;
-  bson_t *test_document;
+  char *TEST_NAME_1;
+  char *TEST_NAME_2;
 } test_state_t;
 
-#endif // !TEST_MAIN
+#endif // !UNIT_TEST

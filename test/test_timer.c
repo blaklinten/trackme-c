@@ -1,4 +1,4 @@
-#include "test_main.h"
+#include "unit_test.h"
 
 #include "../src/timer.h"
 #include <stdlib.h>
