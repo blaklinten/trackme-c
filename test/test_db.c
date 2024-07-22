@@ -6,6 +6,188 @@
 #include <bson/bson.h>
 #include <cmocka.h>
 #include <mongoc/mongoc.h>
+#include <stdint.h>
+#include <string.h>
+#include <time.h>
+
+char **get_oids_as_strings(bson_t *e1, bson_t *e2) {
+  bson_iter_t e1_iter, e2_iter;
+  if (!bson_iter_init(&e1_iter, e1) || !bson_iter_init(&e2_iter, e2)) {
+    t_log(ERROR, __func__, "Could not init iterator");
+    fail();
+  }
+  if (!bson_iter_find(&e1_iter, DB_KEY_ID) ||
+      !bson_iter_find(&e2_iter, DB_KEY_ID)) {
+    t_log(ERROR, __func__, "No %s found in document", DB_KEY_ID);
+    fail();
+  }
+  const bson_oid_t *oid1 = bson_iter_oid(&e1_iter);
+  const bson_oid_t *oid2 = bson_iter_oid(&e2_iter);
+  char *oid_string1 = malloc(25 * sizeof(char));
+  char *oid_string2 = malloc(25 * sizeof(char));
+  bson_oid_to_string(oid1, oid_string1);
+  bson_oid_to_string(oid2, oid_string2);
+
+  char **ret = malloc(2 * sizeof(char *));
+  ret[0] = oid_string1;
+  ret[1] = oid_string2;
+  return ret;
+}
+char **get_names(bson_t *e1, bson_t *e2) {
+  bson_iter_t e1_iter, e2_iter;
+  if (!bson_iter_init(&e1_iter, e1) || !bson_iter_init(&e2_iter, e2)) {
+    t_log(ERROR, __func__, "Could not init iterator");
+    fail();
+  }
+  if (!bson_iter_find(&e1_iter, DB_KEY_NAME) ||
+      !bson_iter_find(&e2_iter, DB_KEY_NAME)) {
+    t_log(ERROR, __func__, "No %s found in document", DB_KEY_NAME);
+    fail();
+  }
+  const char *name1 = bson_iter_utf8(&e1_iter, NULL);
+  const char *name2 = bson_iter_utf8(&e2_iter, NULL);
+  char **ret = malloc(2 * sizeof(char *));
+  ret[0] = bson_strndup(name1, strlen(name1));
+  ret[1] = bson_strndup(name2, strlen(name2));
+  return ret;
+}
+char **get_clients(bson_t *e1, bson_t *e2) {
+  bson_iter_t e1_iter, e2_iter;
+  if (!bson_iter_init(&e1_iter, e1) || !bson_iter_init(&e2_iter, e2)) {
+    t_log(ERROR, __func__, "Could not init iterator");
+    fail();
+  }
+  if (!bson_iter_find(&e1_iter, DB_KEY_CLIENT) ||
+      !bson_iter_find(&e2_iter, DB_KEY_CLIENT)) {
+    t_log(ERROR, __func__, "No %s found in document", DB_KEY_CLIENT);
+    fail();
+  }
+  const char *client1 = bson_iter_utf8(&e1_iter, NULL);
+  const char *client2 = bson_iter_utf8(&e2_iter, NULL);
+  char **ret = malloc(2 * sizeof(char *));
+  ret[0] = bson_strndup(client1, strlen(client1));
+  ret[1] = bson_strndup(client2, strlen(client2));
+  return ret;
+}
+
+char **get_projects(bson_t *e1, bson_t *e2) {
+  bson_iter_t e1_iter, e2_iter;
+  if (!bson_iter_init(&e1_iter, e1) || !bson_iter_init(&e2_iter, e2)) {
+    t_log(ERROR, __func__, "Could not init iterator");
+    fail();
+  }
+  if (!bson_iter_find(&e1_iter, DB_KEY_PROJECT) ||
+      !bson_iter_find(&e2_iter, DB_KEY_PROJECT)) {
+    t_log(ERROR, __func__, "No %s found in document", DB_KEY_PROJECT);
+    fail();
+  }
+  const char *project1 = bson_iter_utf8(&e1_iter, NULL);
+  const char *project2 = bson_iter_utf8(&e2_iter, NULL);
+  char **ret = malloc(2 * sizeof(char *));
+  ret[0] = bson_strndup(project1, strlen(project1));
+  ret[1] = bson_strndup(project2, strlen(project2));
+  return ret;
+}
+
+time_t *get_durations(bson_t *e1, bson_t *e2) {
+  bson_iter_t e1_iter, e2_iter;
+  if (!bson_iter_init(&e1_iter, e1) || !bson_iter_init(&e2_iter, e2)) {
+    t_log(ERROR, __func__, "Could not init iterator");
+    fail();
+  }
+  if (!bson_iter_find(&e1_iter, DB_KEY_DURATION) ||
+      !bson_iter_find(&e2_iter, DB_KEY_DURATION)) {
+    t_log(ERROR, __func__, "No %s found in document", DB_KEY_DURATION);
+    fail();
+  }
+
+  time_t *ret = malloc(2 * sizeof(time_t *));
+  ret[0] = bson_iter_time_t(&e1_iter);
+  ret[1] = bson_iter_time_t(&e2_iter);
+  return ret;
+}
+
+time_t *get_start_times(bson_t *e1, bson_t *e2) {
+  bson_iter_t e1_iter, e2_iter;
+  if (!bson_iter_init(&e1_iter, e1) || !bson_iter_init(&e2_iter, e2)) {
+    t_log(ERROR, __func__, "Could not init iterator");
+    fail();
+  }
+  if (!bson_iter_find(&e1_iter, DB_KEY_START_TIME) ||
+      !bson_iter_find(&e2_iter, DB_KEY_START_TIME)) {
+    t_log(ERROR, __func__, "No %s found in document", DB_KEY_START_TIME);
+    fail();
+  }
+  time_t *ret = malloc(2 * sizeof(time_t *));
+  ret[0] = bson_iter_time_t(&e1_iter);
+  ret[1] = bson_iter_time_t(&e2_iter);
+  return ret;
+}
+
+time_t *get_end_times(bson_t *e1, bson_t *e2) {
+  bson_iter_t e1_iter, e2_iter;
+  if (!bson_iter_init(&e1_iter, e1) || !bson_iter_init(&e2_iter, e2)) {
+    t_log(ERROR, __func__, "Could not init iterator");
+    fail();
+  }
+  if (!bson_iter_find(&e1_iter, DB_KEY_END_TIME) ||
+      !bson_iter_find(&e2_iter, DB_KEY_END_TIME)) {
+    t_log(ERROR, __func__, "No %s found in document", DB_KEY_END_TIME);
+    fail();
+  }
+  time_t *ret = malloc(2 * sizeof(time_t *));
+  ret[0] = bson_iter_time_t(&e1_iter);
+  ret[1] = bson_iter_time_t(&e2_iter);
+  return ret;
+}
+
+bool compare_entries(bson_t *e1, bson_t *e2) {
+
+  // OID
+  char **oids = get_oids_as_strings(e1, e2);
+  assert_string_equal(oids[0], oids[1]);
+  free(oids[0]);
+  free(oids[1]);
+  free(oids);
+
+  // Name
+  char **names = get_names(e1, e2);
+  assert_string_equal(names[0], names[1]);
+  bson_free(names[0]);
+  bson_free(names[1]);
+  free(names);
+
+  // Client
+  char **clients = get_clients(e1, e2);
+  assert_string_equal(clients[0], clients[1]);
+  bson_free(clients[0]);
+  bson_free(clients[1]);
+  free(clients);
+
+  // Project
+  char **projects = get_projects(e1, e2);
+  assert_string_equal(projects[0], projects[1]);
+  bson_free(projects[0]);
+  bson_free(projects[1]);
+  free(projects);
+
+  // Duraion
+  time_t *durations = get_durations(e1, e2);
+  assert_false(difftime(durations[0], durations[1]));
+  free(durations);
+
+  // Start time
+  time_t *start_times = get_start_times(e1, e2);
+  assert_false(difftime(start_times[0], start_times[1]));
+  free(start_times);
+
+  // End time
+  time_t *end_times = get_end_times(e1, e2);
+  assert_false(difftime(end_times[0], end_times[1]));
+  free(end_times);
+
+  return true;
+}
 
 void test_db_connect() {
   // Given
