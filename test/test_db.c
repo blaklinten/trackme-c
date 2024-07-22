@@ -2,29 +2,21 @@
 #include "test_main.h"
 #include <bson/bson.h>
 
-void db_connect() {
-  bson_t *command_ptr = NULL, reply;
+void test_db_connect() {
+  bson_t *command = NULL, reply;
   bson_error_t error;
   bool sucess = false;
+  command = BCON_NEW("ping", BCON_INT32(1));
 
-  /*
-   * Do work. This example pings the database.
-   */
-  command_ptr = BCON_NEW("ping", BCON_INT32(1));
-
-  sucess = mongoc_client_command_simple(db_client_ptr, "admin", command_ptr,
-                                        NULL, &reply, &error);
-
+  sucess = mongoc_client_command_simple(db_client, "admin", command, NULL,
+                                        &reply, &error);
   if (!sucess) {
     fprintf(stderr, "Failed to ping db\n");
     fail();
   }
 
-  /*
-   * Release our handles and clean up libmongoc
-   */
   bson_destroy(&reply);
-  bson_destroy(command_ptr);
+  bson_destroy(command);
 }
 
 // Mock mongoc_collection_insert_one(mongoc_collection_t *collection, const
