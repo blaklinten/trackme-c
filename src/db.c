@@ -78,4 +78,22 @@ bool save(bson_t *timer_result) {
   return true;
 }
 
-bson_t *get_by_id(int id) { return NULL; }
+bson_t *get_by_id(bson_oid_t id) {
+  if (!entries) {
+    t_log(ERROR, __func__, "No collection");
+    return NULL;
+  }
+
+  bson_t *query = bson_new();
+  BSON_APPEND_OID(query, DB_KEY_ID, &id);
+  mongoc_cursor_t *cursor =
+      mongoc_collection_find_with_opts(entries, query, NULL, NULL);
+  bson_destroy(query);
+
+  const bson_t *doc;
+  mongoc_cursor_next(cursor, &doc);
+  bson_t *result = bson_copy(doc);
+  mongoc_cursor_destroy(cursor);
+
+  return result;
+}
