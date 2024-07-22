@@ -3,14 +3,14 @@
 
 #include "time.h"
 
-typedef struct StartInfo {
+typedef struct {
   char *name;
   char *client;
   char *project;
   char *description;
 } StartInfo;
 
-typedef struct TimerResult {
+typedef struct {
   char *name;
   char *client;
   char *project;
@@ -20,7 +20,7 @@ typedef struct TimerResult {
   int duration;
 } TimerResult;
 
-typedef struct Timer {
+typedef struct {
   char *name;
   char *client;
   char *project;

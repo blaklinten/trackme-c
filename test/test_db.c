@@ -1,20 +1,29 @@
+#include "test_db.h"
 #include "../src/db.h"
-#include "test_main.h"
+#include "../src/log.h"
+#include "../src/track_me.h"
+#include "integration_test.h"
 #include <bson/bson.h>
+#include <cmocka.h>
+#include <mongoc/mongoc.h>
 
 void test_db_connect() {
+  // Given
   bson_t *command = NULL, reply;
   bson_error_t error;
   bool sucess = false;
   command = BCON_NEW("ping", BCON_INT32(1));
 
+  // When
   sucess = mongoc_client_command_simple(db_client, "admin", command, NULL,
                                         &reply, &error);
+  // Then
   if (!sucess) {
-    fprintf(stderr, "Failed to ping db\n");
+    t_log(ERROR, __func__, "Failed to ping db");
     fail();
   }
 
+  // Finally
   bson_destroy(&reply);
   bson_destroy(command);
 }

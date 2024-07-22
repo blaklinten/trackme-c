@@ -1,8 +1,8 @@
 #include "timer.h"
 #include "assert.h"
+#include "trackMeError.h"
 #include <stdlib.h>
 #include <string.h>
-#include "trackMeError.h"
 
 void reset(Timer *t) {
   assert(t != NULL);
