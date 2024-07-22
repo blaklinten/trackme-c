@@ -5,6 +5,7 @@
 
 #define TRACKME_ENTRIES_COLLECTION "entries"
 #define TRACKME_DB "trackme_db"
+#define DB_KEY_ID "_id"
 
 extern mongoc_collection_t *entries;
 extern mongoc_client_t *db_client;
@@ -12,6 +13,6 @@ extern mongoc_client_t *db_client;
 int init_db(const char *);
 int free_db(void);
 bool save(bson_t *);
-bson_t *get_by_id(int);
+bson_t *get_by_id(bson_oid_t);
 
 #endif // !DB_H

@@ -28,29 +28,116 @@ void test_db_connect() {
   bson_destroy(command);
 }
 
-// Mock mongoc_collection_insert_one(mongoc_collection_t *collection, const
-// bson_t *document, const bson_t *opts, bson_t *reply, bson_error_t *error)
-bool __wrap_mongoc_collection_insert_one(mongoc_collection_t *collection_ptr,
-                                         const bson_t *document_ptr,
-                                         const bson_t *opts_ptr,
-                                         bson_t *reply_ptr,
-                                         bson_error_t *error_ptr) {
-  check_expected_ptr(collection_ptr);
-  function_called();
-  return mock();
-}
-
-void db_save(void **state) {
+void test_db_save(void **state) {
   // Given
-  bson_t *test_document_ptr = ((test_state_t *)*state)->test_document;
-  expect_value(__wrap_mongoc_collection_insert_one, collection_ptr,
-               entries_ptr);
-  will_return(__wrap_mongoc_collection_insert_one, true);
-  expect_function_call(__wrap_mongoc_collection_insert_one);
+  test_state_t *s = ((test_state_t *)*state);
 
   // When
-  bool sucess = save(test_document_ptr);
+  bool sucess = save(s->test_document);
+  bson_t *entry = get_by_id(s->test_id);
 
   // Then
+  bson_iter_t result_iter;
+  if (!bson_iter_init(&result_iter, entry)) {
+    t_log(ERROR, __func__, "Could not init iterator");
+    fail();
+  }
+
+  if (bson_iter_type(&result_iter) == BSON_TYPE_EOD) {
+    t_log(ERROR, __func__, "Empty document :(");
+    fail();
+  }
+
+  const char *name;
+  if (bson_iter_find(&result_iter, DB_KEY_NAME)) {
+    name = bson_iter_utf8(&result_iter, NULL);
+  } else {
+    t_log(ERROR, __func__, "No %s found in document", DB_KEY_NAME);
+    fail();
+  }
+
+  if (!bson_iter_init(&result_iter, entry)) {
+    t_log(ERROR, __func__, "Could not init iterator");
+    fail();
+  }
+  const bson_oid_t *oid = NULL;
+  if (bson_iter_find(&result_iter, DB_KEY_ID)) {
+    oid = bson_iter_oid(&result_iter);
+    char oid_string[25];
+    bson_oid_to_string(oid, oid_string);
+  }
+  //
+  // Finally
   assert_true(sucess);
+  assert_true(bson_oid_equal(oid, &s->test_id));
+  assert_string_equal(name, s->TEST_NAME_1);
+
+  bson_destroy(entry);
+}
+
+void test_db_get_by(void **state) {}
+
+void test_db_insert_and_get(void **state) {
+  // Given
+  test_state_t *s = ((test_state_t *)*state);
+  bson_t *doc1 = bson_new();
+  BSON_APPEND_UTF8(doc1, DB_KEY_NAME, s->TEST_NAME_1);
+
+  bson_t *doc2 = bson_new();
+  BSON_APPEND_UTF8(doc2, DB_KEY_NAME, s->TEST_NAME_2);
+
+  if (!entries) {
+    t_log(ERROR, __func__, "No collection");
+    fail();
+  }
+
+  bson_t reply;
+  bson_error_t error;
+  // When
+  if (!mongoc_collection_insert_one(entries, doc1, NULL, &reply, &error)) {
+    char *bson_as_json = bson_as_canonical_extended_json(doc1, NULL);
+    t_log(ERROR, __func__,
+          "failed to insert document: %s\n"
+          "error code: [%d]\n"
+          "error message: [%s]\n"
+          "error reply: [%s]\n",
+          bson_as_json, error.code, error.message,
+          bson_as_canonical_extended_json(&reply, NULL));
+    bson_free(bson_as_json);
+    bson_destroy(&reply);
+    fail();
+  }
+  if (!mongoc_collection_insert_one(entries, doc2, NULL, &reply, &error)) {
+    char *bson_as_json = bson_as_canonical_extended_json(doc2, NULL);
+    t_log(ERROR, __func__,
+          "failed to insert document: %s\n"
+          "error code: [%d]\n"
+          "error message: [%s]\n"
+          "error reply: [%s]\n",
+          bson_as_json, error.code, error.message,
+          bson_as_canonical_extended_json(&reply, NULL));
+    bson_free(bson_as_json);
+    bson_destroy(&reply);
+    fail();
+  }
+  bson_destroy(doc1);
+  bson_destroy(doc2);
+
+  // Then
+  bson_t *query = bson_new();
+  BSON_APPEND_UTF8(query, DB_KEY_NAME, s->TEST_NAME_1);
+  char *str;
+  mongoc_cursor_t *cursor =
+      mongoc_collection_find_with_opts(entries, query, NULL, NULL);
+  const bson_t *result;
+  int result_count = 0;
+  while (mongoc_cursor_next(cursor, &result)) {
+    result_count++;
+    str = bson_as_canonical_extended_json(&*result, NULL);
+    t_log(INFO, __func__, "Entry no: %d\n%s\n", result_count, str);
+    bson_free(str);
+  }
+  // Finally
+  mongoc_cursor_destroy(cursor);
+  bson_destroy(query);
 }
