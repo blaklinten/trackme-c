@@ -21,6 +21,9 @@ void t_log(LOG_LEVEL level, const char *func, ...) {
   case ERROR:
     format = ANSI_COLOR_RED "[%s] Error: " ANSI_COLOR_RESET "%s\n";
     break;
+  case SUCCESS:
+    format = ANSI_COLOR_GREEN "[%s] Success: " ANSI_COLOR_RESET "%s\n";
+    break;
   }
 
   int length = strlen(format) + strlen(func) + strlen(info);
