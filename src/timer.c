@@ -4,52 +4,52 @@
 #include <string.h>
 #include "trackMeError.h"
 
-void reset(Timer *t_ptr) {
-  assert(t_ptr != NULL);
+void reset(Timer *t) {
+  assert(t != NULL);
 
-  if (t_ptr->name) {
-    free(t_ptr->name);
-    t_ptr->name = NULL;
+  if (t->name) {
+    free(t->name);
+    t->name = NULL;
   }
 
-  if (t_ptr->client) {
-    free(t_ptr->client);
-    t_ptr->client = NULL;
+  if (t->client) {
+    free(t->client);
+    t->client = NULL;
   }
 
-  if (t_ptr->project) {
-    free(t_ptr->project);
-    t_ptr->project = NULL;
+  if (t->project) {
+    free(t->project);
+    t->project = NULL;
   }
 
-  if (t_ptr->description) {
-    free(t_ptr->description);
-    t_ptr->description = NULL;
+  if (t->description) {
+    free(t->description);
+    t->description = NULL;
   }
 
-  t_ptr->start_time = -1;
+  t->start_time = -1;
 }
 
-void free_timer_result(TimerResult *tr_ptr) {
-  assert(tr_ptr != NULL);
+void free_timer_result(TimerResult *tr) {
+  assert(tr != NULL);
 
-  if (tr_ptr->name) {
-    free(tr_ptr->name);
+  if (tr->name) {
+    free(tr->name);
   }
 
-  if (tr_ptr->client) {
-    free(tr_ptr->client);
+  if (tr->client) {
+    free(tr->client);
   }
 
-  if (tr_ptr->project) {
-    free(tr_ptr->project);
+  if (tr->project) {
+    free(tr->project);
   }
 
-  if (tr_ptr->description) {
-    free(tr_ptr->description);
+  if (tr->description) {
+    free(tr->description);
   }
 
-  free(tr_ptr);
+  free(tr);
 }
 
 void start(Timer *t, StartInfo const *si) {

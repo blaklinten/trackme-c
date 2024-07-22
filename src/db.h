@@ -6,8 +6,8 @@
 #define TRACKME_ENTRIES_COLLECTION "entries"
 #define TRACKME_DB "trackme_db"
 
-extern mongoc_collection_t *entries_ptr;
-extern mongoc_client_t *db_client_ptr;
+extern mongoc_collection_t *entries;
+extern mongoc_client_t *db_client;
 
 int init_db(const char *);
 int free_db(void);
