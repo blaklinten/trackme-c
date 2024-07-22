@@ -1,6 +1,7 @@
 #include "test_main.h"
 
 #include "../src/timer.h"
+#include <stdlib.h>
 
 // Mock time(time_t * __timer)
 time_t __wrap_time(time_t *__timer) {
