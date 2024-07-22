@@ -6,15 +6,23 @@ set(CMAKE_BUILD_TYPE Debug)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(TRACKME_LOG_LEVEL 2)
 
-set(SOURCES
+set(MAIN_SOURCES
   src/timer.c
   src/mongoose.c
   src/db.c
   src/log.c)
 
-set(TEST_SOURCES
+set(UNIT_TEST_SOURCES
+  test/unit_test.c
   test/test_timer.c
-  test/test_db.c)
+  src/timer.c
+  src/mongoose.c
+  src/log.c)
+
+set(INTEGRATION_TEST_SOURCES
+  test/integration_test.c
+  test/test_db.c
+  ${MAIN_SOURCES})
 
 set(
   CMAKE_C_FLAGS
@@ -25,14 +33,16 @@ add_library(mongoose STATIC src/mongoose.c)
 
 add_executable(main
   src/main.c
-  ${SOURCES})
+  ${MAIN_SOURCES})
 set_property(TARGET main PROPERTY CXX_STANDARD 23)
 
-add_executable(test_main
-  test/test_main.c
-  ${TEST_SOURCES}
-  ${SOURCES})
-set_property(TARGET test_main PROPERTY CXX_STANDARD 23)
+add_executable(unit_test
+  ${UNIT_TEST_SOURCES})
+set_property(TARGET unit_test PROPERTY CXX_STANDARD 23)
+
+add_executable(integration_test
+  ${INTEGRATION_TEST_SOURCES})
+set_property(TARGET integration_test PROPERTY CXX_STANDARD 23)
 
 find_package(mongoc-1.0 1.27 REQUIRED)
 
@@ -40,10 +50,13 @@ target_link_libraries(main
   mongoose
   mongo::mongoc_shared)
 
-target_link_libraries(test_main
+target_link_libraries(unit_test
+  cmocka)
+
+target_link_libraries(integration_test
   mongo::mongoc_shared
   cmocka)
 
-target_link_options(test_main PRIVATE "LINKER:--wrap=time" "LINKER:--wrap=mongoc_collection_insert_one"
+target_link_options(unit_test PRIVATE "LINKER:--wrap=time"
   -fsanitize=undefined -fsanitize=address
   )
