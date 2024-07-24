@@ -1,7 +1,6 @@
 #include "test_db.h"
 #include "../src/db.h"
 #include "../src/log.h"
-#include "../src/track_me.h"
 #include "integration_test.h"
 #include <bson/bson.h>
 #include <cmocka.h>
@@ -215,18 +214,14 @@ void test_db_save(void **state) {
   test_state_t *s = ((test_state_t *)*state);
 
   // When
-  bool sucess = save(s->test_document);
-  bson_t *entry = get_by_id(s->test_id);
+  bool sucess = save(s->test_document_1);
+  bson_t_list *entry = get_by(DB_KEY_ID, &s->test_id_1);
 
   // Then
+  assert_null(entry->next);
   bson_iter_t result_iter;
-  if (!bson_iter_init(&result_iter, entry)) {
+  if (!bson_iter_init(&result_iter, entry->value)) {
     t_log(ERROR, __func__, "Could not init iterator");
-    fail();
-  }
-
-  if (bson_iter_type(&result_iter) == BSON_TYPE_EOD) {
-    t_log(ERROR, __func__, "Empty document :(");
     fail();
   }
 
@@ -238,7 +233,7 @@ void test_db_save(void **state) {
     fail();
   }
 
-  if (!bson_iter_init(&result_iter, entry)) {
+  if (!bson_iter_init(&result_iter, entry->value)) {
     t_log(ERROR, __func__, "Could not init iterator");
     fail();
   }
@@ -247,17 +242,18 @@ void test_db_save(void **state) {
     oid = bson_iter_oid(&result_iter);
     char oid_string[25];
     bson_oid_to_string(oid, oid_string);
+  } else {
+    t_log(ERROR, __func__, "No %s found in document", DB_KEY_ID);
+    fail();
   }
   //
   // Finally
   assert_true(sucess);
-  assert_true(bson_oid_equal(oid, &s->test_id));
+  assert_true(bson_oid_equal(oid, &s->test_id_1));
   assert_string_equal(name, s->TEST_NAME_1);
 
-  bson_destroy(entry);
+  free_list(entry);
 }
-
-void test_db_get_by(void **state) {}
 
 void test_db_insert_and_get(void **state) {
   // Given
@@ -322,4 +318,29 @@ void test_db_insert_and_get(void **state) {
   // Finally
   mongoc_cursor_destroy(cursor);
   bson_destroy(query);
+}
+
+void test_db_get_by(void **state) {
+  // Given
+  test_state_t *s = ((test_state_t *)*state);
+  mongoc_collection_drop(entries, NULL);
+
+  // When
+  bool sucess_1 = save(s->test_document_1);
+  bool sucess_2 = save(s->test_document_2);
+  bson_t_list *entries_by_name_1 = get_by(DB_KEY_NAME, s->TEST_NAME_1);
+  bson_t_list *entries_by_name_2 = get_by(DB_KEY_NAME, s->TEST_NAME_2);
+  bson_t_list *entries_by_duration = get_by(DB_KEY_DURATION, &s->TEST_DURATION_S);
+
+  // Then
+  assert_true(sucess_1);
+  assert_true(sucess_2);
+  compare_entries(s->test_document_1, entries_by_name_1->value);
+  compare_entries(s->test_document_2, entries_by_name_2->value);
+  compare_entries(s->test_document_1, entries_by_duration->value);
+  assert_int_equal(2, count_elements(entries_by_duration));
+  // Finally
+  free_list(entries_by_name_1);
+  free_list(entries_by_name_2);
+  free_list(entries_by_duration);
 }
