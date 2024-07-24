@@ -1,6 +1,5 @@
 #include "integration_test.h"
 #include "../src/db.h"
-#include "../src/track_me.h"
 #include "test_db.h"
 #include <bson/bson.h>
 #include <mongoc/mongoc.h>
@@ -21,15 +20,25 @@ static int group_setup(void **state) {
   s->TEST_END_TIME_S = 1721669586; //Mon 22 Jul 19:33:06 CEST 2024
   s->TEST_DURATION_S = 60*60 + 60*23 + 12; // 1h23min12s
 
-  s->test_document = bson_new();
-  bson_oid_init(&s->test_id, NULL);
-  BSON_APPEND_OID(s->test_document, DB_KEY_ID, &s->test_id);
-  BSON_APPEND_UTF8(s->test_document, DB_KEY_NAME, s->TEST_NAME_1);
-  BSON_APPEND_UTF8(s->test_document, DB_KEY_CLIENT, s->TEST_CLIENT);
-  BSON_APPEND_UTF8(s->test_document, DB_KEY_PROJECT, s->TEST_PROJECT);
-  BSON_APPEND_TIME_T(s->test_document, DB_KEY_START_TIME, s->TEST_START_TIME_S);
-  BSON_APPEND_TIME_T(s->test_document, DB_KEY_END_TIME, s->TEST_END_TIME_S);
-  BSON_APPEND_TIME_T(s->test_document, DB_KEY_DURATION, s->TEST_DURATION_S);
+  s->test_document_1 = bson_new();
+  bson_oid_init(&s->test_id_1, NULL);
+  BSON_APPEND_OID(s->test_document_1, DB_KEY_ID, &s->test_id_1);
+  BSON_APPEND_UTF8(s->test_document_1, DB_KEY_NAME, s->TEST_NAME_1);
+  BSON_APPEND_UTF8(s->test_document_1, DB_KEY_CLIENT, s->TEST_CLIENT);
+  BSON_APPEND_UTF8(s->test_document_1, DB_KEY_PROJECT, s->TEST_PROJECT);
+  BSON_APPEND_TIME_T(s->test_document_1, DB_KEY_START_TIME, s->TEST_START_TIME_S);
+  BSON_APPEND_TIME_T(s->test_document_1, DB_KEY_END_TIME, s->TEST_END_TIME_S);
+  BSON_APPEND_TIME_T(s->test_document_1, DB_KEY_DURATION, s->TEST_DURATION_S);
+
+  s->test_document_2 = bson_new();
+  bson_oid_init(&s->test_id_2, NULL);
+  BSON_APPEND_OID(s->test_document_2, DB_KEY_ID, &s->test_id_2);
+  BSON_APPEND_UTF8(s->test_document_2, DB_KEY_NAME, s->TEST_NAME_2);
+  BSON_APPEND_UTF8(s->test_document_2, DB_KEY_CLIENT, s->TEST_CLIENT);
+  BSON_APPEND_UTF8(s->test_document_2, DB_KEY_PROJECT, s->TEST_PROJECT);
+  BSON_APPEND_TIME_T(s->test_document_2, DB_KEY_START_TIME, s->TEST_START_TIME_S);
+  BSON_APPEND_TIME_T(s->test_document_2, DB_KEY_END_TIME, s->TEST_END_TIME_S);
+  BSON_APPEND_TIME_T(s->test_document_2, DB_KEY_DURATION, s->TEST_DURATION_S);
 
   *state = s;
 
@@ -40,8 +49,11 @@ static int group_teardown(void **state) {
   test_state_t *s = (test_state_t *)*state;
 
   if (s) {
-    if (s->test_document) {
-      bson_destroy(s->test_document);
+    if (s->test_document_1) {
+      bson_destroy(s->test_document_1);
+    }
+    if (s->test_document_2) {
+      bson_destroy(s->test_document_2);
     }
     free(s);
   }

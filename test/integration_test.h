@@ -10,8 +10,10 @@
 #include <cmocka.h>
 
 typedef struct {
-  bson_t *test_document;
-  bson_oid_t test_id;
+  bson_t *test_document_1;
+  bson_t *test_document_2;
+  bson_oid_t test_id_1;
+  bson_oid_t test_id_2;
   char *TEST_NAME_1;
   char *TEST_NAME_2;
   char *TEST_CLIENT;
