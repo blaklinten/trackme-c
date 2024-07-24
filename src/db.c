@@ -2,9 +2,70 @@
 #include "log.h"
 #include <bson/bson.h>
 #include <mongoc/mongoc.h>
+#include <string.h>
 
 mongoc_collection_t *entries = NULL;
 mongoc_client_t *db_client = NULL;
+
+bson_t_list *create_empty_list() {
+  bson_t_list *list = malloc(sizeof(bson_t_list));
+  list->value = NULL;
+  list->next = NULL;
+  list->previous = NULL;
+  return list;
+}
+
+bson_t_list *create_list_from(bson_t *first) {
+  bson_t_list *list = create_empty_list();
+  list->value = first;
+  list->previous = list;
+  return list;
+}
+
+bool append_to_list(bson_t_list *list, bson_t *element) {
+  if (!list->value) {
+    list->value = element;
+    list->previous = list;
+  } else {
+    bson_t_list *append = create_list_from(element);
+    list->previous->next = append;
+    append->previous = list->previous;
+    list->previous = append;
+  }
+  return list;
+}
+
+void free_list(bson_t_list *list) {
+  bson_t_list *current = list;
+  while (current->next) {
+    if (current->value) {
+      bson_destroy(current->value);
+    }
+    current = current->next;
+    free(current->previous);
+  }
+  bson_destroy(current->value);
+  free(current);
+}
+
+int count_elements(bson_t_list *list){
+  if (!list){
+    t_log(ERROR, __func__, "List to count is NULL, return -1");
+    return -1;
+  }
+  int count = 0;
+  if (!list->value){
+    return count;
+  } else {
+    count++;
+  }
+  bson_t_list *current = list->next;
+  while(current){
+    count++;
+    current = current->next;
+  }
+  return count;
+}
 
 int init_db(const char *uri) {
 
