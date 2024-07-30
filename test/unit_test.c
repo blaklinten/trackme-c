@@ -13,7 +13,6 @@ static int group_setup(void **state) {
   si->description = "this is a test description";
   s->default_test_info = si;
   s->TEST_NAME_1 = "Lucas";
-  s->TEST_NAME_2 = "Jonas";
 
   *state = s;
 
