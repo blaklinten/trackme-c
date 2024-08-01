@@ -328,19 +328,21 @@ void test_db_get_by(void **state) {
   // When
   bool sucess_1 = save(s->test_document_1);
   bool sucess_2 = save(s->test_document_2);
-  bson_t_list *entries_by_name_1 = get_by(DB_KEY_NAME, s->TEST_NAME_1);
-  bson_t_list *entries_by_name_2 = get_by(DB_KEY_NAME, s->TEST_NAME_2);
+  bson_t_list *entries_by_project = get_by(DB_KEY_PROJECT, s->TEST_PROJECT);
+  bson_t_list *entries_by_name = get_by(DB_KEY_NAME, s->TEST_NAME_2);
   bson_t_list *entries_by_duration = get_by(DB_KEY_DURATION, &s->TEST_DURATION_S);
 
   // Then
   assert_true(sucess_1);
   assert_true(sucess_2);
-  compare_entries(s->test_document_1, entries_by_name_1->value);
-  compare_entries(s->test_document_2, entries_by_name_2->value);
+  assert_non_null(entries_by_project->value);
+  assert_non_null(entries_by_name->value);
+  compare_entries(s->test_document_1, entries_by_project->value);
+  compare_entries(s->test_document_2, entries_by_name->value);
   compare_entries(s->test_document_1, entries_by_duration->value);
   assert_int_equal(2, count_elements(entries_by_duration));
   // Finally
-  free_list(entries_by_name_1);
-  free_list(entries_by_name_2);
+  free_list(entries_by_project);
+  free_list(entries_by_name);
   free_list(entries_by_duration);
 }
