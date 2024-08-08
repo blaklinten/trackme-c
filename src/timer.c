@@ -102,7 +102,7 @@ bool start(Timer *t, StartInfo *si) {
   return true;
 }
 
-TimerResult *stop(Timer const *t) {
+TimerResult *stop(Timer *t) {
   assert(t != NULL);
   if (t->start_time < 0) {
     t_log(INFO, __func__, "Timer not started so cannot stop!");
@@ -163,10 +163,12 @@ TimerResult *stop(Timer const *t) {
 
   tr->duration = tr->end_time - tr->start_time;
 
+  reset(t);
+
   return tr;
 }
 
-char *get_name(Timer const *t) {
+char *get_name(Timer *t) {
   assert(t != NULL);
 
   if (!t->name) {
@@ -198,7 +200,7 @@ char *get_client(Timer *t) {
   return strcpy(client, t->client);
 }
 
-char *get_project(Timer const *t) {
+char *get_project(Timer *t) {
   assert(t != NULL);
 
   if (!t->project) {
@@ -230,7 +232,7 @@ char *get_description(Timer *t) {
   return strcpy(description, t->description);
 }
 
-int get_duration(Timer const *t) {
+int get_duration(Timer *t) {
   assert(t != NULL);
 
   if (t->start_time < 0) {

@@ -31,13 +31,13 @@ typedef struct {
 
 void reset(Timer *);
 void free_timer_result(TimerResult *);
-TimerResult *stop(Timer const *);
-char *get_name(Timer const *);
-char *get_client(Timer const *);
-char *get_project(Timer const *);
-char *get_description(Timer const *);
-int get_duration(Timer const *);
-time_t get_starttime(Timer const *);
 bool start(Timer *, StartInfo *);
+TimerResult *stop(Timer *);
+char *get_name(Timer *);
+char *get_client(Timer *);
+char *get_project(Timer *);
+char *get_description(Timer *);
+int get_duration(Timer *);
+time_t get_starttime(Timer *);
 
 #endif // !TIMER_H
