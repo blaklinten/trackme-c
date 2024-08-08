@@ -1,6 +1,7 @@
 #include "timer.h"
 #include "assert.h"
-#include "trackMeError.h"
+#include "log.h"
+#include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -52,35 +53,35 @@ void free_timer_result(TimerResult *tr) {
   free(tr);
 }
 
-void start(Timer *t, StartInfo const *si) {
+bool start(Timer *t, StartInfo *si) {
   assert(t != NULL);
   assert(si != NULL);
 
   char *name = malloc(strlen(si->name) + 1);
   if (!name) {
-    error(E_COULD_NOT_ALLOCATE_ENOUGH_MEMORY);
-    return;
+    t_log(ERROR, __func__, "Malloc: could not allocate enough memory.");
+    return false;
   }
   char *client = malloc(strlen(si->client) + 1);
   if (!client) {
     free(name);
-    error(E_COULD_NOT_ALLOCATE_ENOUGH_MEMORY);
-    return;
+    t_log(ERROR, __func__, "Malloc: could not allocate enough memory.");
+    return false;
   }
   char *project = malloc(strlen(si->project) + 1);
   if (!project) {
     free(name);
     free(client);
-    error(E_COULD_NOT_ALLOCATE_ENOUGH_MEMORY);
-    return;
+    t_log(ERROR, __func__, "Malloc: could not allocate enough memory.");
+    return false;
   }
   char *description = malloc(strlen(si->description) + 1);
   if (!description) {
     free(name);
     free(client);
     free(project);
-    error(E_COULD_NOT_ALLOCATE_ENOUGH_MEMORY);
-    return;
+    t_log(ERROR, __func__, "Malloc: could not allocate enough memory.");
+    return false;
   }
 
   t->name = strcpy(name, si->name);
@@ -95,29 +96,35 @@ void start(Timer *t, StartInfo const *si) {
     free(client);
     free(project);
     free(description);
-    error(E_COULD_NOT_GET_SYSTEM_TIME);
-    return;
+    t_log(ERROR, __func__, "Could not get start time.");
+    return false;
   }
+  return true;
 }
 
 TimerResult *stop(Timer const *t) {
   assert(t != NULL);
+  if (t->start_time < 0) {
+    t_log(INFO, __func__, "Timer not started so cannot stop!");
+    return NULL;
+  }
+
   TimerResult *tr = malloc(sizeof(TimerResult));
   if (!tr) {
-    error(E_COULD_NOT_GET_SYSTEM_TIME);
+    t_log(ERROR, __func__, "Malloc: could not allocate enough memory.");
     return NULL;
   }
   char *name = malloc(strlen(t->name) + 1);
   if (!name) {
     free(tr);
-    error(E_COULD_NOT_ALLOCATE_ENOUGH_MEMORY);
+    t_log(ERROR, __func__, "Malloc: could not allocate enough memory.");
     return NULL;
   }
   char *client = malloc(strlen(t->client) + 1);
   if (!client) {
     free(tr);
     free(name);
-    error(E_COULD_NOT_ALLOCATE_ENOUGH_MEMORY);
+    t_log(ERROR, __func__, "Malloc: could not allocate enough memory.");
     return NULL;
   }
   char *project = malloc(strlen(t->project) + 1);
@@ -125,7 +132,7 @@ TimerResult *stop(Timer const *t) {
     free(tr);
     free(name);
     free(client);
-    error(E_COULD_NOT_ALLOCATE_ENOUGH_MEMORY);
+    t_log(ERROR, __func__, "Malloc: could not allocate enough memory.");
     return NULL;
   }
   char *description = malloc(strlen(t->description) + 1);
@@ -134,7 +141,7 @@ TimerResult *stop(Timer const *t) {
     free(name);
     free(client);
     free(project);
-    error(E_COULD_NOT_ALLOCATE_ENOUGH_MEMORY);
+    t_log(ERROR, __func__, "Malloc: could not allocate enough memory.");
     return NULL;
   }
 
@@ -150,7 +157,7 @@ TimerResult *stop(Timer const *t) {
     free(client);
     free(project);
     free(description);
-    error(E_COULD_NOT_GET_SYSTEM_TIME);
+    t_log(ERROR, __func__, "Could not get end time.");
     return NULL;
   }
 
@@ -163,29 +170,29 @@ char *get_name(Timer const *t) {
   assert(t != NULL);
 
   if (!t->name) {
-    error(E_TIMER_NOT_STARTED);
-    return NULL;
+    t_log(INFO, __func__, "Name not set, is timer started?");
+    return "";
   }
 
   char *name = malloc(strlen(t->name) + 1);
   if (!name) {
-    error(E_COULD_NOT_ALLOCATE_ENOUGH_MEMORY);
+    t_log(ERROR, __func__, "Malloc: could not allocate enough memory.");
     return NULL;
   }
   return strcpy(name, t->name);
 }
 
-char *get_client(Timer const *t) {
+char *get_client(Timer *t) {
   assert(t != NULL);
 
   if (!t->client) {
-    error(E_TIMER_NOT_STARTED);
-    return NULL;
+    t_log(INFO, __func__, "Client not set, is timer started?");
+    return "";
   }
 
   char *client = malloc(strlen(t->client) + 1);
   if (!client) {
-    error(E_COULD_NOT_ALLOCATE_ENOUGH_MEMORY);
+    t_log(ERROR, __func__, "Malloc: could not allocate enough memory.");
     return NULL;
   }
   return strcpy(client, t->client);
@@ -195,29 +202,29 @@ char *get_project(Timer const *t) {
   assert(t != NULL);
 
   if (!t->project) {
-    error(E_TIMER_NOT_STARTED);
-    return NULL;
+    t_log(INFO, __func__, "Project not set, is timer started?");
+    return "";
   }
 
   char *project = malloc(strlen(t->project) + 1);
   if (!project) {
-    error(E_COULD_NOT_ALLOCATE_ENOUGH_MEMORY);
+    t_log(ERROR, __func__, "Malloc: could not allocate enough memory.");
     return NULL;
   }
   return strcpy(project, t->project);
 }
 
-char *get_description(Timer const *t) {
+char *get_description(Timer *t) {
   assert(t != NULL);
 
   if (!t->description) {
-    error(E_TIMER_NOT_STARTED);
-    return NULL;
+    t_log(INFO, __func__, "Description not set, is timer started?");
+    return "";
   }
 
   char *description = malloc(strlen(t->description) + 1);
   if (!description) {
-    error(E_COULD_NOT_ALLOCATE_ENOUGH_MEMORY);
+    t_log(ERROR, __func__, "Malloc: could not allocate enough memory.");
     return NULL;
   }
   return strcpy(description, t->description);
@@ -226,14 +233,21 @@ char *get_description(Timer const *t) {
 int get_duration(Timer const *t) {
   assert(t != NULL);
 
-  time_t now = time(NULL);
-  if (now <= 0) {
-    error(E_COULD_NOT_GET_SYSTEM_TIME);
+  if (t->start_time < 0) {
+    t_log(INFO, __func__, "No start time, is timer started?");
     return 0;
   }
+
+  time_t now = time(NULL);
+  if (now <= 0) {
+    t_log(ERROR, __func__, "Malloc: could not allocate enough memory.");
+    return -1;
+  }
   if (now - t->start_time < 0) {
-    error(E_START_TIME_IN_FUTURE);
-    return 0;
+    t_log(
+        ERROR, __func__,
+        "Start time is in the future, negative duration would not make sense!");
+    return -1;
   }
 
   return now - t->start_time;

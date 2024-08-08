@@ -2,6 +2,7 @@
 #define TIMER_H
 
 #include "time.h"
+#include <stdbool.h>
 
 typedef struct {
   char *name;
@@ -30,7 +31,6 @@ typedef struct {
 
 void reset(Timer *);
 void free_timer_result(TimerResult *);
-void start(Timer *, StartInfo const *);
 TimerResult *stop(Timer const *);
 char *get_name(Timer const *);
 char *get_client(Timer const *);
@@ -38,5 +38,6 @@ char *get_project(Timer const *);
 char *get_description(Timer const *);
 int get_duration(Timer const *);
 time_t get_starttime(Timer const *);
+bool start(Timer *, StartInfo *);
 
 #endif // !TIMER_H
