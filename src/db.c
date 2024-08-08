@@ -71,13 +71,13 @@ int count_elements(bson_t_list *list) {
     return 0;
   }
   int count = 0;
-  if (!list->value){
+  if (!list->value) {
     return count;
   } else {
     count++;
   }
   bson_t_list *current = list->next;
-  while(current){
+  while (current) {
     count++;
     current = current->next;
   }
