@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="en" class="no-js">
+
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="canonical" href="https://html5-templates.com/" />
+  <title>TrackMe Timer - now written in C!</title>
+  <meta name="description" content="The famous trackMe Bash script now in a more mature C version application.">
+  <link rel="stylesheet" href="style.css">
+  <script src="script.js"></script>
+</head>
+
+<body>
+  <header>
+    <div id="logo"><img src="logo.svg"></>TrackMe</div>
+    <nav>
+      <ul>
+        <li><a href="/">Home</a>
+      </ul>
+    </nav>
+  </header>
+
+  <section>
+    <strong>This is where you start a timer</strong>
+  </section>
+
+  <section id="pageContent">
+    <main role="main">
+      <article>
+        <form action="/api/start_timer" method="post">
+          <table>
+            <tbody>
+              <tr>
+                <td> <label for="client">Client:</label> </td>
+                <td> <input type="text" id="client" name="client"> </td>
+              </tr>
+              <tr>
+                <td><label for="project">Project:</label></td>
+                <td><input type="text" id="project" name="project"><br><br></td>
+              </tr>
+              <tr>
+                <td></td>
+              </tr>
+              <tr>
+                <td colspan="2"><input type="submit" value="Submit"></td>
+              </tr>
+            </tbody>
+          </table>
+
+
+
+        </form>
+      </article>
+    </main>
+    <aside>
+      <form action="./start_timer.html">
+        <button type="submit"> Start Timer </button>
+      </form>
+      <form action="./stop_timer.html">
+        <button type="submit"> Stop Timer </button>
+      </form>
+      <form action="./switch_entry.html">
+        <button type="submit"> Switch entry </button>
+      </form>
+    </aside>
+  </section>
+
+  <footer>
+    <p>HTML template from <a href="https://html5-templates.com/" target="_blank" rel="nofollow">HTML5 Templates</a></p>
+    <address>
+      Contact: <a href="mailto:admin@blaklinten.xyz">Mail me</a>
+    </address>
+  </footer>
+</body>
+
+</html>

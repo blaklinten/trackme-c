@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="en" class="no-js">
+
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="canonical" href="https://html5-templates.com/" />
+  <title>TrackMe Timer - now written in C!</title>
+  <meta name="description" content="The famous trackMe Bash script now in a more mature C version application.">
+  <link rel="stylesheet" href="style.css">
+  <script src="script.js"></script>
+</head>
+
+<body>
+  <header>
+    <div id="logo"><img src="logo.svg"></>TrackMe</div>
+    <nav>
+      <ul>
+        <li><a href="/">Home</a>
+      </ul>
+    </nav>
+  </header>
+
+  <section>
+    <strong>This is a first templated version of TrackMe web application.</strong>
+  </section>
+
+  <section id="pageContent">
+    <main role="main">
+      <article>
+        <h2>Timer stopped!</h2>
+        <TMPL_IF name = "duration">
+          <table>
+            <tbody>
+              <tr>
+                <td> <label>Client: <TMPL_VAR name = "client"></label> </td>
+              </tr>
+              <tr>
+                <td><label>Project: <TMPL_VAR name = "project"></label></td>
+              </tr>
+              <tr>
+                <td><label>Description: <TMPL_VAR name = "description"></label></td>
+              </tr>
+              <tr>
+                <td><label>Start time: <TMPL_VAR name = "start_time"></label></td>
+              </tr>
+              <tr>
+                <td><label>End time: <TMPL_VAR name = "end_time"></label></td>
+              </tr>
+              <tr>
+                <td><label>Duration: <TMPL_VAR name = "duration"></label></td>
+              </tr>
+            </tbody>
+          </table>
+        <TMPL_ELSE>
+        <p>No running timer at the moment. Start one?</p>
+        </TMPL_IF>
+      </article>
+    </main>
+    <aside>
+      <form action="./start_timer.html">
+        <button type="submit"> Start Timer </button>
+      </form>
+      <form action="./stop_timer.html">
+        <button type="submit"> Stop Timer </button>
+      </form>
+      <form action="./switch_entry.html">
+        <button type="submit"> Switch entry </button>
+      </form>
+    </aside>
+  </section>
+
+  <footer>
+    <p>HTML template from <a href="https://html5-templates.com/" target="_blank" rel="nofollow">HTML5 Templates</a></p>
+    <address>
+      Contact: <a href="mailto:admin@blaklinten.xyz">Mail me</a>
+    </address>
+  </footer>
+</body>
+</html>

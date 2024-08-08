@@ -7,6 +7,9 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(TRACKME_LOG_LEVEL 2)
 
 set(MAIN_SOURCES
+  src/track_me.c
+  src/web.c
+  src/ctemplate.c
   src/timer.c
   src/mongoose.c
   src/db.c
@@ -30,6 +33,7 @@ set(
 )
 
 add_library(mongoose STATIC src/mongoose.c)
+add_library(ctemplate STATIC src/ctemplate.c)
 
 add_executable(main
   src/main.c
@@ -48,6 +52,7 @@ find_package(mongoc-1.0 1.27 REQUIRED)
 
 target_link_libraries(main
   mongoose
+  ctemplate
   mongo::mongoc_shared)
 
 target_link_libraries(unit_test
