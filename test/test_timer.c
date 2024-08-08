@@ -188,7 +188,7 @@ void test_timer_get_duration(void **state) {
   int duration = get_duration(&t);
 
   // Then
-  assert_non_null(duration);
+  assert_int_not_equal(0, duration);
   assert_int_equal(duration,
                    s->TEST_END_TIME_MS -
                        s->TEST_START_TIME_MS); // duration = 38m 19s
