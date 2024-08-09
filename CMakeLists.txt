@@ -7,11 +7,13 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(TRACKME_LOG_LEVEL 2)
 
 set(MAIN_SOURCES
+  lib/mongoose.c
+  lib/ctemplate.c
   src/track_me.c
   src/web.c
   src/timer.c
   src/db.c
-  src/log.c)
+  src/util/log.c)
 
 set(UNIT_TEST_SOURCES
   test/unit_test.c
@@ -19,21 +21,18 @@ set(UNIT_TEST_SOURCES
   test/test_db.c
   src/db.c
   src/timer.c
-  src/log.c)
+  src/util/log.c)
 
 set(INTEGRATION_TEST_SOURCES
   test/integration_test.c
   test/test_db.c
   src/db.c
-  src/log)
+  src/util/log)
 
 set(
   CMAKE_C_FLAGS
   "${CMAKE_C_FLAGS} -Werror -Wall -Wextra -Wno-unused-parameter -fsanitize=undefined -fsanitize=address"
 )
-
-add_library(mongoose STATIC src/mongoose.c)
-add_library(ctemplate STATIC src/ctemplate.c)
 
 add_executable(main
   src/main.c
@@ -51,8 +50,6 @@ set_property(TARGET integration_test PROPERTY CXX_STANDARD 23)
 find_package(mongoc-1.0 1.27 REQUIRED)
 
 target_link_libraries(main
-  mongoose
-  ctemplate
   mongo::mongoc_shared)
 
 target_link_libraries(unit_test

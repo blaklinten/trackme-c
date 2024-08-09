@@ -1,6 +1,6 @@
 #include "web.h"
-#include "ctemplate.h"
-#include "log.h"
+#include "util/log.h"
+#include "../lib/ctemplate.h"
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>

@@ -1,6 +1,6 @@
 #include "timer.h"
 #include "assert.h"
-#include "log.h"
+#include "util/log.h"
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
