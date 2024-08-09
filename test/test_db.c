@@ -1,14 +1,8 @@
 #include "test_db.h"
 #include "../src/db.h"
-#include "../src/util/log.h"
 #include "../src/util/bson_list.h"
+#include "../src/util/log.h"
 #include "integration_test.h"
-#include <bson/bson.h>
-#include <cmocka.h>
-#include <mongoc/mongoc.h>
-#include <stdint.h>
-#include <string.h>
-#include <time.h>
 
 char **get_oids_as_strings(bson_t *e1, bson_t *e2) {
   bson_iter_t e1_iter, e2_iter;
@@ -331,7 +325,8 @@ void test_db_get_by(void **state) {
   bool sucess_2 = save(s->test_document_2);
   bson_t_list *entries_by_project = get_by(DB_KEY_PROJECT, s->TEST_PROJECT);
   bson_t_list *entries_by_name = get_by(DB_KEY_NAME, s->TEST_NAME_2);
-  bson_t_list *entries_by_duration = get_by(DB_KEY_DURATION, &s->TEST_DURATION_S);
+  bson_t_list *entries_by_duration =
+      get_by(DB_KEY_DURATION, &s->TEST_DURATION_S);
 
   // Then
   assert_true(sucess_1);
@@ -347,7 +342,3 @@ void test_db_get_by(void **state) {
   free_list(entries_by_name);
   free_list(entries_by_duration);
 }
-
-void test_db_create_list(void **state){};
-void test_db_free_list(void **state){};
-void test_db_count_list_element(void **state){};

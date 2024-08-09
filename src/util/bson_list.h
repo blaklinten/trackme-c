@@ -10,7 +10,6 @@ typedef struct bson_t_list {
   struct bson_t_list *previous;
 } bson_t_list;
 
-bson_t_list *get_by(char *, void *);
 void free_list(bson_t_list *);
 int count_elements(bson_t_list *);
 bson_t_list *create_empty_list();

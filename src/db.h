@@ -2,6 +2,7 @@
 #define DB_H
 
 #include <mongoc/mongoc.h>
+#include "util/bson_list.h"
 
 #define TRACKME_ENTRIES_COLLECTION "entries"
 #define TRACKME_DB "trackme_db"
@@ -21,5 +22,6 @@ extern mongoc_client_t *db_client;
 int init_db(const char *);
 int free_db(void);
 bool save(bson_t *);
+bson_t_list *get_by(char *, void *);
 
 #endif // !DB_H

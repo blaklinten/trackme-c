@@ -19,7 +19,7 @@ set(MAIN_SOURCES
 set(UNIT_TEST_SOURCES
   test/unit_test.c
   test/test_timer.c
-  test/test_db.c
+  test/test_list.c
   src/db.c
   src/timer.c
   src/util/bson_list.c
