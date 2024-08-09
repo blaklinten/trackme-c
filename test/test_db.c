@@ -346,3 +346,7 @@ void test_db_get_by(void **state) {
   free_list(entries_by_name);
   free_list(entries_by_duration);
 }
+
+void test_db_create_list(void **state){};
+void test_db_free_list(void **state){};
+void test_db_count_list_element(void **state){};

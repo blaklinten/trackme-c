@@ -9,23 +9,23 @@ set(TRACKME_LOG_LEVEL 2)
 set(MAIN_SOURCES
   src/track_me.c
   src/web.c
-  src/ctemplate.c
   src/timer.c
-  src/mongoose.c
   src/db.c
   src/log.c)
 
 set(UNIT_TEST_SOURCES
   test/unit_test.c
   test/test_timer.c
+  test/test_db.c
+  src/db.c
   src/timer.c
-  src/mongoose.c
   src/log.c)
 
 set(INTEGRATION_TEST_SOURCES
   test/integration_test.c
   test/test_db.c
-  ${MAIN_SOURCES})
+  src/db.c
+  src/log)
 
 set(
   CMAKE_C_FLAGS
@@ -56,6 +56,7 @@ target_link_libraries(main
   mongo::mongoc_shared)
 
 target_link_libraries(unit_test
+  mongo::mongoc_shared
   cmocka)
 
 target_link_libraries(integration_test

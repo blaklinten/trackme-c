@@ -1,5 +1,6 @@
 #include "unit_test.h"
 #include "test_timer.h"
+#include "test_db.h"
 #include <stdlib.h>
 
 static int group_setup(void **state) {
@@ -43,6 +44,9 @@ int main(void) {
       cmocka_unit_test(test_timer_get_client),
       cmocka_unit_test(test_timer_get_project),
       cmocka_unit_test(test_timer_get_description),
+      cmocka_unit_test(test_db_create_list),
+      cmocka_unit_test(test_db_count_list_element),
+      cmocka_unit_test(test_db_free_list),
   };
 
   return cmocka_run_group_tests(unit_test, group_setup, group_teardown);
