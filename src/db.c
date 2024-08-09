@@ -1,5 +1,6 @@
 #include "db.h"
 #include "assert.h"
+#include "util/bson_list.h"
 #include "util/log.h"
 #include <bson/bson.h>
 #include <mongoc/mongoc.h>
@@ -7,82 +8,6 @@
 
 mongoc_collection_t *entries = NULL;
 mongoc_client_t *db_client = NULL;
-
-bson_t_list *_create_empty_list() {
-  bson_t_list *list = malloc(sizeof(bson_t_list));
-  if (!list) {
-    t_log(ERROR, __func__, "Malloc: could not allocate enough memory.");
-    return NULL;
-  }
-  list->value = NULL;
-  list->next = NULL;
-  list->previous = NULL;
-  return list;
-}
-
-bson_t_list *_create_list_from(bson_t *first) {
-  bson_t_list *list = _create_empty_list();
-  if (!list) {
-    t_log(ERROR, __func__, "Malloc: could not allocate enough memory.");
-    return NULL;
-  }
-  list->value = first;
-  list->previous = list;
-  return list;
-}
-
-bool _append_to_list(bson_t_list *list, bson_t *element) {
-  assert(list);
-  assert(element);
-
-  if (!list->value) {
-    list->value = element;
-    list->previous = list;
-  } else {
-    bson_t_list *append = _create_list_from(element);
-    list->previous->next = append;
-    append->previous = list->previous;
-    list->previous = append;
-  }
-  return list;
-}
-
-void free_list(bson_t_list *list) {
-  if (!list) {
-    t_log(INFO, __func__, "List is empty, will do nothing.");
-    return;
-  }
-
-  bson_t_list *current = list;
-  while (current->next) {
-    if (current->value) {
-      bson_destroy(current->value);
-    }
-    current = current->next;
-    free(current->previous);
-  }
-  bson_destroy(current->value);
-  free(current);
-}
-
-int count_elements(bson_t_list *list) {
-  if (!list) {
-    t_log(ERROR, __func__, "List is NULL, we have no elements here");
-    return 0;
-  }
-  int count = 0;
-  if (!list->value) {
-    return count;
-  } else {
-    count++;
-  }
-  bson_t_list *current = list->next;
-  while (current) {
-    count++;
-    current = current->next;
-  }
-  return count;
-}
 
 int init_db(const char *uri) {
   if (!uri) {
@@ -183,14 +108,14 @@ bson_t_list *_get_by_char(char *key, char *value) {
   bson_destroy(query);
 
   const bson_t *doc;
-  bson_t_list *result = _create_empty_list();
-  if (!result){
+  bson_t_list *result = create_empty_list();
+  if (!result) {
     t_log(ERROR, __func__, "Could not create empty list");
     return NULL;
   }
   while (mongoc_cursor_next(cursor, &doc)) {
     bson_t *current = bson_copy(doc);
-    _append_to_list(result, current);
+    append_to_list(result, current);
   }
   mongoc_cursor_destroy(cursor);
   return result;
@@ -204,14 +129,14 @@ bson_t_list *_get_by_time(char *key, time_t *value) {
   bson_destroy(query);
 
   const bson_t *doc;
-  bson_t_list *result = _create_empty_list();
-  if (!result){
+  bson_t_list *result = create_empty_list();
+  if (!result) {
     t_log(ERROR, __func__, "Could not create empty list");
     return NULL;
   }
   while (mongoc_cursor_next(cursor, &doc)) {
     bson_t *current = bson_copy(doc);
-    _append_to_list(result, current);
+    append_to_list(result, current);
   }
   mongoc_cursor_destroy(cursor);
   return result;
@@ -228,7 +153,7 @@ bson_t_list *get_by(char *key, void *value) {
 
   if (!strcmp(key, DB_KEY_ID)) {
     bson_oid_t *id = (bson_oid_t *)value;
-    return _create_list_from(_get_by_id(*id));
+    return create_list_from(_get_by_id(*id));
   }
 
   if (!strcmp(key, DB_KEY_NAME) || !strcmp(key, DB_KEY_CLIENT) ||

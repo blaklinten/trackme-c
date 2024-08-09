@@ -13,6 +13,7 @@ set(MAIN_SOURCES
   src/web.c
   src/timer.c
   src/db.c
+  src/util/bson_list.c
   src/util/log.c)
 
 set(UNIT_TEST_SOURCES
@@ -21,12 +22,14 @@ set(UNIT_TEST_SOURCES
   test/test_db.c
   src/db.c
   src/timer.c
+  src/util/bson_list.c
   src/util/log.c)
 
 set(INTEGRATION_TEST_SOURCES
   test/integration_test.c
   test/test_db.c
   src/db.c
+  src/util/bson_list.c
   src/util/log)
 
 set(
