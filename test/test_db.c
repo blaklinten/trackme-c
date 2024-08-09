@@ -1,6 +1,7 @@
 #include "test_db.h"
 #include "../src/db.h"
 #include "../src/util/log.h"
+#include "../src/util/bson_list.h"
 #include "integration_test.h"
 #include <bson/bson.h>
 #include <cmocka.h>
