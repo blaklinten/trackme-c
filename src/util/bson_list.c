@@ -15,19 +15,26 @@ bson_t_list *create_empty_list() {
 }
 
 bson_t_list *create_list_from(bson_t *first) {
+  if (!first){
+    t_log(ERROR, __func__, "First element was NULL.");
+    return NULL;
+  }
   bson_t_list *list = create_empty_list();
   if (!list) {
     t_log(ERROR, __func__, "Malloc: could not allocate enough memory.");
     return NULL;
   }
+
   list->value = first;
   list->previous = list;
   return list;
 }
 
 bool append_to_list(bson_t_list *list, bson_t *element) {
-  assert(list);
-  assert(element);
+  if (!list || !element){
+    t_log(ERROR, __func__, "List or element was NULL.");
+    return false;
+  }
 
   if (!list->value) {
     list->value = element;
@@ -38,7 +45,7 @@ bool append_to_list(bson_t_list *list, bson_t *element) {
     append->previous = list->previous;
     list->previous = append;
   }
-  return list;
+  return true;
 }
 
 void free_list(bson_t_list *list) {
@@ -51,11 +58,15 @@ void free_list(bson_t_list *list) {
   while (current->next) {
     if (current->value) {
       bson_destroy(current->value);
+      current->value = NULL;
     }
     current = current->next;
     free(current->previous);
+    current->previous = NULL;
   }
   bson_destroy(current->value);
+  current->value = NULL;
+
   free(current);
 }
 

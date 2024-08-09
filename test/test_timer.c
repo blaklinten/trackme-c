@@ -37,7 +37,7 @@ void test_timer_start(void **state) {
   Timer t;
   reset(&t);
   expect_value(__wrap_time, __timer, NULL);
-  will_return(__wrap_time, s->TEST_START_TIME_MS);
+  will_return(__wrap_time, s->TEST_START_TIME_S);
 
   // When
   start(&t, s->default_test_info);
@@ -56,7 +56,7 @@ void test_timer_start(void **state) {
   assert_string_equal(s->default_test_info->description, t.description);
 
   assert_true(t.start_time > 0);
-  assert_true(t.start_time == s->TEST_START_TIME_MS);
+  assert_true(t.start_time == s->TEST_START_TIME_S);
 
   reset(&t);
 }
@@ -68,10 +68,10 @@ void test_timer_stop(void **state) {
   reset(&t);
 
   expect_value(__wrap_time, __timer, NULL);
-  will_return(__wrap_time, s->TEST_START_TIME_MS);
+  will_return(__wrap_time, s->TEST_START_TIME_S);
   start(&t, s->default_test_info);
   expect_value(__wrap_time, __timer, NULL);
-  will_return(__wrap_time, s->TEST_END_TIME_MS); // diff = 38m 19s
+  will_return(__wrap_time, s->TEST_END_TIME_S); // diff = 38m 19s
 
   // When
   TimerResult *tr = stop(&t);
@@ -87,11 +87,11 @@ void test_timer_stop(void **state) {
   assert_string_equal(s->default_test_info->project, tr->project);
   assert_string_equal(s->default_test_info->description, tr->description);
 
-  assert_int_equal(tr->start_time, s->TEST_START_TIME_MS);
-  assert_int_equal(tr->end_time, s->TEST_END_TIME_MS);
+  assert_int_equal(tr->start_time, s->TEST_START_TIME_S);
+  assert_int_equal(tr->end_time, s->TEST_END_TIME_S);
 
   assert_non_null(tr->duration);
-  assert_int_equal(tr->duration, s->TEST_END_TIME_MS - s->TEST_START_TIME_MS);
+  assert_int_equal(tr->duration, s->TEST_END_TIME_S - s->TEST_START_TIME_S);
 
   free_timer_result(tr);
   reset(&t);
@@ -103,7 +103,7 @@ void test_timer_get_name(void **state) {
   Timer t;
   reset(&t);
   expect_value(__wrap_time, __timer, NULL);
-  will_return(__wrap_time, s->TEST_START_TIME_MS);
+  will_return(__wrap_time, s->TEST_START_TIME_S);
   start(&t, s->default_test_info);
 
   // When
@@ -122,7 +122,7 @@ void test_timer_get_client(void **state) {
   Timer t;
   reset(&t);
   expect_value(__wrap_time, __timer, NULL);
-  will_return(__wrap_time, s->TEST_START_TIME_MS);
+  will_return(__wrap_time, s->TEST_START_TIME_S);
   start(&t, s->default_test_info);
 
   // When
@@ -141,7 +141,7 @@ void test_timer_get_project(void **state) {
   Timer t;
   reset(&t);
   expect_value(__wrap_time, __timer, NULL);
-  will_return(__wrap_time, s->TEST_START_TIME_MS);
+  will_return(__wrap_time, s->TEST_START_TIME_S);
   start(&t, s->default_test_info);
 
   // When
@@ -160,7 +160,7 @@ void test_timer_get_description(void **state) {
   Timer t;
   reset(&t);
   expect_value(__wrap_time, __timer, NULL);
-  will_return(__wrap_time, s->TEST_START_TIME_MS);
+  will_return(__wrap_time, s->TEST_START_TIME_S);
   start(&t, s->default_test_info);
 
   // When
@@ -178,11 +178,11 @@ void test_timer_get_duration(void **state) {
   test_state_t *s = (test_state_t *)*state;
   Timer t;
   reset(&t);
-  will_return(__wrap_time, s->TEST_START_TIME_MS);
+  will_return(__wrap_time, s->TEST_START_TIME_S);
   expect_value(__wrap_time, __timer, NULL);
   start(&t, s->default_test_info);
   expect_value(__wrap_time, __timer, NULL);
-  will_return(__wrap_time, s->TEST_END_TIME_MS);
+  will_return(__wrap_time, s->TEST_END_TIME_S);
 
   // When
   int duration = get_duration(&t);
@@ -190,8 +190,8 @@ void test_timer_get_duration(void **state) {
   // Then
   assert_int_not_equal(0, duration);
   assert_int_equal(duration,
-                   s->TEST_END_TIME_MS -
-                       s->TEST_START_TIME_MS); // duration = 38m 19s
+                   s->TEST_END_TIME_S -
+                       s->TEST_START_TIME_S); // duration = 38m 19s
 
   reset(&t);
 }
