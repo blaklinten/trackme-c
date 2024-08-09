@@ -1,6 +1,6 @@
 #include "db.h"
 #include "assert.h"
-#include "log.h"
+#include "util/log.h"
 #include <bson/bson.h>
 #include <mongoc/mongoc.h>
 #include <string.h>

@@ -1,6 +1,6 @@
 #include "track_me.h"
 #include "assert.h"
-#include "log.h"
+#include "util/log.h"
 #include "timer.h"
 #include <stdio.h>
 #include <time.h>

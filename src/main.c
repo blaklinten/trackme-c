@@ -3,8 +3,8 @@
 #include <unistd.h>
 
 #include "db.h"
-#include "log.h"
-#include "mongoose.h"
+#include "util/log.h"
+#include "../lib/mongoose.h"
 #include "timer.h"
 #include "track_me.h"
 #include "web.h"
