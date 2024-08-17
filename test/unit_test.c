@@ -68,6 +68,22 @@ static int group_teardown(void **state) {
   return 0;
 }
 
+static int restore_test_document(void **state) {
+  test_state_t *s = (test_state_t *)*state;
+
+  s->test_document_1 = bson_new();
+  BSON_APPEND_OID(s->test_document_1, DB_KEY_ID, &s->test_id_1);
+  BSON_APPEND_UTF8(s->test_document_1, DB_KEY_NAME, s->TEST_NAME_1);
+  BSON_APPEND_UTF8(s->test_document_1, DB_KEY_CLIENT, s->TEST_CLIENT);
+  BSON_APPEND_UTF8(s->test_document_1, DB_KEY_PROJECT, s->TEST_PROJECT);
+  BSON_APPEND_TIME_T(s->test_document_1, DB_KEY_START_TIME,
+                     s->TEST_START_TIME_S);
+  BSON_APPEND_TIME_T(s->test_document_1, DB_KEY_END_TIME, s->TEST_END_TIME_S);
+  BSON_APPEND_TIME_T(s->test_document_1, DB_KEY_DURATION, s->TEST_DURATION_S);
+
+  return 0;
+}
+
 int main(void) {
 
   const struct CMUnitTest unit_test[] = {
@@ -79,8 +95,10 @@ int main(void) {
       cmocka_unit_test(test_timer_get_client),
       cmocka_unit_test(test_timer_get_project),
       cmocka_unit_test(test_timer_get_description),
-      cmocka_unit_test(test_list_create),
-      cmocka_unit_test(test_list_add_element),
+      cmocka_unit_test_setup_teardown(test_list_create, NULL,
+                                      restore_test_document),
+      cmocka_unit_test_setup_teardown(test_list_add_element, NULL,
+                                      restore_test_document),
       cmocka_unit_test(test_list_count_element),
   };
 
