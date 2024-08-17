@@ -6,8 +6,8 @@
 
 static int group_setup(void **state) {
   test_state_t *s = malloc(sizeof(test_state_t));
-  s->TEST_START_TIME_S = 1690876956; // Tue  1 Aug 10:02:36 CEST 2023
-  s->TEST_END_TIME_S = 1690879255;   // Tue  1 Aug 10:40:55 CEST 2023
+  // s->TEST_START_TIME_S = 1690876956; // Tue  1 Aug 10:02:36 CEST 2023
+  // s->TEST_END_TIME_S = 1690879255;   // Tue  1 Aug 10:40:55 CEST 2023
   StartInfo *si = malloc(sizeof(StartInfo));
   si->name = "test_name";
   si->client = "test_client";

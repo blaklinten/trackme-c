@@ -5,7 +5,16 @@
 #include <stdio.h>
 #include <time.h>
 
-char *duration_int_to_string(int i) {
+bson_t *from_timer_result(TimerResult *t) {
+  (void)t;
+  return bson_new();
+}
+TimerResult *from_bson(bson_t *b) {
+  (void)b;
+  return malloc(sizeof(TimerResult));
+}
+
+char *_duration_int_to_string(int i) {
   assert(i);
 
   int hours = i / 3600;
@@ -36,9 +45,10 @@ char *get_current_duration_str(Timer *t) {
 
   int duration = get_duration(t);
   if (!duration) {
-    return "00:00:00";
+    char *no_duration = malloc(sizeof("00:00:00"));
+    return no_duration;
   }
-  return duration_int_to_string(duration);
+  return _duration_int_to_string(duration);
 }
 
 char *get_start_time_str(TimerResult *tr) {
@@ -74,5 +84,5 @@ char *get_final_duration_str(TimerResult *tr) {
   assert(tr);
 
   int duration = tr->duration;
-  return duration_int_to_string(duration);
+  return _duration_int_to_string(duration);
 }
