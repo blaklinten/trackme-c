@@ -53,6 +53,28 @@ void free_timer_result(TimerResult *tr) {
   free(tr);
 }
 
+void free_start_info(StartInfo *si) {
+  assert(si != NULL);
+
+  if (si->name) {
+    free(si->name);
+  }
+
+  if (si->client) {
+    free(si->client);
+  }
+
+  if (si->project) {
+    free(si->project);
+  }
+
+  if (si->description) {
+    free(si->description);
+  }
+
+  free(si);
+}
+
 bool start(Timer *t, StartInfo *si) {
   assert(t != NULL);
   assert(si != NULL);
