@@ -1,8 +1,12 @@
 #include "unit_test.h"
 #include "../src/db.h"
-#include "test_timer.h"
+#include "../src/track_me.h"
 #include "test_list.h"
+#include "test_timer.h"
+#include "test_trackme.h"
+#include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 static int group_setup(void **state) {
   test_state_t *s = malloc(sizeof(test_state_t));
@@ -44,6 +48,14 @@ static int group_setup(void **state) {
   BSON_APPEND_TIME_T(s->test_document_2, DB_KEY_END_TIME, s->TEST_END_TIME_S);
   BSON_APPEND_TIME_T(s->test_document_2, DB_KEY_DURATION, s->TEST_DURATION_S);
 
+  char *buf = malloc(5 * REQUEST_FIELD_MAX_SIZE);
+  snprintf(buf, 5 * REQUEST_FIELD_MAX_SIZE,
+           "client=%s&project=%s&name=%s&description=%s",
+           s->default_test_info->client, s->default_test_info->project,
+           s->default_test_info->name, s->default_test_info->description);
+  struct mg_str *body = malloc(sizeof(struct mg_str));
+  *body = mg_str(buf);
+  s->TEST_HTTP_REQUEST_BODY = body;
   *state = s;
 
   return 0;
@@ -53,6 +65,10 @@ static int group_teardown(void **state) {
   test_state_t *s = (test_state_t *)*state;
 
   if (s) {
+    if (s->TEST_HTTP_REQUEST_BODY) {
+      free(s->TEST_HTTP_REQUEST_BODY->buf);
+      free(s->TEST_HTTP_REQUEST_BODY);
+    }
     if (s->default_test_info) {
       free(s->default_test_info);
     }
@@ -100,6 +116,11 @@ int main(void) {
       cmocka_unit_test_setup_teardown(test_list_add_element, NULL,
                                       restore_test_document),
       cmocka_unit_test(test_list_count_element),
+      cmocka_unit_test(test_get_current_duration_str),
+      cmocka_unit_test(test_get_final_duration_str),
+      cmocka_unit_test(test_get_start_time_str),
+      cmocka_unit_test(test_get_stop_time_str),
+      cmocka_unit_test(test_from_request_body),
   };
 
   return cmocka_run_group_tests(unit_test, group_setup, group_teardown);

@@ -17,10 +17,13 @@ set(MAIN_SOURCES
   src/util/log.c)
 
 set(UNIT_TEST_SOURCES
+  lib/mongoose.c
   test/unit_test.c
   test/test_timer.c
   test/test_list.c
+  test/test_trackme.c
   src/db.c
+  src/track_me.c
   src/timer.c
   src/util/bson_list.c
   src/util/log.c)

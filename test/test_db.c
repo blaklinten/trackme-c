@@ -27,7 +27,7 @@ char **get_oids_as_strings(bson_t *e1, bson_t *e2) {
   ret[1] = oid_string2;
   return ret;
 }
-char **get_names(bson_t *e1, bson_t *e2) {
+char **get_bson_names(bson_t *e1, bson_t *e2) {
   bson_iter_t e1_iter, e2_iter;
   if (!bson_iter_init(&e1_iter, e1) || !bson_iter_init(&e2_iter, e2)) {
     t_log(ERROR, __func__, "Could not init iterator");
@@ -45,7 +45,7 @@ char **get_names(bson_t *e1, bson_t *e2) {
   ret[1] = bson_strndup(name2, strlen(name2));
   return ret;
 }
-char **get_clients(bson_t *e1, bson_t *e2) {
+char **get_bson_clients(bson_t *e1, bson_t *e2) {
   bson_iter_t e1_iter, e2_iter;
   if (!bson_iter_init(&e1_iter, e1) || !bson_iter_init(&e2_iter, e2)) {
     t_log(ERROR, __func__, "Could not init iterator");
@@ -64,7 +64,7 @@ char **get_clients(bson_t *e1, bson_t *e2) {
   return ret;
 }
 
-char **get_projects(bson_t *e1, bson_t *e2) {
+char **get_bson_projects(bson_t *e1, bson_t *e2) {
   bson_iter_t e1_iter, e2_iter;
   if (!bson_iter_init(&e1_iter, e1) || !bson_iter_init(&e2_iter, e2)) {
     t_log(ERROR, __func__, "Could not init iterator");
@@ -83,7 +83,7 @@ char **get_projects(bson_t *e1, bson_t *e2) {
   return ret;
 }
 
-time_t *get_durations(bson_t *e1, bson_t *e2) {
+time_t *get_bson_durations(bson_t *e1, bson_t *e2) {
   bson_iter_t e1_iter, e2_iter;
   if (!bson_iter_init(&e1_iter, e1) || !bson_iter_init(&e2_iter, e2)) {
     t_log(ERROR, __func__, "Could not init iterator");
@@ -101,7 +101,7 @@ time_t *get_durations(bson_t *e1, bson_t *e2) {
   return ret;
 }
 
-time_t *get_start_times(bson_t *e1, bson_t *e2) {
+time_t *get_bson_start_times(bson_t *e1, bson_t *e2) {
   bson_iter_t e1_iter, e2_iter;
   if (!bson_iter_init(&e1_iter, e1) || !bson_iter_init(&e2_iter, e2)) {
     t_log(ERROR, __func__, "Could not init iterator");
@@ -118,7 +118,7 @@ time_t *get_start_times(bson_t *e1, bson_t *e2) {
   return ret;
 }
 
-time_t *get_end_times(bson_t *e1, bson_t *e2) {
+time_t *get_bson_end_times(bson_t *e1, bson_t *e2) {
   bson_iter_t e1_iter, e2_iter;
   if (!bson_iter_init(&e1_iter, e1) || !bson_iter_init(&e2_iter, e2)) {
     t_log(ERROR, __func__, "Could not init iterator");
@@ -145,38 +145,38 @@ bool compare_entries(bson_t *e1, bson_t *e2) {
   free(oids);
 
   // Name
-  char **names = get_names(e1, e2);
+  char **names = get_bson_names(e1, e2);
   assert_string_equal(names[0], names[1]);
   bson_free(names[0]);
   bson_free(names[1]);
   free(names);
 
   // Client
-  char **clients = get_clients(e1, e2);
+  char **clients = get_bson_clients(e1, e2);
   assert_string_equal(clients[0], clients[1]);
   bson_free(clients[0]);
   bson_free(clients[1]);
   free(clients);
 
   // Project
-  char **projects = get_projects(e1, e2);
+  char **projects = get_bson_projects(e1, e2);
   assert_string_equal(projects[0], projects[1]);
   bson_free(projects[0]);
   bson_free(projects[1]);
   free(projects);
 
   // Duraion
-  time_t *durations = get_durations(e1, e2);
+  time_t *durations = get_bson_durations(e1, e2);
   assert_false(difftime(durations[0], durations[1]));
   free(durations);
 
   // Start time
-  time_t *start_times = get_start_times(e1, e2);
+  time_t *start_times = get_bson_start_times(e1, e2);
   assert_false(difftime(start_times[0], start_times[1]));
   free(start_times);
 
   // End time
-  time_t *end_times = get_end_times(e1, e2);
+  time_t *end_times = get_bson_end_times(e1, e2);
   assert_false(difftime(end_times[0], end_times[1]));
   free(end_times);
 

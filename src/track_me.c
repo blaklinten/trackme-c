@@ -1,8 +1,11 @@
 #include "track_me.h"
+#include "../lib/mongoose.h"
 #include "assert.h"
-#include "util/log.h"
 #include "timer.h"
+#include "util/log.h"
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 #include <time.h>
 
 bson_t *from_timer_result(TimerResult *t) {
@@ -86,3 +89,85 @@ char *get_final_duration_str(TimerResult *tr) {
   int duration = tr->duration;
   return _duration_int_to_string(duration);
 }
+
+StartInfo *from_request_body(struct mg_str *request_body) {
+  // init StartInfo struct
+  StartInfo *si = malloc(sizeof(StartInfo));
+  if (!si) {
+    goto log_error;
+  }
+
+  char *name = malloc(REQUEST_FIELD_MAX_SIZE * sizeof(char));
+  if (!name) {
+    free(si);
+    goto log_error;
+  }
+  char *client = malloc(REQUEST_FIELD_MAX_SIZE * sizeof(char));
+  if (!client) {
+    free(si);
+    free(name);
+    goto log_error;
+  }
+  char *project = malloc(REQUEST_FIELD_MAX_SIZE * sizeof(char));
+  if (!project) {
+    free(si);
+    free(name);
+    free(client);
+    goto log_error;
+  }
+  char *description = malloc(10 * REQUEST_FIELD_MAX_SIZE * sizeof(char));
+  if (!description) {
+    free(si);
+    free(name);
+    free(client);
+    free(project);
+    goto log_error;
+  }
+  si->name = name;
+  si->client = client;
+  si->project = project;
+  si->description = description;
+
+  // Fill StartInfo struct
+
+  char *var_key_name = "name";
+  if (mg_http_get_var(request_body, var_key_name, name,
+                      REQUEST_FIELD_MAX_SIZE) < 1) {
+    t_log(ERROR, __func__,
+          "Variable [name] could not be extracted from body. Not set or too "
+          "long?");
+    snprintf(name, 8, "not set");
+  }
+
+  char *var_key_client = "client";
+  if (mg_http_get_var(request_body, var_key_client, client,
+                      REQUEST_FIELD_MAX_SIZE) < 1) {
+    t_log(ERROR, __func__,
+          "Variable [client] could not be extracted from body. Not set or too "
+          "long?");
+    snprintf(client, 8, "not set");
+  }
+
+  char *var_key_project = "project";
+  if (mg_http_get_var(request_body, var_key_project, project,
+                      REQUEST_FIELD_MAX_SIZE) < 1) {
+    t_log(ERROR, __func__,
+          "Variable [project] could not be extracted from body. Not set or too "
+          "long?");
+    snprintf(project, 8, "not set");
+  }
+
+  char *var_key_description = "description";
+  if (mg_http_get_var(request_body, var_key_description, description,
+                      REQUEST_FIELD_MAX_SIZE) < 1) {
+    t_log(ERROR, __func__,
+          "Variable [description] could not be extracted from body. Not set or "
+          "too long?");
+    snprintf(description, 8, "not set");
+  }
+
+  return si;
+log_error:
+  t_log(ERROR, __func__, "Malloc: could not allocate enough memory.");
+  return NULL;
+};

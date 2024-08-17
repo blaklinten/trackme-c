@@ -31,6 +31,7 @@ typedef struct {
 
 void reset(Timer *);
 void free_timer_result(TimerResult *);
+void free_start_info(StartInfo *);
 bool start(Timer *, StartInfo *);
 TimerResult *stop(Timer *);
 char *get_name(Timer *);
