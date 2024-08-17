@@ -4,7 +4,7 @@
 
 void test_list_create(void **state){
   // Given
-  test_state_t *s = ((test_state_t *)*state);
+  test_state_t *s = (test_state_t *)*state;
   bson_t *td1 = s->test_document_1;
 
   // When
@@ -31,7 +31,7 @@ void test_list_create(void **state){
 
 void test_list_add_element(void **state){
   // Given
-  test_state_t *s = ((test_state_t *)*state);
+  test_state_t *s = (test_state_t *)*state;
   bson_t *td1 = s->test_document_1;
   bson_t_list *non_empty_list = create_list_from(td1);
   bson_t_list *empty_list = create_empty_list();

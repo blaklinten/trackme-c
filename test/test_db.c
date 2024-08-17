@@ -206,7 +206,7 @@ void test_db_connect() {
 
 void test_db_save(void **state) {
   // Given
-  test_state_t *s = ((test_state_t *)*state);
+  test_state_t *s = (test_state_t *)*state;
 
   // When
   bool sucess = save(s->test_document_1);
@@ -252,7 +252,7 @@ void test_db_save(void **state) {
 
 void test_db_insert_and_get(void **state) {
   // Given
-  test_state_t *s = ((test_state_t *)*state);
+  test_state_t *s = (test_state_t *)*state;
   bson_t *doc1 = bson_new();
   BSON_APPEND_UTF8(doc1, DB_KEY_NAME, s->TEST_NAME_1);
 
@@ -317,7 +317,7 @@ void test_db_insert_and_get(void **state) {
 
 void test_db_get_by(void **state) {
   // Given
-  test_state_t *s = ((test_state_t *)*state);
+  test_state_t *s = (test_state_t *)*state;
   mongoc_collection_drop(entries, NULL);
 
   // When
