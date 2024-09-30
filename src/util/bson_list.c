@@ -15,7 +15,7 @@ bson_t_list *create_empty_list() {
 }
 
 bson_t_list *create_list_from(bson_t *first) {
-  if (!first){
+  if (!first) {
     t_log(ERROR, __func__, "First element was NULL.");
     return NULL;
   }
@@ -31,7 +31,7 @@ bson_t_list *create_list_from(bson_t *first) {
 }
 
 bool append_to_list(bson_t_list *list, bson_t *element) {
-  if (!list || !element){
+  if (!list || !element) {
     t_log(ERROR, __func__, "List or element was NULL.");
     return false;
   }
