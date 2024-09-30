@@ -3,6 +3,8 @@
 #include "../src/util/bson_list.h"
 #include "../src/util/log.h"
 #include "integration_test.h"
+#include <bson/bson.h>
+#include <cmocka.h>
 
 char **get_oids_as_strings(bson_t *e1, bson_t *e2) {
   bson_iter_t e1_iter, e2_iter;
@@ -213,7 +215,10 @@ void test_db_save(void **state) {
   bson_t_list *entry = get_by(DB_KEY_ID, &s->test_id_1);
 
   // Then
+  assert_true(sucess);
+  assert_non_null(entry);
   assert_null(entry->next);
+
   bson_iter_t result_iter;
   if (!bson_iter_init(&result_iter, entry->value)) {
     t_log(ERROR, __func__, "Could not init iterator");
@@ -243,11 +248,21 @@ void test_db_save(void **state) {
   }
   //
   // Finally
-  assert_true(sucess);
   assert_true(bson_oid_equal(oid, &s->test_id_1));
   assert_string_equal(name, s->TEST_NAME_1);
 
   free_list(entry);
+}
+
+void test_db_save_NULL(void **state) {
+  // Given
+  // When
+  bool failed_null = save(NULL);
+
+  // Then
+  assert_false(failed_null);
+
+  // Finally
 }
 
 void test_db_insert_and_get(void **state) {
