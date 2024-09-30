@@ -7,6 +7,9 @@
 
 #define REQUEST_FIELD_MAX_SIZE 50
 
+#define DATE_FORMAT_STR "DAY, DD MON YYYY HH:MM:SS +ZONE"
+#define STRF_DATE_FORMAT "%a, %d %b %Y %H:%M:%S %z"
+
 bson_t *from_timer_result(TimerResult *);
 TimerResult *from_bson(bson_t *);
 char *get_current_duration_str(Timer *);
