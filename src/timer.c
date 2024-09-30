@@ -1,12 +1,13 @@
 #include "timer.h"
-#include "assert.h"
 #include "util/log.h"
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
 
 void reset(Timer *t) {
-  assert(t != NULL);
+  if (!t){
+    return;
+  }
 
   if (t->name) {
     free(t->name);
@@ -32,7 +33,9 @@ void reset(Timer *t) {
 }
 
 void free_timer_result(TimerResult *tr) {
-  assert(tr != NULL);
+  if (!tr){
+    return;
+  }
 
   if (tr->name) {
     free(tr->name);
@@ -54,7 +57,9 @@ void free_timer_result(TimerResult *tr) {
 }
 
 void free_start_info(StartInfo *si) {
-  assert(si != NULL);
+  if (!si){
+    return;
+  }
 
   if (si->name) {
     free(si->name);
@@ -76,8 +81,9 @@ void free_start_info(StartInfo *si) {
 }
 
 bool start(Timer *t, StartInfo *si) {
-  assert(t != NULL);
-  assert(si != NULL);
+  if (!t || !si){
+    return false;
+  }
 
   char *name = malloc(strlen(si->name) + 1);
   if (!name) {
@@ -125,7 +131,10 @@ bool start(Timer *t, StartInfo *si) {
 }
 
 TimerResult *stop(Timer *t) {
-  assert(t != NULL);
+  if (!t) {
+    return NULL;
+  }
+
   if (t->start_time < 0) {
     t_log(INFO, __func__, "Timer not started so cannot stop!");
     return NULL;
@@ -191,11 +200,13 @@ TimerResult *stop(Timer *t) {
 }
 
 char *get_name(Timer *t) {
-  assert(t != NULL);
+  if (!t){
+    return NULL;
+  }
 
   if (!t->name) {
     t_log(INFO, __func__, "Name not set, is timer started?");
-    return "";
+    return NULL;
   }
 
   char *name = malloc(strlen(t->name) + 1);
@@ -207,11 +218,13 @@ char *get_name(Timer *t) {
 }
 
 char *get_client(Timer *t) {
-  assert(t != NULL);
+  if (!t){
+    return NULL;
+  }
 
   if (!t->client) {
     t_log(INFO, __func__, "Client not set, is timer started?");
-    return "";
+    return NULL;
   }
 
   char *client = malloc(strlen(t->client) + 1);
@@ -223,11 +236,13 @@ char *get_client(Timer *t) {
 }
 
 char *get_project(Timer *t) {
-  assert(t != NULL);
+  if (!t){
+    return NULL;
+  }
 
   if (!t->project) {
     t_log(INFO, __func__, "Project not set, is timer started?");
-    return "";
+    return NULL;
   }
 
   char *project = malloc(strlen(t->project) + 1);
@@ -239,11 +254,13 @@ char *get_project(Timer *t) {
 }
 
 char *get_description(Timer *t) {
-  assert(t != NULL);
+  if (!t){
+    return NULL;
+  }
 
   if (!t->description) {
     t_log(INFO, __func__, "Description not set, is timer started?");
-    return "";
+    return NULL;
   }
 
   char *description = malloc(strlen(t->description) + 1);
@@ -255,7 +272,9 @@ char *get_description(Timer *t) {
 }
 
 int get_duration(Timer *t) {
-  assert(t != NULL);
+  if (!t){
+    return 0;
+  }
 
   if (t->start_time < 0) {
     t_log(INFO, __func__, "No start time, is timer started?");

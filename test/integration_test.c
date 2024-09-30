@@ -70,6 +70,7 @@ int main(void) {
       cmocka_unit_test(test_db_connect),
       cmocka_unit_test(test_db_insert_and_get),
       cmocka_unit_test(test_db_save),
+      cmocka_unit_test(test_db_save_NULL),
       cmocka_unit_test(test_db_get_by),
   };
 

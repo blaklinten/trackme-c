@@ -1,6 +1,5 @@
 #include "track_me.h"
 #include "../lib/mongoose.h"
-#include "assert.h"
 #include "timer.h"
 #include "util/log.h"
 #include <stdio.h>
@@ -18,8 +17,6 @@ TimerResult *from_bson(bson_t *b) {
 }
 
 char *_duration_int_to_string(int i) {
-  assert(i);
-
   int hours = i / 3600;
   int minutes = (i % 3600) / 60;
   int seconds = i % 60;
@@ -44,8 +41,6 @@ char *_duration_int_to_string(int i) {
 }
 
 char *get_current_duration_str(Timer *t) {
-  assert(t);
-
   int duration = get_duration(t);
   if (!duration) {
     char *no_duration = malloc(sizeof("00:00:00"));
@@ -55,10 +50,14 @@ char *get_current_duration_str(Timer *t) {
 }
 
 char *get_start_time_str(TimerResult *tr) {
-  assert(tr);
-
   int string_size = sizeof("DAY, DD MON YYYY HH:MM:SS +ZONE");
   char *start_time_str = malloc(string_size * sizeof(char));
+  if (!tr) {
+    char *error = "No TimerResult";
+    char *error_message = malloc(strlen(error) + 1);
+    snprintf(error_message, strlen(error) + 1, "%s", error);
+    return error_message;
+  }
   if (!start_time_str) {
     t_log(ERROR, __func__, "Malloc: could not allocate enough memory.");
     return "Something went wrong :(";
@@ -70,10 +69,14 @@ char *get_start_time_str(TimerResult *tr) {
 }
 
 char *get_stop_time_str(TimerResult *tr) {
-  assert(tr);
-
   int string_size = sizeof("DAY, DD MON YYYY HH:MM:SS +ZONE");
   char *end_time_str = malloc(string_size * sizeof(char));
+  if (!tr) {
+    char *error = "No TimerResult";
+    char *error_message = malloc(strlen(error) + 1);
+    snprintf(error_message, strlen(error) + 1, "%s", error);
+    return error_message;
+  }
   if (!end_time_str) {
     t_log(ERROR, __func__, "Malloc: could not allocate enough memory.");
     return "Something went wrong :(";
@@ -84,13 +87,21 @@ char *get_stop_time_str(TimerResult *tr) {
 }
 
 char *get_final_duration_str(TimerResult *tr) {
-  assert(tr);
-
+  if (!tr) {
+    char *error = "No TimerResult";
+    char *error_message = malloc(strlen(error) + 1);
+    snprintf(error_message, strlen(error) + 1, "%s", error);
+    return error_message;
+  }
   int duration = tr->duration;
   return _duration_int_to_string(duration);
 }
 
 StartInfo *from_request_body(struct mg_str *request_body) {
+  if (!request_body) {
+    t_log(ERROR, __func__, "No request_body");
+    return NULL;
+  }
   // init StartInfo struct
   StartInfo *si = malloc(sizeof(StartInfo));
   if (!si) {

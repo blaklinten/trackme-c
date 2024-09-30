@@ -1,5 +1,4 @@
 #include "db.h"
-#include "assert.h"
 #include "util/bson_list.h"
 #include "util/log.h"
 #include <bson/bson.h>
@@ -60,7 +59,10 @@ int free_db() {
 }
 
 bool save(bson_t *timer_result) {
-  assert(timer_result);
+  if (!timer_result) {
+    t_log(ERROR, __func__, "Timer result is NULL");
+    return false;
+  }
   if (!entries) {
     t_log(ERROR, __func__, "No collection");
     return false;
@@ -143,8 +145,10 @@ bson_t_list *_get_by_time(char *key, time_t *value) {
 }
 
 bson_t_list *get_by(char *key, void *value) {
-  assert(key);
-  assert(value);
+  if (!key || !value) {
+    t_log(ERROR, __func__, "Key or value is NULL");
+    return NULL;
+  }
 
   if (!entries) {
     t_log(ERROR, __func__, "No collection");
