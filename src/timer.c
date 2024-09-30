@@ -5,7 +5,7 @@
 #include <string.h>
 
 void reset(Timer *t) {
-  if (!t){
+  if (!t) {
     return;
   }
 
@@ -33,7 +33,7 @@ void reset(Timer *t) {
 }
 
 void free_timer_result(TimerResult *tr) {
-  if (!tr){
+  if (!tr) {
     return;
   }
 
@@ -57,7 +57,7 @@ void free_timer_result(TimerResult *tr) {
 }
 
 void free_start_info(StartInfo *si) {
-  if (!si){
+  if (!si) {
     return;
   }
 
@@ -81,7 +81,7 @@ void free_start_info(StartInfo *si) {
 }
 
 bool start(Timer *t, StartInfo *si) {
-  if (!t || !si){
+  if (!t || !si) {
     return false;
   }
 
@@ -200,7 +200,7 @@ TimerResult *stop(Timer *t) {
 }
 
 char *get_name(Timer *t) {
-  if (!t){
+  if (!t) {
     return NULL;
   }
 
@@ -218,7 +218,7 @@ char *get_name(Timer *t) {
 }
 
 char *get_client(Timer *t) {
-  if (!t){
+  if (!t) {
     return NULL;
   }
 
@@ -236,7 +236,7 @@ char *get_client(Timer *t) {
 }
 
 char *get_project(Timer *t) {
-  if (!t){
+  if (!t) {
     return NULL;
   }
 
@@ -254,7 +254,7 @@ char *get_project(Timer *t) {
 }
 
 char *get_description(Timer *t) {
-  if (!t){
+  if (!t) {
     return NULL;
   }
 
@@ -272,7 +272,7 @@ char *get_description(Timer *t) {
 }
 
 int get_duration(Timer *t) {
-  if (!t){
+  if (!t) {
     return 0;
   }
 

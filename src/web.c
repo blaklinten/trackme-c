@@ -1,6 +1,6 @@
 #include "web.h"
-#include "util/log.h"
 #include "../lib/ctemplate.h"
+#include "util/log.h"
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -42,12 +42,12 @@ void create_stop_timer_html(char *name, char *client, char *project,
   TMPL_varlist *tmpl_vars = NULL;
   tmpl_vars =
       TMPL_add_var(NULL, "name", name, "client", client, "project", project,
-                   "description", description, "start_time",
-                   start_time, "end_time", end_time, "duration", final_duration, NULL);
+                   "description", description, "start_time", start_time,
+                   "end_time", end_time, "duration", final_duration, NULL);
 
   FILE *stop_html = fopen("stop_timer.html", "w+");
-  int err = TMPL_write("templates/stop_timer.tmpl", NULL, NULL, tmpl_vars, stop_html,
-                       stderr);
+  int err = TMPL_write("templates/stop_timer.tmpl", NULL, NULL, tmpl_vars,
+                       stop_html, stderr);
   fclose(stop_html);
 
   if (err) {
