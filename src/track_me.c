@@ -43,46 +43,60 @@ char *_duration_int_to_string(int i) {
 char *get_current_duration_str(Timer *t) {
   int duration = get_duration(t);
   if (!duration) {
-    char *no_duration = malloc(sizeof("00:00:00"));
+    char *zero = "00:00:00";
+    char *no_duration = malloc(strlen(zero) + 1);
+    snprintf(no_duration, strlen(zero) + 1, "%s", zero);
     return no_duration;
   }
   return _duration_int_to_string(duration);
 }
 
 char *get_start_time_str(TimerResult *tr) {
-  int string_size = sizeof("DAY, DD MON YYYY HH:MM:SS +ZONE");
-  char *start_time_str = malloc(string_size * sizeof(char));
   if (!tr) {
     char *error = "No TimerResult";
     char *error_message = malloc(strlen(error) + 1);
     snprintf(error_message, strlen(error) + 1, "%s", error);
     return error_message;
   }
+  size_t string_size = strlen(DATE_FORMAT_STR);
+  char *start_time_str = malloc(string_size * sizeof(char) + 1);
   if (!start_time_str) {
     t_log(ERROR, __func__, "Malloc: could not allocate enough memory.");
     return "Something went wrong :(";
   }
   struct tm *start_time_tm = localtime(&tr->start_time);
-  strftime(start_time_str, string_size, "%a, %d %b %Y %H:%M:%S %z",
-           start_time_tm);
+  size_t written = strftime(start_time_str, string_size + 1, STRF_DATE_FORMAT,
+                            start_time_tm);
+  if (string_size != written) {
+    t_log(ERROR, __func__, "Could not fomat date string %s", start_time_str);
+    return "Could not format date string";
+  }
+
   return start_time_str;
 }
 
 char *get_stop_time_str(TimerResult *tr) {
-  int string_size = sizeof("DAY, DD MON YYYY HH:MM:SS +ZONE");
-  char *end_time_str = malloc(string_size * sizeof(char));
   if (!tr) {
     char *error = "No TimerResult";
     char *error_message = malloc(strlen(error) + 1);
     snprintf(error_message, strlen(error) + 1, "%s", error);
     return error_message;
   }
+  size_t string_size = strlen(DATE_FORMAT_STR);
+  char *end_time_str = malloc(string_size * sizeof(char) + 1);
   if (!end_time_str) {
     t_log(ERROR, __func__, "Malloc: could not allocate enough memory.");
     return "Something went wrong :(";
   }
   struct tm *end_time_tm = localtime(&tr->end_time);
-  strftime(end_time_str, string_size, "%a, %d %b %Y %H:%M:%S %z", end_time_tm);
+  size_t written =
+      strftime(end_time_str, string_size + 1, STRF_DATE_FORMAT, end_time_tm);
+  if (string_size != written) {
+    t_log(ERROR, __func__, "Could not fomat date string %s", end_time_str);
+    return "Could not format date string";
+  }
+
+  strftime(end_time_str, string_size, STRF_DATE_FORMAT, end_time_tm);
   return end_time_str;
 }
 
@@ -103,7 +117,7 @@ StartInfo *from_request_body(struct mg_str *request_body) {
     return NULL;
   }
   // init StartInfo struct
-  StartInfo *si = malloc(sizeof(StartInfo));
+  StartInfo *si = calloc(1, sizeof(StartInfo));
   if (!si) {
     goto log_error;
   }
