@@ -1,8 +1,8 @@
 #include "db.h"
+#include "../lib/sqlite3.h"
 #include "util/bson_list.h"
 #include "util/log.h"
 #include <bson/bson.h>
-#include <mongoc/mongoc.h>
 #include <string.h>
 
 mongoc_collection_t *entries = NULL;

@@ -9,6 +9,7 @@ set(TRACKME_LOG_LEVEL 2)
 set(MAIN_SOURCES
   lib/mongoose.c
   lib/ctemplate.c
+  lib/sqlite3.c
   src/track_me.c
   src/web.c
   src/timer.c
@@ -31,6 +32,7 @@ set(UNIT_TEST_SOURCES
 set(INTEGRATION_TEST_SOURCES
   test/integration_test.c
   test/test_db.c
+  lib/sqlite3.c
   src/db.c
   src/util/bson_list.c
   src/util/log)
