@@ -31,7 +31,7 @@ void test_list_create_from_NULL(void **state) {
 void test_list_create_from_document(void **state) {
   // Given
   test_state_t *s = (test_state_t *)*state;
-  bson_t *td1 = s->test_document_1;
+  bson_t *td1 = bson_copy(s->test_document_1);
 
   // When
   bson_t_list *single_element_list = create_list_from(td1);
@@ -50,12 +50,14 @@ void test_list_add_element(void **state) {
   bson_t_list *empty_list = create_empty_list();
 
   // When
+  bool append_empty = append_to_list(empty_list, bson_new());
+  bool append_non_empty = append_to_list(non_empty_list, bson_new());
   // Then
 
   // Add new element
-  assert_true(append_to_list(empty_list, bson_new()));
+  assert_true(append_empty);
   assert_int_equal(1, count_elements(empty_list));
-  assert_true(append_to_list(non_empty_list, bson_new()));
+  assert_true(append_non_empty);
   assert_int_equal(2, count_elements(non_empty_list));
 
   // Finally
@@ -96,4 +98,18 @@ void test_list_count_element(void **state) {
 
   // Finally
   free_list(empty_list);
+}
+
+void test_list_free(void **state) {
+  // Given
+  bson_t_list *list = create_list_from(bson_new());
+  append_to_list(list, bson_new());
+
+  // When
+  free_list(list);
+
+  // Then
+  /* No memory leaks suggest successful free */
+
+  // Finally
 }

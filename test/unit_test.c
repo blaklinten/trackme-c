@@ -110,22 +110,6 @@ static int group_teardown(void **state) {
   return 0;
 }
 
-static int restore_test_document(void **state) {
-  test_state_t *s = (test_state_t *)*state;
-
-  s->test_document_1 = bson_new();
-  BSON_APPEND_OID(s->test_document_1, DB_KEY_ID, &s->test_id_1);
-  BSON_APPEND_UTF8(s->test_document_1, DB_KEY_NAME, s->TEST_NAME_1);
-  BSON_APPEND_UTF8(s->test_document_1, DB_KEY_CLIENT, s->TEST_CLIENT);
-  BSON_APPEND_UTF8(s->test_document_1, DB_KEY_PROJECT, s->TEST_PROJECT);
-  BSON_APPEND_TIME_T(s->test_document_1, DB_KEY_START_TIME,
-                     s->TEST_START_TIME_S);
-  BSON_APPEND_TIME_T(s->test_document_1, DB_KEY_END_TIME, s->TEST_END_TIME_S);
-  BSON_APPEND_TIME_T(s->test_document_1, DB_KEY_DURATION, s->TEST_DURATION_S);
-
-  return 0;
-}
-
 static int reset_timer( void **state) {
   test_state_t *s = (test_state_t *)*state;
   expect_value(__wrap_time, __timer, NULL);
@@ -146,6 +130,8 @@ int main(void) {
   const struct CMUnitTest unit_test[] = {
       /* Timer */
       cmocka_unit_test(test_timer_reset),
+      cmocka_unit_test(test_timer_free_timer_result),
+      cmocka_unit_test(test_timer_free_start_info),
       cmocka_unit_test(test_timer_start),
       cmocka_unit_test(test_timer_start_NULL),
       cmocka_unit_test(test_timer_start_NULL_start_info),
@@ -163,10 +149,10 @@ int main(void) {
       /* List */
       cmocka_unit_test(test_list_empty_create),
       cmocka_unit_test(test_list_create_from_NULL),
-      cmocka_unit_test_teardown(test_list_create_from_document,
-                                      restore_test_document),
+      cmocka_unit_test(test_list_create_from_document),
       cmocka_unit_test(test_list_add_element),
       cmocka_unit_test(test_list_add_invalid_element),
+      cmocka_unit_test(test_list_free),
       cmocka_unit_test(test_list_count_element),
       /* Trackme */
       /* private functions */
