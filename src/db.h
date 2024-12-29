@@ -18,9 +18,9 @@
 extern mongoc_collection_t *entries;
 extern mongoc_client_t *db_client;
 
-int init_db(const char *);
+int init_db(const char *uri);
 int free_db(void);
-bool save(bson_t *);
-bson_t_list *get_by(char *, void *);
+bool save(bson_t *timer_result);
+bson_t_list *get_by(char *key, void *value);
 
 #endif // !DB_H
