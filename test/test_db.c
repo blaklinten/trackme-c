@@ -6,6 +6,7 @@
 #include <bson/bson.h>
 #include <cmocka.h>
 
+/*** Private helper functions ***/
 char **_get_oids_as_strings(bson_t *e1, bson_t *e2) {
   bson_iter_t e1_iter, e2_iter;
   if (!bson_iter_init(&e1_iter, e1) || !bson_iter_init(&e2_iter, e2)) {
@@ -169,31 +170,32 @@ bool _compare_entries(bson_t *e1, bson_t *e2) {
 
   // Duraion
   time_t *durations = _get_bson_durations(e1, e2);
-  assert_false(difftime(durations[0], durations[1]));
+  assert_int_equal(difftime(durations[0], durations[1]), 0);
   free(durations);
 
   // Start time
   time_t *start_times = _get_bson_start_times(e1, e2);
-  assert_false(difftime(start_times[0], start_times[1]));
+  assert_int_equal(difftime(start_times[0], start_times[1]), 0);
   free(start_times);
 
   // End time
   time_t *end_times = _get_bson_end_times(e1, e2);
-  assert_false(difftime(end_times[0], end_times[1]));
+  assert_int_equal(difftime(end_times[0], end_times[1]), 0);
   free(end_times);
 
   return true;
 }
 
+/*** Tests begin ***/
+
 void test_db_connect() {
   // Given
-  bson_t *command = NULL, reply;
+  bson_t *command = BCON_NEW("ping", BCON_INT32(1));
+  bson_t reply;
   bson_error_t error;
-  bool sucess = false;
-  command = BCON_NEW("ping", BCON_INT32(1));
 
   // When
-  sucess = mongoc_client_command_simple(db_client, "admin", command, NULL,
+  bool sucess = mongoc_client_command_simple(db_client, "admin", command, NULL,
                                         &reply, &error);
   // Then
   if (!sucess) {
@@ -212,6 +214,8 @@ void test_db_save(void **state) {
 
   // When
   bool sucess = save(s->test_document_1);
+
+  // Then
   bson_t_list *entry = get_by(DB_KEY_ID, &s->test_id_1);
 
   bson_iter_t result_iter;
@@ -243,7 +247,6 @@ void test_db_save(void **state) {
   }
 
 
-  // Then
   assert_true(sucess);
   assert_non_null(entry);
   assert_null(entry->next);
@@ -324,6 +327,9 @@ void test_db_insert_and_get(void **state) {
     t_log(INFO, __func__, "Entry no: %d\n%s\n", result_count, str);
     bson_free(str);
   }
+
+  assert_int_equal(result_count, 1);
+
   // Finally
   bson_destroy(doc1);
   bson_destroy(doc2);
@@ -352,7 +358,7 @@ void test_db_get_by(void **state) {
   _compare_entries(s->test_document_1, entries_by_project->value);
   _compare_entries(s->test_document_2, entries_by_name->value);
   _compare_entries(s->test_document_1, entries_by_duration->value);
-  assert_int_equal(2, count_elements(entries_by_duration));
+  assert_int_equal(count_elements(entries_by_duration), 2);
 
   // Finally
   free_list(entries_by_project);

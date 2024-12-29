@@ -11,8 +11,8 @@ static int group_setup(void **state) {
   init_db(uri_string);
   mongoc_collection_drop(entries, NULL);
 
-  s->TEST_NAME_1 = "Lucas";
-  s->TEST_NAME_2 = "Jonas";
+  s->TEST_NAME_1 = "Alice";
+  s->TEST_NAME_2 = "Bob";
   s->TEST_CLIENT = "test client";
   s->TEST_PROJECT = "test project";
   s->TEST_START_TIME_S = 1721664594;           // Mon 22 Jul 18:09:54 CEST 2024
