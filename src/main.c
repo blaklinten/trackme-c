@@ -1,42 +1,66 @@
 #include <bson/bson.h>
 #include <stdio.h>
+#include <string.h>
 #include <unistd.h>
 
-#include "db.h"
-#include "util/log.h"
 #include "../lib/mongoose.h"
+// #include "db.h"
 #include "timer.h"
 #include "track_me.h"
+#include "util/log.h"
 #include "web.h"
-
-Timer t;
 
 static void ev_handler(struct mg_connection *c, int ev, void *ev_data) {
   if (ev == MG_EV_HTTP_MSG) {
     struct mg_http_message *hm = (struct mg_http_message *)ev_data;
+    struct mg_http_serve_opts opts = {.root_dir = "./"}; // Serve local dir
+
     if (mg_match(hm->uri, mg_str("/"), NULL)) {
-      char *current_duration = get_current_duration_str(&t);
-      create_index_html(t.name, t.client, t.project, t.description,
-                        current_duration);
-    } else if (mg_match(hm->uri, mg_str("/start_timer.html"), NULL)) {
+      create_index_html(get_name(), get_client(), get_project(), get_description(),
+                        get_duration());
+    }
+
+    else if (mg_match(hm->uri, mg_str("/start_timer.html"), NULL)) {
       create_start_timer_html();
-    } else if (mg_match(hm->uri, mg_str("/stop_timer.html"), NULL)) {
+    }
+
+    else if (mg_match(hm->uri, mg_str("/stop_timer.html"), NULL)) {
       t_log(INFO, __func__, "Stopping timer...");
-      TimerResult *tr = stop(&t);
-      if (!tr) {
+      if (!stop_timer()) {
         t_log(INFO, __func__, "Could not stop timer, returning NULL...");
         create_stop_timer_html(NULL, NULL, NULL, NULL, NULL, NULL, NULL);
       } else {
-        char *start_time_str = get_start_time_str(tr);
-        char *end_time_str = get_stop_time_str(tr);
-        char *final_duration = get_final_duration_str(tr);
-        create_stop_timer_html(tr->name, tr->client, tr->project,
-                               tr->description, start_time_str, end_time_str,
-                               final_duration);
+        create_stop_timer_html(get_name(), get_client(), get_project(),
+                               get_description(), get_start_time(), get_end_time(),
+                               get_description());
       }
     }
+
+    else if (mg_match(hm->uri, mg_str("/edit_timer.html"), NULL)) {
+      //TODO this is possible error - is start time really 00:00:00??
+      if ( strcmp(get_start_time(), "00:00:00") == 0) {
+        t_log(INFO, __func__, "Timer not started, can not edit");
+        create_edit_html(NULL, NULL, NULL, NULL, NULL, NULL);
+      } else {
+        create_edit_html(get_name(), get_client(), get_project(), get_description(),
+                         get_start_time(), get_end_time());
+      }
+    }
+
+    else if (mg_match(hm->uri, mg_str("/start_info"), NULL) &&
+             (mg_match(hm->method, mg_str("POST"), NULL))) {
+      if (start_timer(&hm->body)) {
+        create_index_html(get_name(), get_client(), get_project(), get_description(),
+                          get_start_time());
+        return mg_http_serve_file(c, ev_data, "./index.html", &opts);
+      } else {
+        // create_error_page();
+        // TODO Error page
+        return mg_http_serve_file(c, ev_data, "./error.html", NULL);
+      }
+    }
+
     t_log(INFO, __func__, "Serving local dir");
-    struct mg_http_serve_opts opts = {.root_dir = "./"}; // Serve local dir
     mg_http_serve_dir(c, ev_data, &opts);
   }
 }
@@ -53,10 +77,7 @@ int main() {
   // // }
   printf("Hello Mongoose!\n");
 
-  reset(&t);
-  StartInfo s = {"T_Name", "T_Client", "T_Project", "A little test"};
-  start(&t, &s);
-  // Setup listener
+  // Setup Mongoose HTTP listener
   mg_http_listen(&mgr, "http://localhost:8000", ev_handler, NULL);
 
   // Event loop
@@ -66,5 +87,6 @@ int main() {
 
   // Cleanup
   mg_mgr_free(&mgr);
+  clean_up();
   return EXIT_SUCCESS;
 }
