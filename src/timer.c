@@ -82,7 +82,6 @@ void free_start_info(StartInfo *si) {
   }
 
   free(si);
-  si = NULL;
 }
 
 bool start(Timer *t, StartInfo *si) {
