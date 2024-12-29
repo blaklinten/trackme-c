@@ -29,16 +29,10 @@ typedef struct {
   time_t start_time;
 } Timer;
 
-void reset(Timer *);
-void free_timer_result(TimerResult *);
-void free_start_info(StartInfo *);
-bool start(Timer *, StartInfo *);
-TimerResult *stop(Timer *);
-char *get_name(Timer *);
-char *get_client(Timer *);
-char *get_project(Timer *);
-char *get_description(Timer *);
-int get_duration(Timer *);
-time_t get_starttime(Timer *);
+bool start(Timer *t, StartInfo *si);
+TimerResult *stop(Timer *t);
+void reset(Timer *t);
+void free_timer_result(TimerResult *tr);
+void free_start_info(StartInfo *si);
 
 #endif // !TIMER_H

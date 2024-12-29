@@ -11,6 +11,8 @@
 
 #include "../src/timer.h"
 
+time_t __wrap_time(time_t *__timer);
+
 typedef struct {
   StartInfo *default_test_info;
   bson_t *test_document_1;
@@ -25,6 +27,7 @@ typedef struct {
   time_t TEST_START_TIME_S;
   time_t TEST_END_TIME_S;
   struct mg_str *TEST_HTTP_REQUEST_BODY;
+  struct mg_str *NOT_SET_TEST_HTTP_REQUEST_BODY;
 } test_state_t;
 
 #endif // !UNIT_TEST

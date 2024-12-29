@@ -1,21 +1,63 @@
 #include "unit_test.h"
 
 #include "../src/timer.h"
+#include "../src/track_me.h"
 #include <cmocka.h>
 #include <stdlib.h>
 
-// Mock time(time_t * __timer)
-time_t __wrap_time(time_t *__timer) {
-  check_expected_ptr(__timer);
-
-  time_t mock_time = mock_type(time_t);
-
-  if (__timer) {
-    *__timer = mock_time;
+// Helper functions
+// Make sure to pass newly allocated memory so that we can safely free() it later.
+StartInfo *_copy_start_info(StartInfo *orig_si) {
+  if (!orig_si) {
+    fail();
+  }
+  // init StartInfo struct
+  StartInfo *si = calloc(1, sizeof(StartInfo));
+  if (!si) {
+    goto fail_test;
   }
 
-  return mock_time;
-}
+  char *name = malloc(REQUEST_FIELD_MAX_SIZE * sizeof(char));
+  if (!name) {
+    free(si);
+    goto fail_test;
+  }
+  char *client = malloc(REQUEST_FIELD_MAX_SIZE * sizeof(char));
+  if (!client) {
+    free(si);
+    free(name);
+    goto fail_test;
+  }
+  char *project = malloc(REQUEST_FIELD_MAX_SIZE * sizeof(char));
+  if (!project) {
+    free(si);
+    free(name);
+    free(client);
+    goto fail_test;
+  }
+  char *description = malloc(10 * REQUEST_FIELD_MAX_SIZE * sizeof(char));
+  if (!description) {
+    free(si);
+    free(name);
+    free(client);
+    free(project);
+    goto fail_test;
+  }
+  si->name = name;
+  si->client = client;
+  si->project = project;
+  si->description = description;
+
+  // Fill StartInfo struct
+  snprintf(name, strlen(orig_si->name) + 1, "%s", orig_si->name);
+  snprintf(client, strlen(orig_si->client) + 1, "%s", orig_si->client);
+  snprintf(project, strlen(orig_si->project) + 1, "%s", orig_si->project);
+  snprintf(description, strlen(orig_si->description) + 1, "%s", orig_si->description);
+
+  return si;
+fail_test:
+  fail();
+};
 
 // Timer
 void test_timer_reset() {
@@ -29,7 +71,7 @@ void test_timer_reset() {
   assert_null(t.client);
   assert_null(t.project);
   assert_null(t.description);
-  assert_int_equal(-1, t.start_time);
+  assert_int_equal(0, t.start_time);
 }
 
 void test_timer_start(void **state) {
@@ -41,7 +83,7 @@ void test_timer_start(void **state) {
   will_return(__wrap_time, s->TEST_START_TIME_S);
 
   // When
-  bool success = start(&t, s->default_test_info);
+  bool success = start(&t, _copy_start_info(s->default_test_info));
 
   // Then
   assert_true(success);
@@ -68,14 +110,16 @@ void test_timer_start(void **state) {
 void test_timer_start_NULL(void **state) {
   // Given
   test_state_t *s = (test_state_t *)*state;
+  StartInfo *si = _copy_start_info(s->default_test_info);
 
   // When
-  bool fail_null_timer = start(NULL, s->default_test_info);
+  bool fail_null_timer = start(NULL, si);
 
   // Then
   assert_false(fail_null_timer);
 
   // Finally
+  free_start_info(si);
 }
 void test_timer_start_NULL_start_info(void **state) {
   // Given
@@ -100,7 +144,7 @@ void test_timer_stop(void **state) {
 
   expect_value(__wrap_time, __timer, NULL);
   will_return(__wrap_time, s->TEST_START_TIME_S);
-  start(&t, s->default_test_info);
+  start(&t, _copy_start_info(s->default_test_info));
   expect_value(__wrap_time, __timer, NULL);
   will_return(__wrap_time, s->TEST_END_TIME_S); // diff = 38m 19s
 
@@ -126,6 +170,7 @@ void test_timer_stop(void **state) {
   assert_non_null(sucess->duration);
   assert_int_equal(sucess->duration, s->TEST_END_TIME_S - s->TEST_START_TIME_S);
 
+  // Finally
   free_timer_result(sucess);
   reset(&t);
 }
@@ -150,6 +195,7 @@ void test_timer_not_started_stop(void **state) {
   // Then
   assert_null(fail_not_started);
 
+  // Finally
   reset(&t);
 }
 
@@ -160,33 +206,25 @@ void test_timer_get_name(void **state) {
   reset(&t);
   expect_value(__wrap_time, __timer, NULL);
   will_return(__wrap_time, s->TEST_START_TIME_S);
-  start(&t, s->default_test_info);
+  start(&t, _copy_start_info(s->default_test_info));
 
   // When
-  char *name = get_name(&t);
+  char *name = t.name;
 
   // Then
   assert_non_null(name);
   assert_string_equal(s->default_test_info->name, name);
 
+  // Finally
   reset(&t);
-  free(name);
-}
-
-void test_timer_NULL_get_name(void **state) {
-  // Given
-  // When
-  char *null = get_name(NULL);
-
-  // Then
-  assert_null(null);
 }
 
 void test_timer_not_started_get_name(void **state) {
   // Given
   Timer t;
+  reset(&t);
   // When
-  char *not_started = get_name(&t);
+  char *not_started = t.name;
 
   // Then
   assert_null(not_started);
@@ -199,27 +237,17 @@ void test_timer_get_client(void **state) {
   reset(&t);
   expect_value(__wrap_time, __timer, NULL);
   will_return(__wrap_time, s->TEST_START_TIME_S);
-  start(&t, s->default_test_info);
+  start(&t, _copy_start_info(s->default_test_info));
 
   // When
-  char *client = get_client(&t);
-  reset(&t);
+  char *client = t.client;
 
   // Then
   assert_non_null(client);
   assert_string_equal(s->default_test_info->client, client);
 
+  // Finally
   reset(&t);
-  free(client);
-}
-
-void test_timer_NULL_get_client(void **state) {
-  // Given
-  // When
-  char *null = get_client(NULL);
-
-  // Then
-  assert_null(null);
 }
 
 void test_timer_not_started_get_client(void **state) {
@@ -228,7 +256,7 @@ void test_timer_not_started_get_client(void **state) {
   reset(&t);
 
   // When
-  char *not_started = get_client(&t);
+  char *not_started = t.client;
 
   // Then
   assert_null(not_started);
@@ -243,28 +271,17 @@ void test_timer_get_project(void **state) {
   reset(&t);
   expect_value(__wrap_time, __timer, NULL);
   will_return(__wrap_time, s->TEST_START_TIME_S);
-  start(&t, s->default_test_info);
+  start(&t, _copy_start_info(s->default_test_info));
 
   // When
-  char *project = get_project(&t);
+  char *project = t.project;
 
   // Then
   assert_non_null(project);
   assert_string_equal(s->default_test_info->project, project);
 
-  reset(&t);
-  free(project);
-}
-
-void test_timer_NULL_get_project(void **state) {
-  // Given
-  // When
-  char *null = get_project(NULL);
-
-  // Then
-  assert_null(null);
-
   // Finally
+  reset(&t);
 }
 
 void test_timer_not_started_get_project(void **state) {
@@ -273,7 +290,7 @@ void test_timer_not_started_get_project(void **state) {
   reset(&t);
 
   // When
-  char *not_started = get_project(&t);
+  char *not_started = t.project;
 
   // Then
   assert_null(not_started);
@@ -289,28 +306,17 @@ void test_timer_get_description(void **state) {
   reset(&t);
   expect_value(__wrap_time, __timer, NULL);
   will_return(__wrap_time, s->TEST_START_TIME_S);
-  start(&t, s->default_test_info);
+  start(&t, _copy_start_info(s->default_test_info));
 
   // When
-  char *description = get_description(&t);
+  char *description = t.description;
 
   // Then
   assert_non_null(description);
   assert_string_equal(s->default_test_info->description, description);
 
-  reset(&t);
-  free(description);
-}
-
-void test_timer_NULL_get_description(void **state) {
-  // Given
-  // When
-  char *null = get_description(NULL);
-
-  // Then
-  assert_null(null);
-
   // Finally
+  reset(&t);
 }
 
 void test_timer_not_started_get_description(void **state) {
@@ -319,59 +325,10 @@ void test_timer_not_started_get_description(void **state) {
   reset(&t);
 
   // When
-  char *not_started = get_description(&t);
+  char *not_started = t.description;
 
   // Then
   assert_null(not_started);
-
-  // Finally
-  reset(&t);
-}
-
-void test_timer_get_duration(void **state) {
-  // Given
-  test_state_t *s = (test_state_t *)*state;
-  Timer t;
-  reset(&t);
-  will_return(__wrap_time, s->TEST_START_TIME_S);
-  expect_value(__wrap_time, __timer, NULL);
-  start(&t, s->default_test_info);
-  expect_value(__wrap_time, __timer, NULL);
-  will_return(__wrap_time, s->TEST_END_TIME_S);
-
-  // When
-  int duration = get_duration(&t);
-
-  // Then
-  assert_int_equal(duration,
-                   s->TEST_END_TIME_S -
-                       s->TEST_START_TIME_S); // duration = 38m 19s
-
-  // Finally
-  reset(&t);
-}
-
-void test_timer_NULL_get_duration(void **state) {
-  // Given
-  // When
-  int null = get_duration(NULL);
-
-  // Then
-  assert_int_equal(0, null);
-
-  // Finally
-}
-
-void test_timer_not_started_get_duration(void **state) {
-  // Given
-  Timer t;
-  reset(&t);
-
-  // When
-  int not_started = get_duration(&t);
-
-  // Then
-  assert_int_equal(0, not_started);
 
   // Finally
   reset(&t);
