@@ -75,6 +75,43 @@ void test_timer_reset() {
   assert_int_equal(0, t.start_time);
 }
 
+void test_timer_free_timer_result(void **state) {
+  // Given
+  test_state_t *s = (test_state_t *)*state;
+  Timer t;
+  reset(&t);
+
+  expect_value(__wrap_time, __timer, NULL);
+  will_return(__wrap_time, s->TEST_START_TIME_S);
+  start(&t, _copy_start_info(s->default_test_info));
+
+  expect_value(__wrap_time, __timer, NULL);
+  will_return(__wrap_time, s->TEST_END_TIME_S);
+  TimerResult *stopped_result = stop(&t);
+
+  // When
+  free_timer_result(stopped_result);
+
+  // Then
+  /* No memory leaks indicate successful free */
+
+  // Finally
+}
+
+void test_timer_free_start_info(void **state) {
+  // Given
+  test_state_t *s = (test_state_t *)*state;
+  StartInfo *si = _copy_start_info(s->default_test_info);
+
+  // When
+  free_start_info(si);
+
+  // Then
+  /* No memory leaks indicate successful free */
+
+  // Finally
+}
+
 void test_timer_start(void **state) {
   // Given
   test_state_t *s = (test_state_t *)*state;

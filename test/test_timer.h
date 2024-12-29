@@ -2,6 +2,8 @@
 #define TEST_TIMER_H
 
 void test_timer_reset();
+void test_timer_free_timer_result();
+void test_timer_free_start_info();
 void test_timer_start();
 void test_timer_start_NULL();
 void test_timer_start_NULL_start_info();
