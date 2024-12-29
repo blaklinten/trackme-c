@@ -5,7 +5,7 @@
 #include <cmocka.h>
 #include <stdlib.h>
 
-// Helper functions
+/*** Helper functions ***/
 // Make sure to pass newly allocated memory so that we can safely free() it later.
 StartInfo *_copy_start_info(StartInfo *orig_si) {
   if (!orig_si) {
@@ -59,7 +59,7 @@ fail_test:
   fail();
 };
 
-/*** Tests start ***/
+/*** Tests begin ***/
 // Timer
 void test_timer_reset() {
   // Given
@@ -182,6 +182,7 @@ void test_timer_stop_started(void **state) {
   expect_value(__wrap_time, __timer, NULL);
   will_return(__wrap_time, s->TEST_START_TIME_S);
   start(&t, _copy_start_info(s->default_test_info));
+
   expect_value(__wrap_time, __timer, NULL);
   will_return(__wrap_time, s->TEST_END_TIME_S); // diff = 38m 19s
 
@@ -209,7 +210,6 @@ void test_timer_stop_started(void **state) {
 
   // Finally
   free_timer_result(stopped_result);
-  reset(&t);
 }
 
 void test_timer_stop_NULL(void **state) {
@@ -233,7 +233,6 @@ void test_timer_not_started_stop(void **state) {
   assert_null(fail_not_started);
 
   // Finally
-  reset(&t);
 }
 
 void test_timer_get_name(void **state) {
@@ -265,6 +264,8 @@ void test_timer_not_started_get_name(void **state) {
 
   // Then
   assert_null(not_started);
+
+  // Finally
 }
 
 void test_timer_get_client(void **state) {
@@ -333,7 +334,6 @@ void test_timer_not_started_get_project(void **state) {
   assert_null(not_started);
 
   // Finally
-  reset(&t);
 }
 
 void test_timer_get_description(void **state) {
@@ -368,5 +368,4 @@ void test_timer_not_started_get_description(void **state) {
   assert_null(not_started);
 
   // Finally
-  reset(&t);
 }

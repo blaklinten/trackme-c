@@ -5,53 +5,53 @@
 #include <bson/bson.h>
 #include <cmocka.h>
 
-/* Internal helper test functions */
+/*** Internal helper test functions ***/
 
-char **get_start_info_names(StartInfo *si1, StartInfo *si2) {
+char **_get_start_info_names(StartInfo *si1, StartInfo *si2) {
   char **ret = malloc(2 * sizeof(char *));
   ret[0] = si1->name;
   ret[1] = si2->name;
   return ret;
 }
 
-char **get_start_info_clients(StartInfo *si1, StartInfo *si2) {
+char **_get_start_info_clients(StartInfo *si1, StartInfo *si2) {
   char **ret = malloc(2 * sizeof(char *));
   ret[0] = si1->client;
   ret[1] = si2->client;
   return ret;
 }
 
-char **get_start_info_projects(StartInfo *si1, StartInfo *si2) {
+char **_get_start_info_projects(StartInfo *si1, StartInfo *si2) {
   char **ret = malloc(2 * sizeof(char *));
   ret[0] = si1->project;
   ret[1] = si2->project;
   return ret;
 }
 
-char **get_start_info_descriptions(StartInfo *si1, StartInfo *si2) {
+char **_get_start_info_descriptions(StartInfo *si1, StartInfo *si2) {
   char **ret = malloc(2 * sizeof(char *));
   ret[0] = si1->description;
   ret[1] = si2->description;
   return ret;
 }
 
-bool compare_start_info(StartInfo *si1, StartInfo *si2) {
-  char **names = get_start_info_names(si1, si2);
+bool _compare_start_info(StartInfo *si1, StartInfo *si2) {
+  char **names = _get_start_info_names(si1, si2);
   t_log(INFO, __func__, "Names are [%s] and [%s]", names[0], names[1]);
   assert_string_equal(names[0], names[1]);
   free(names);
 
-  char **clients = get_start_info_clients(si1, si2);
+  char **clients = _get_start_info_clients(si1, si2);
   t_log(INFO, __func__, "Clients are [%s] and [%s]", clients[0], clients[1]);
   assert_string_equal(clients[0], clients[1]);
   free(clients);
 
-  char **projects = get_start_info_projects(si1, si2);
+  char **projects = _get_start_info_projects(si1, si2);
   t_log(INFO, __func__, "Projects are [%s] and [%s]", projects[0], projects[1]);
   assert_string_equal(projects[0], projects[1]);
   free(projects);
 
-  char **descriptions = get_start_info_descriptions(si1, si2);
+  char **descriptions = _get_start_info_descriptions(si1, si2);
   t_log(INFO, __func__, "Descriptions are [%s] and [%s]", descriptions[0],
         descriptions[1]);
   assert_string_equal(descriptions[0], descriptions[1]);
@@ -60,8 +60,8 @@ bool compare_start_info(StartInfo *si1, StartInfo *si2) {
   return true;
 }
 
-/* Tests begin */
-/* Internal functions */
+/*** Tests begin ***/
+/*** Internal functions ***/
 void test_trackme_from_request_body(void **state) {
   // Given
   test_state_t *s = (test_state_t *)*state;
@@ -71,7 +71,7 @@ void test_trackme_from_request_body(void **state) {
 
   // Then
   assert_non_null(si);
-  assert_true(compare_start_info(s->default_test_info, si));
+  assert_true(_compare_start_info(s->default_test_info, si));
 
   // Finally
   free_start_info(si);
@@ -79,20 +79,26 @@ void test_trackme_from_request_body(void **state) {
 
 void test_trackme_from_NULL_request_body(void **state) {
   // Given
+
   // When
   StartInfo *fail_null = _start_info_from_request_body(NULL);
+
   // Then
   assert_null(fail_null);
+
   // Finally
 }
 
 void test_trackme_from_empty_request_body(void **state) {
   // Given
   struct mg_str invalid_body = mg_str("");
+
   // When
   StartInfo *fail_empty = _start_info_from_request_body(&invalid_body);
+
   // Then
   assert_non_null(fail_empty);
+
   // Finally
   free_start_info(fail_empty);
 }
@@ -107,18 +113,21 @@ void test_trackme_time_t_to_string(void ** state) {
   // Then
   assert_non_null(start_time_str);
   assert_string_equal(start_time_str, EXPECTED_START_TIME);
+
   // Finally
   free(start_time_str);
 }
 
 void test_trackme_time_t_null_to_string(void **state){
   // Given
+
   // When
   char *start_time_char = _time_t_to_str(NULL);
 
   // Then
   assert_non_null(start_time_char);
   assert_string_equal(start_time_char, NULL_TIME);
+
   // Finally
   free(start_time_char);
 }
@@ -332,13 +341,14 @@ void test_trackme_is_timer_running_not_started(void **state) {
   // Finally
 }
 
-/* Public functions */
 void test_trackme_is_timer_running_stopped(void **state) {
   // Given
   test_state_t *s = (test_state_t *)*state;
+
   expect_value(__wrap_time, __timer, NULL);
   will_return(__wrap_time, s->TEST_START_TIME_S);
   start_timer(s->TEST_HTTP_REQUEST_BODY);
+
   expect_value(__wrap_time, __timer, NULL);
   will_return(__wrap_time, s->TEST_END_TIME_S);
   stop_timer();
@@ -533,7 +543,6 @@ void test_trackme_get_end_time_started(void **state){
 
   // Then
   assert_string_equal(end_time, NO_END_TIME);
-
   assert_null(current_timer_result);
   assert_true(is_timer_running());
   assert_string_equal(duration, EXPECTED_DURATION);
@@ -545,12 +554,12 @@ void test_trackme_get_end_time_started(void **state){
 
 void test_trackme_get_end_time_not_started(void **state){
   // Given
+
   // When
   char *end_time = get_end_time();
 
   // Then
   assert_string_equal(end_time, NO_END_TIME);
-
   assert_null(current_timer_result);
   assert_false(is_timer_running());
 
@@ -576,7 +585,6 @@ void test_trackme_get_end_time_stopped(void **state){
 
   // Then
   assert_string_equal(end_time, EXPECTED_END_TIME);
-
   assert_non_null(current_timer_result);
   assert_false(is_timer_running());
   assert_string_equal(duration, EXPECTED_DURATION);
@@ -588,12 +596,12 @@ void test_trackme_get_end_time_stopped(void **state){
 
 void test_trackme_get_duration_not_started(void **state) {
   // Given
+
   // When
   char *duration = get_duration();
 
   // Then
   assert_string_equal(duration, ZERO_STR);
-
   assert_null(current_timer_result);
   assert_false(is_timer_running());
 

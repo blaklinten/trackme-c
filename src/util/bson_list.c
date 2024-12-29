@@ -50,7 +50,7 @@ bool append_to_list(bson_t_list *list, bson_t *element) {
 
 void free_list(bson_t_list *list) {
   if (!list) {
-    t_log(INFO, __func__, "List is empty, will do nothing.");
+    t_log(INFO, __func__, "No list, will do nothing.");
     return;
   }
 

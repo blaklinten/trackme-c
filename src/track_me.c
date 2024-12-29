@@ -10,6 +10,7 @@
 Timer current_timer;
 TimerResult *current_timer_result = NULL;
 
+// TODO implement these -->
 bson_t *from_timer_result(TimerResult *tr) {
   (void)tr;
   return bson_new();
@@ -18,7 +19,9 @@ TimerResult *from_bson(bson_t *b) {
   (void)b;
   return malloc(sizeof(TimerResult));
 }
+// TODO <--
 
+/*** Private helper functions **/
 StartInfo *_start_info_from_request_body(struct mg_str *request_body) {
   if (!request_body) {
     t_log(ERROR, __func__, "No request_body");
@@ -105,21 +108,6 @@ log_error:
   return NULL;
 };
 
-bool start_timer(struct mg_str *request_body) {
-  reset(&current_timer);
-  free_timer_result(current_timer_result);
-  current_timer_result = NULL;
-  return start(&current_timer, _start_info_from_request_body(request_body));
-}
-
-bool is_timer_running() {
-  return current_timer_result == NULL && current_timer.start_time;
-}
-
-bool stop_timer() {
-  return (current_timer_result = stop(&current_timer));
-}
-
 char *_time_t_to_str(time_t *time) {
   if (!time) {
     t_log(ERROR, __func__, "No time_t to convert");
@@ -143,27 +131,6 @@ char *_time_t_to_str(time_t *time) {
     return error_message;
   }
   return time_str;
-}
-
-char *get_start_time() {
-  if (current_timer_result) {
-    return _time_t_to_str(&current_timer_result->start_time);
-  } else {
-    return _time_t_to_str(&current_timer.start_time);
-  }
-}
-
-char *get_end_time() {
-  if (current_timer_result) {
-    return _time_t_to_str(&current_timer_result->end_time);
-  } else {
-    t_log(INFO, __func__, "Timer not stopped - no stop_time to get");
-    char *timer_not_stopped_str_length = "No end time - stop timer first";
-    char *timer_not_stopped = malloc(strlen(timer_not_stopped_str_length) + 1);
-    snprintf(timer_not_stopped, strlen(timer_not_stopped_str_length) + 1, "%s",
-             timer_not_stopped_str_length);
-    return timer_not_stopped;
-  }
 }
 
 int _get_duration_int() {
@@ -218,6 +185,44 @@ char *_duration_int_to_string(int i) {
     return NULL;
   }
   return duration_str;
+}
+
+/*** Public funcions ***/
+
+bool start_timer(struct mg_str *request_body) {
+  reset(&current_timer);
+  free_timer_result(current_timer_result);
+  current_timer_result = NULL;
+  return start(&current_timer, _start_info_from_request_body(request_body));
+}
+
+bool is_timer_running() {
+  return current_timer_result == NULL && current_timer.start_time;
+}
+
+bool stop_timer() {
+  return (current_timer_result = stop(&current_timer));
+}
+
+char *get_start_time() {
+  if (current_timer_result) {
+    return _time_t_to_str(&current_timer_result->start_time);
+  } else {
+    return _time_t_to_str(&current_timer.start_time);
+  }
+}
+
+char *get_end_time() {
+  if (current_timer_result) {
+    return _time_t_to_str(&current_timer_result->end_time);
+  } else {
+    t_log(INFO, __func__, "Timer not stopped - no stop_time to get");
+    char *timer_not_stopped_str_length = "No end time - stop timer first";
+    char *timer_not_stopped = malloc(strlen(timer_not_stopped_str_length) + 1);
+    snprintf(timer_not_stopped, strlen(timer_not_stopped_str_length) + 1, "%s",
+             timer_not_stopped_str_length);
+    return timer_not_stopped;
+  }
 }
 
 char *get_duration() {
