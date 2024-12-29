@@ -29,9 +29,13 @@
   <section id="pageContent">
     <main role="main">
       <article>
-        <form action="/api/start_timer" method="post">
+        <form action="/start_info" method="post">
           <table>
             <tbody>
+              <tr>
+                <td> <label for="name">Name:</label> </td>
+                <td> <input type="text" id="name" name="name"> </td>
+              </tr>
               <tr>
                 <td> <label for="client">Client:</label> </td>
                 <td> <input type="text" id="client" name="client"> </td>
@@ -41,30 +45,17 @@
                 <td><input type="text" id="project" name="project"><br><br></td>
               </tr>
               <tr>
-                <td></td>
+                <td><label for="description">Description:</label></td>
+                <td><input type="text" id="description" name="description"><br><br></td>
               </tr>
               <tr>
                 <td colspan="2"><input type="submit" value="Submit"></td>
               </tr>
             </tbody>
           </table>
-
-
-
         </form>
       </article>
     </main>
-    <aside>
-      <form action="./start_timer.html">
-        <button type="submit"> Start Timer </button>
-      </form>
-      <form action="./stop_timer.html">
-        <button type="submit"> Stop Timer </button>
-      </form>
-      <form action="./switch_entry.html">
-        <button type="submit"> Switch entry </button>
-      </form>
-    </aside>
   </section>
 
   <footer>

@@ -29,8 +29,8 @@
   <section id="pageContent">
     <main role="main">
       <article>
-        <h2>Timer stopped!</h2>
         <TMPL_IF name = "duration">
+          <h2>Timer stopped!</h2>
           <table>
             <tbody>
               <tr>
@@ -54,6 +54,7 @@
             </tbody>
           </table>
         <TMPL_ELSE>
+        <h2>Failed!</h2>
         <p>No running timer at the moment. Start one?</p>
         </TMPL_IF>
       </article>

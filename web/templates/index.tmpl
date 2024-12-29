@@ -35,6 +35,9 @@
           <table>
             <tbody>
               <tr>
+                <td> <label>Name: <TMPL_VAR name = "name"></label> </td>
+              </tr>
+              <tr>
                 <td> <label>Client: <TMPL_VAR name = "client"></label> </td>
               </tr>
               <tr>
@@ -54,15 +57,21 @@
       </article>
     </main>
     <aside>
-      <form action="./start_timer.html">
-        <button type="submit"> Start Timer </button>
-      </form>
+      <TMPL_IF name = "duration">
       <form action="./stop_timer.html">
         <button type="submit"> Stop Timer </button>
+      </form>
+      <form action="./edit_timer.html">
+        <button type="submit"> Edit Timer </button>
       </form>
       <form action="./switch_entry.html">
         <button type="submit"> Switch entry </button>
       </form>
+      <TMPL_ELSE>
+      <form action="./start_timer.html">
+        <button type="submit"> Start Timer </button>
+      </form>
+      </TMPL_IF>
     </aside>
   </section>
 

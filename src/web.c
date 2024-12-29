@@ -55,3 +55,31 @@ void create_stop_timer_html(char *name, char *client, char *project,
     // return static error page?
   }
 }
+
+void create_edit_html(char *name, char *client, char *project,
+                      char *description, char *start_time, char *end_time) {
+  TMPL_varlist *tmpl_vars = NULL;
+  tmpl_vars =
+      TMPL_add_var(NULL, "name", name, "client", client, "project", project,
+                   "description", description, "start_time", start_time, "end_time", end_time, NULL);
+
+  FILE *edit_html = fopen("edit_timer.html", "w+");
+  int err = TMPL_write("templates/edit_timer.tmpl", NULL, NULL, tmpl_vars,
+                       edit_html, stderr);
+  fclose(edit_html);
+
+  if (err) {
+    t_log(ERROR, __func__, "Failed at writing HTML file");
+    // return static error page?
+  }
+}
+
+void clean_up() {
+  remove("edit_timer.html");
+  remove("start.html");
+  remove("stop.html");
+  remove("switch.html");
+  remove("index.html");
+  remove("error.html");
+  t_log(INFO, __func__, "Cleaned up session html files.");
+}
