@@ -11,7 +11,7 @@ void t_log(LOG_LEVEL level, const char *func, ...) {
   }
   va_list args;
   va_start(args, func);
-  char *info = va_arg(args, char *);
+  char *message = va_arg(args, char *);
 
   char *format;
   switch (level) {
@@ -26,9 +26,9 @@ void t_log(LOG_LEVEL level, const char *func, ...) {
     break;
   }
 
-  int length = strlen(format) + strlen(func) + strlen(info);
+  int length = strlen(format) + strlen(func) + strlen(message);
   char *log_format = malloc(length);
-  snprintf(log_format, length, format, func, info);
+  snprintf(log_format, length, format, func, message);
   vprintf(log_format, args);
   va_end(args);
   free(log_format);

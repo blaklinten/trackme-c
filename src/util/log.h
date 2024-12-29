@@ -8,6 +8,6 @@
 
 typedef enum { SUCCESS = 1, ERROR = 2, INFO = 3 } LOG_LEVEL;
 
-void t_log(LOG_LEVEL, const char *, ...);
+void t_log(LOG_LEVEL, const char *func, ...);
 
 #endif // !LOG_H
