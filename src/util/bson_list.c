@@ -55,19 +55,15 @@ void free_list(bson_t_list *list) {
   }
 
   bson_t_list *current = list;
-  while (current->next) {
+  while (current) {
+    bson_t_list *next = current->next; // Store the next node before freeing current
     if (current->value) {
       bson_destroy(current->value);
       current->value = NULL;
     }
-    current = current->next;
-    free(current->previous);
-    current->previous = NULL;
+    free(current); 
+    current = next;
   }
-  bson_destroy(current->value);
-  current->value = NULL;
-
-  free(current);
 }
 
 int count_elements(bson_t_list *list) {
