@@ -53,7 +53,7 @@ add_executable(integration_test
   ${INTEGRATION_TEST_SOURCES})
 set_property(TARGET integration_test PROPERTY CXX_STANDARD 23)
 
-find_package(mongoc-1.0 1.27 REQUIRED)
+find_package(mongoc-1.0 1.26 REQUIRED)
 
 target_link_libraries(main
   mongo::mongoc_shared)
