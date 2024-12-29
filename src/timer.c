@@ -6,6 +6,7 @@
 
 void reset(Timer *t) {
   if (!t) {
+    t_log(INFO, __func__, "Timer is NULL, something is wrong here...");
     return;
   }
 
