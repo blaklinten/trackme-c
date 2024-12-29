@@ -59,6 +59,7 @@ fail_test:
   fail();
 };
 
+/*** Tests start ***/
 // Timer
 void test_timer_reset() {
   // Given
@@ -133,10 +134,9 @@ void test_timer_start_NULL_start_info(void **state) {
   assert_false(fail_null_start_info);
 
   // Finally
-  reset(&t);
 }
 
-void test_timer_stop(void **state) {
+void test_timer_stop_started(void **state) {
   // Given
   test_state_t *s = (test_state_t *)*state;
   Timer t;
@@ -149,29 +149,29 @@ void test_timer_stop(void **state) {
   will_return(__wrap_time, s->TEST_END_TIME_S); // diff = 38m 19s
 
   // When
-  TimerResult *sucess = stop(&t);
+  TimerResult *stopped_result = stop(&t);
 
   // Then
-  assert_non_null(sucess);
+  assert_non_null(stopped_result);
 
-  assert_ptr_not_equal(s->default_test_info->name, sucess->name);
-  assert_ptr_not_equal(s->default_test_info->client, sucess->client);
-  assert_ptr_not_equal(s->default_test_info->project, sucess->project);
-  assert_ptr_not_equal(s->default_test_info->description, sucess->description);
+  assert_ptr_not_equal(s->default_test_info->name, stopped_result->name);
+  assert_ptr_not_equal(s->default_test_info->client, stopped_result->client);
+  assert_ptr_not_equal(s->default_test_info->project, stopped_result->project);
+  assert_ptr_not_equal(s->default_test_info->description, stopped_result->description);
 
-  assert_string_equal(s->default_test_info->name, sucess->name);
-  assert_string_equal(s->default_test_info->client, sucess->client);
-  assert_string_equal(s->default_test_info->project, sucess->project);
-  assert_string_equal(s->default_test_info->description, sucess->description);
+  assert_string_equal(s->default_test_info->name, stopped_result->name);
+  assert_string_equal(s->default_test_info->client, stopped_result->client);
+  assert_string_equal(s->default_test_info->project, stopped_result->project);
+  assert_string_equal(s->default_test_info->description, stopped_result->description);
 
-  assert_int_equal(sucess->start_time, s->TEST_START_TIME_S);
-  assert_int_equal(sucess->end_time, s->TEST_END_TIME_S);
+  assert_int_equal(stopped_result->start_time, s->TEST_START_TIME_S);
+  assert_int_equal(stopped_result->end_time, s->TEST_END_TIME_S);
 
-  assert_non_null(sucess->duration);
-  assert_int_equal(sucess->duration, s->TEST_END_TIME_S - s->TEST_START_TIME_S);
+  assert_non_null(stopped_result->duration);
+  assert_int_equal(stopped_result->duration, s->TEST_END_TIME_S - s->TEST_START_TIME_S);
 
   // Finally
-  free_timer_result(sucess);
+  free_timer_result(stopped_result);
   reset(&t);
 }
 

@@ -5,7 +5,7 @@ void test_timer_reset();
 void test_timer_start();
 void test_timer_start_NULL();
 void test_timer_start_NULL_start_info();
-void test_timer_stop();
+void test_timer_stop_started();
 void test_timer_stop_NULL();
 void test_timer_not_started_stop();
 void test_timer_get_name();

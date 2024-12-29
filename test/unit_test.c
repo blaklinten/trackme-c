@@ -149,7 +149,7 @@ int main(void) {
       cmocka_unit_test(test_timer_start),
       cmocka_unit_test(test_timer_start_NULL),
       cmocka_unit_test(test_timer_start_NULL_start_info),
-      cmocka_unit_test(test_timer_stop),
+      cmocka_unit_test(test_timer_stop_started),
       cmocka_unit_test(test_timer_stop_NULL),
       cmocka_unit_test(test_timer_not_started_stop),
       cmocka_unit_test(test_timer_get_name),

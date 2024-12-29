@@ -6,7 +6,7 @@
 #include <bson/bson.h>
 #include <cmocka.h>
 
-char **get_oids_as_strings(bson_t *e1, bson_t *e2) {
+char **_get_oids_as_strings(bson_t *e1, bson_t *e2) {
   bson_iter_t e1_iter, e2_iter;
   if (!bson_iter_init(&e1_iter, e1) || !bson_iter_init(&e2_iter, e2)) {
     t_log(ERROR, __func__, "Could not init iterator");
@@ -29,7 +29,7 @@ char **get_oids_as_strings(bson_t *e1, bson_t *e2) {
   ret[1] = oid_string2;
   return ret;
 }
-char **get_bson_names(bson_t *e1, bson_t *e2) {
+char **_get_bson_names(bson_t *e1, bson_t *e2) {
   bson_iter_t e1_iter, e2_iter;
   if (!bson_iter_init(&e1_iter, e1) || !bson_iter_init(&e2_iter, e2)) {
     t_log(ERROR, __func__, "Could not init iterator");
@@ -47,7 +47,7 @@ char **get_bson_names(bson_t *e1, bson_t *e2) {
   ret[1] = bson_strndup(name2, strlen(name2));
   return ret;
 }
-char **get_bson_clients(bson_t *e1, bson_t *e2) {
+char **_get_bson_clients(bson_t *e1, bson_t *e2) {
   bson_iter_t e1_iter, e2_iter;
   if (!bson_iter_init(&e1_iter, e1) || !bson_iter_init(&e2_iter, e2)) {
     t_log(ERROR, __func__, "Could not init iterator");
@@ -66,7 +66,7 @@ char **get_bson_clients(bson_t *e1, bson_t *e2) {
   return ret;
 }
 
-char **get_bson_projects(bson_t *e1, bson_t *e2) {
+char **_get_bson_projects(bson_t *e1, bson_t *e2) {
   bson_iter_t e1_iter, e2_iter;
   if (!bson_iter_init(&e1_iter, e1) || !bson_iter_init(&e2_iter, e2)) {
     t_log(ERROR, __func__, "Could not init iterator");
@@ -85,7 +85,7 @@ char **get_bson_projects(bson_t *e1, bson_t *e2) {
   return ret;
 }
 
-time_t *get_bson_durations(bson_t *e1, bson_t *e2) {
+time_t *_get_bson_durations(bson_t *e1, bson_t *e2) {
   bson_iter_t e1_iter, e2_iter;
   if (!bson_iter_init(&e1_iter, e1) || !bson_iter_init(&e2_iter, e2)) {
     t_log(ERROR, __func__, "Could not init iterator");
@@ -103,7 +103,7 @@ time_t *get_bson_durations(bson_t *e1, bson_t *e2) {
   return ret;
 }
 
-time_t *get_bson_start_times(bson_t *e1, bson_t *e2) {
+time_t *_get_bson_start_times(bson_t *e1, bson_t *e2) {
   bson_iter_t e1_iter, e2_iter;
   if (!bson_iter_init(&e1_iter, e1) || !bson_iter_init(&e2_iter, e2)) {
     t_log(ERROR, __func__, "Could not init iterator");
@@ -120,7 +120,7 @@ time_t *get_bson_start_times(bson_t *e1, bson_t *e2) {
   return ret;
 }
 
-time_t *get_bson_end_times(bson_t *e1, bson_t *e2) {
+time_t *_get_bson_end_times(bson_t *e1, bson_t *e2) {
   bson_iter_t e1_iter, e2_iter;
   if (!bson_iter_init(&e1_iter, e1) || !bson_iter_init(&e2_iter, e2)) {
     t_log(ERROR, __func__, "Could not init iterator");
@@ -137,48 +137,48 @@ time_t *get_bson_end_times(bson_t *e1, bson_t *e2) {
   return ret;
 }
 
-bool compare_entries(bson_t *e1, bson_t *e2) {
+bool _compare_entries(bson_t *e1, bson_t *e2) {
 
   // OID
-  char **oids = get_oids_as_strings(e1, e2);
+  char **oids = _get_oids_as_strings(e1, e2);
   assert_string_equal(oids[0], oids[1]);
   free(oids[0]);
   free(oids[1]);
   free(oids);
 
   // Name
-  char **names = get_bson_names(e1, e2);
+  char **names = _get_bson_names(e1, e2);
   assert_string_equal(names[0], names[1]);
   bson_free(names[0]);
   bson_free(names[1]);
   free(names);
 
   // Client
-  char **clients = get_bson_clients(e1, e2);
+  char **clients = _get_bson_clients(e1, e2);
   assert_string_equal(clients[0], clients[1]);
   bson_free(clients[0]);
   bson_free(clients[1]);
   free(clients);
 
   // Project
-  char **projects = get_bson_projects(e1, e2);
+  char **projects = _get_bson_projects(e1, e2);
   assert_string_equal(projects[0], projects[1]);
   bson_free(projects[0]);
   bson_free(projects[1]);
   free(projects);
 
   // Duraion
-  time_t *durations = get_bson_durations(e1, e2);
+  time_t *durations = _get_bson_durations(e1, e2);
   assert_false(difftime(durations[0], durations[1]));
   free(durations);
 
   // Start time
-  time_t *start_times = get_bson_start_times(e1, e2);
+  time_t *start_times = _get_bson_start_times(e1, e2);
   assert_false(difftime(start_times[0], start_times[1]));
   free(start_times);
 
   // End time
-  time_t *end_times = get_bson_end_times(e1, e2);
+  time_t *end_times = _get_bson_end_times(e1, e2);
   assert_false(difftime(end_times[0], end_times[1]));
   free(end_times);
 
@@ -214,11 +214,6 @@ void test_db_save(void **state) {
   bool sucess = save(s->test_document_1);
   bson_t_list *entry = get_by(DB_KEY_ID, &s->test_id_1);
 
-  // Then
-  assert_true(sucess);
-  assert_non_null(entry);
-  assert_null(entry->next);
-
   bson_iter_t result_iter;
   if (!bson_iter_init(&result_iter, entry->value)) {
     t_log(ERROR, __func__, "Could not init iterator");
@@ -246,11 +241,16 @@ void test_db_save(void **state) {
     t_log(ERROR, __func__, "No %s found in document", DB_KEY_ID);
     fail();
   }
-  //
-  // Finally
+
+
+  // Then
+  assert_true(sucess);
+  assert_non_null(entry);
+  assert_null(entry->next);
   assert_true(bson_oid_equal(oid, &s->test_id_1));
   assert_string_equal(name, s->TEST_NAME_1);
 
+  // Finally
   free_list(entry);
 }
 
@@ -281,6 +281,7 @@ void test_db_insert_and_get(void **state) {
 
   bson_t reply;
   bson_error_t error;
+
   // When
   if (!mongoc_collection_insert_one(entries, doc1, NULL, &reply, &error)) {
     char *bson_as_json = bson_as_canonical_extended_json(doc1, NULL);
@@ -308,8 +309,6 @@ void test_db_insert_and_get(void **state) {
     bson_destroy(&reply);
     fail();
   }
-  bson_destroy(doc1);
-  bson_destroy(doc2);
 
   // Then
   bson_t *query = bson_new();
@@ -326,6 +325,8 @@ void test_db_insert_and_get(void **state) {
     bson_free(str);
   }
   // Finally
+  bson_destroy(doc1);
+  bson_destroy(doc2);
   mongoc_cursor_destroy(cursor);
   bson_destroy(query);
 }
@@ -348,10 +349,11 @@ void test_db_get_by(void **state) {
   assert_true(sucess_2);
   assert_non_null(entries_by_project->value);
   assert_non_null(entries_by_name->value);
-  compare_entries(s->test_document_1, entries_by_project->value);
-  compare_entries(s->test_document_2, entries_by_name->value);
-  compare_entries(s->test_document_1, entries_by_duration->value);
+  _compare_entries(s->test_document_1, entries_by_project->value);
+  _compare_entries(s->test_document_2, entries_by_name->value);
+  _compare_entries(s->test_document_1, entries_by_duration->value);
   assert_int_equal(2, count_elements(entries_by_duration));
+
   // Finally
   free_list(entries_by_project);
   free_list(entries_by_name);
