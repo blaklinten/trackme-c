@@ -72,7 +72,7 @@ StartInfo *_start_info_from_request_body(struct mg_str *request_body) {
     t_log(ERROR, __func__,
           "Variable [name] could not be extracted from body. Not set or too "
           "long?");
-    snprintf(name, NOT_SET_LENGTH, "%s", NOT_SET);
+    strcpy(name, NOT_SET);
   }
 
   char *var_key_client = "client";
@@ -81,7 +81,7 @@ StartInfo *_start_info_from_request_body(struct mg_str *request_body) {
     t_log(ERROR, __func__,
           "Variable [client] could not be extracted from body. Not set or too "
           "long?");
-    snprintf(client, NOT_SET_LENGTH, "%s", NOT_SET);
+    strcpy(client, NOT_SET);
   }
 
   char *var_key_project = "project";
@@ -90,7 +90,7 @@ StartInfo *_start_info_from_request_body(struct mg_str *request_body) {
     t_log(ERROR, __func__,
           "Variable [project] could not be extracted from body. Not set or too "
           "long?");
-    snprintf(project, NOT_SET_LENGTH, "%s", NOT_SET);
+    strcpy(project, NOT_SET);
   }
 
   char *var_key_description = "description";
@@ -99,7 +99,7 @@ StartInfo *_start_info_from_request_body(struct mg_str *request_body) {
     t_log(ERROR, __func__,
           "Variable [description] could not be extracted from body. Not set or "
           "too long?");
-    snprintf(description, NOT_SET_LENGTH, "%s", NOT_SET);
+    strcpy(description, NOT_SET);
   }
 
   return si;
@@ -112,8 +112,7 @@ char *_time_t_to_str(time_t *time) {
   if (!time) {
     t_log(ERROR, __func__, "No time_t to convert");
     char *error_message = malloc(strlen(NULL_TIME) + 1);
-    snprintf(error_message, strlen(NULL_TIME) + 1, "%s", NULL_TIME);
-    return error_message;
+    return strcpy(error_message, NULL_TIME);
   }
   size_t string_size = strlen(DATE_FORMAT_STR);
   char *time_str = malloc(string_size * sizeof(char) + 1);
@@ -122,13 +121,18 @@ char *_time_t_to_str(time_t *time) {
     return NULL;
   }
   struct tm *time_tm = localtime(time);
+  if (!time_tm) {
+    t_log(ERROR, __func__, "Could not convert time_tm");
+    char *error_message = malloc(strlen(NULL_TIME) + 1);
+    return strcpy(error_message, NULL_TIME);
+  }
+
   size_t written =
       strftime(time_str, string_size + 1, STRF_DATE_FORMAT, time_tm);
   if (string_size != written) {
     t_log(ERROR, __func__, "Could not fomat date string %s", time_str);
     char *error_message = malloc(strlen(NULL_TIME) + 1);
-    snprintf(error_message, strlen(NULL_TIME) + 1, "%s", NULL_TIME);
-    return error_message;
+    return strcpy(error_message, NULL_TIME);
   }
   return time_str;
 }
@@ -217,20 +221,17 @@ char *get_end_time() {
     return _time_t_to_str(&current_timer_result->end_time);
   } else {
     t_log(INFO, __func__, "Timer not stopped - no stop_time to get");
-    char *timer_not_stopped_str_length = "No end time - stop timer first";
-    char *timer_not_stopped = malloc(strlen(timer_not_stopped_str_length) + 1);
-    snprintf(timer_not_stopped, strlen(timer_not_stopped_str_length) + 1, "%s",
-             timer_not_stopped_str_length);
-    return timer_not_stopped;
+    char *timer_not_stopped_str = "No end time - stop timer first";
+    char *message = malloc(strlen(timer_not_stopped_str) + 1);
+    return strcpy(message, timer_not_stopped_str);
   }
 }
 
 char *get_duration() {
   int duration = _get_duration_int();
   if (duration < 1) {
-    char *no_duration_str = malloc(strlen(ZERO_STR) + 1);
-    snprintf(no_duration_str, strlen(ZERO_STR) + 1, "%s", ZERO_STR);
-    return no_duration_str;
+    char *message = malloc(strlen(ZERO_STR) + 1);
+    return strcpy(message, ZERO_STR);
   }
   return _duration_int_to_string(duration);
 }
