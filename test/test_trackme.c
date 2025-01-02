@@ -399,6 +399,10 @@ void test_trackme_stop_timer_started(void **state) {
 
 
   //Finally
+  free(name);
+  free(client);
+  free(project);
+  free(description);
   free(start);
   free(end);
   free(duration);
@@ -731,8 +735,7 @@ void test_trackme_get_name_stopped(void **state){
   assert_false(is_timer_running());
 
   // Finally
-  // TODO this should be freed when implementation for get_xxx() is fixed
-  // free(name);
+  free(name);
 
 }
 
@@ -812,8 +815,7 @@ void test_trackme_get_client_stopped(void **state){
   assert_false(is_timer_running());
 
   // Finally
-  // TODO this should be freed when implementation for get_xxx() is fixed
-  // free(client);
+  free(client);
 }
 
 
@@ -893,8 +895,7 @@ void test_trackme_get_project_stopped(void **state){
   assert_false(is_timer_running());
 
   // Finally
-  // TODO this should be freed when implementation for get_xxx() is fixed
-  // free(project);
+  free(project);
 }
 
 
@@ -974,6 +975,5 @@ void test_trackme_get_description_stopped(void **state){
   assert_false(is_timer_running());
 
   // Finally
-  // TODO this should be freed when implementation for get_xxx() is fixed
-  // free(description);
+  free(description);
 }
