@@ -49,10 +49,10 @@ StartInfo *_copy_start_info(StartInfo *orig_si) {
   si->description = description;
 
   // Fill StartInfo struct
-  snprintf(name, strlen(orig_si->name) + 1, "%s", orig_si->name);
-  snprintf(client, strlen(orig_si->client) + 1, "%s", orig_si->client);
-  snprintf(project, strlen(orig_si->project) + 1, "%s", orig_si->project);
-  snprintf(description, strlen(orig_si->description) + 1, "%s", orig_si->description);
+  snprintf(name, REQUEST_FIELD_MAX_SIZE, "%s", orig_si->name);
+  snprintf(client, REQUEST_FIELD_MAX_SIZE, "%s", orig_si->client);
+  snprintf(project, REQUEST_FIELD_MAX_SIZE, "%s", orig_si->project);
+  snprintf(description, 10 * REQUEST_FIELD_MAX_SIZE, "%s", orig_si->description);
 
   return si;
 fail_test:
