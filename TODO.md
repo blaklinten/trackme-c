@@ -1,5 +1,5 @@
 # Continue: 
-    - edit page template should fetch values from web.c input
+    - Implement update function
 
 # Change DB
     - MongoDB → SQLite
@@ -13,4 +13,3 @@
 
 # Clean up buttons to reflect only avaliable options
     - Only have relevant buttons on each page
-

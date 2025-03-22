@@ -191,7 +191,7 @@ char *_duration_int_to_string(int i) {
   return duration_str;
 }
 
-/*** Public funcions ***/
+/*** Public functions ***/
 
 bool start_timer(struct mg_str *request_body) {
   reset(&current_timer);

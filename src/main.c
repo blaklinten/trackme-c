@@ -15,6 +15,9 @@ static void ev_handler(struct mg_connection *c, int ev, void *ev_data) {
     struct mg_http_message *hm = (struct mg_http_message *)ev_data;
     struct mg_http_serve_opts opts = {.root_dir = "./"}; // Serve local dir
 
+    /* 
+     * Pages 
+     */
     if (mg_match(hm->uri, mg_str("/"), NULL)) {
       create_index_html(get_name(), get_client(), get_project(), get_description(),
                         get_duration());
@@ -31,22 +34,25 @@ static void ev_handler(struct mg_connection *c, int ev, void *ev_data) {
         create_stop_timer_html(NULL, NULL, NULL, NULL, NULL, NULL, NULL);
       } else {
         create_stop_timer_html(get_name(), get_client(), get_project(),
-                               get_description(), get_start_time(), get_end_time(),
-                               get_description());
+                               get_description(), get_start_time(),
+                               get_end_time(), get_duration());
       }
     }
 
     else if (mg_match(hm->uri, mg_str("/edit_timer.html"), NULL)) {
-      //TODO this is possible error - is start time really 00:00:00??
-      if ( strcmp(get_start_time(), "00:00:00") == 0) {
+      // TODO this is possible error - is start time really 00:00:00??
+      if (strcmp(get_start_time(), "00:00:00") == 0) {
         t_log(INFO, __func__, "Timer not started, can not edit");
         create_edit_html(NULL, NULL, NULL, NULL, NULL, NULL);
       } else {
-        create_edit_html(get_name(), get_client(), get_project(), get_description(),
-                         get_start_time(), get_end_time());
+        create_edit_html(get_name(), get_client(), get_project(),
+                         get_description(), get_start_time(), get_end_time());
       }
     }
 
+    /*
+     * Post/data endpoints
+     */
     else if (mg_match(hm->uri, mg_str("/start_info"), NULL) &&
              (mg_match(hm->method, mg_str("POST"), NULL))) {
       if (start_timer(&hm->body)) {
