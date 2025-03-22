@@ -5,12 +5,13 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-void create_index_html(char *name, char *client, char *project,
-                       char *description, char *current_duration) {
+void create_index_html(char *is_running, char *name, char *client,
+                       char *project, char *description,
+                       char *current_duration) {
   TMPL_varlist *tmpl_vars = NULL;
-  tmpl_vars = TMPL_add_var(NULL, "name", name, "client", client, "project",
-                           project, "description", description, "duration",
-                           current_duration, NULL);
+  tmpl_vars = TMPL_add_var(NULL, "is_running", is_running, "name", name,
+                           "client", client, "project", project, "description",
+                           description, "duration", current_duration, NULL);
 
   FILE *index_html_file = fopen("index.html", "w+");
   int err = TMPL_write("templates/index.tmpl", NULL, NULL, tmpl_vars,

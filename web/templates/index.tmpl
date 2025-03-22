@@ -31,7 +31,7 @@
     <main role="main">
       <article>
         <h2>Current timer status:</h2>
-        <TMPL_IF name = "duration">
+        <TMPL_IF name = "is_running">
           <table>
             <tbody>
               <tr>
@@ -47,17 +47,18 @@
                 <td><label>Description: <TMPL_VAR name = "description"></label></td>
               </tr>
               <tr>
-                <td><label>Duration: <TMPL_VAR name = "duration"></label></td>
+                <td><label id='duration'>Duration: <TMPL_VAR name = "duration"></label></td>
               </tr>
             </tbody>
           </table>
+
         <TMPL_ELSE>
         <p>No running timer at the moment. Start one?</p>
         </TMPL_IF>
       </article>
     </main>
     <aside>
-      <TMPL_IF name = "duration">
+      <TMPL_IF name = "is_running">
       <form action="./stop_timer.html">
         <button type="submit"> Stop Timer </button>
       </form>
@@ -81,5 +82,23 @@
       Contact: <a href="mailto:admin@blaklinten.xyz">Mail me</a>
     </address>
   </footer>
+
+  <script>
+  async function updateDuration() {
+    try {
+      const response = await fetch('/duration');
+      if (!response.ok) {
+          throw new Error('Server unreachable');
+      }
+      const json = await response.json();
+      document.getElementById('duration').innerText = 'Duration: ' + json.duration
+    } catch (error) {
+        console.error('There was a problem with the fetch operation:', error);
+    }
+  }
+
+  // Update the text box every second
+  setInterval(updateDuration, 1000); // 1000 milliseconds = 1 second
+  </script>
 </body>
 </html>
