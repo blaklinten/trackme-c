@@ -69,6 +69,11 @@ static void ev_handler(struct mg_connection *c, int ev, void *ev_data) {
       }
     }
 
+    else if (mg_match(hm->uri, mg_str("/duration"), NULL)) {
+      return mg_http_reply(c, 200, "Content-Type: application/json\r\n",
+                    "{%m:\"%s\"}\n", MG_ESC("duration"), get_duration());
+    }
+
     t_log(INFO, __func__, "Serving local dir");
     mg_http_serve_dir(c, ev_data, &opts);
   }
