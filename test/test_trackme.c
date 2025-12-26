@@ -71,7 +71,7 @@ void test_trackme_from_request_body(void **state) {
 
   // Then
   assert_non_null(si);
-  assert_true(_compare_start_info(s->default_test_info, si));
+  assert_true(_compare_start_info(s->default_start_info, si));
 
   // Finally
   free_start_info(si);
@@ -251,10 +251,10 @@ void test_trackme_start_timer_started(void **state) {
   // Then
   assert_null(current_timer_result);
   assert_true(is_timer_running());
-  assert_string_equal(name, s->default_test_info->name);
-  assert_string_equal(client, s->default_test_info->client);
-  assert_string_equal(project, s->default_test_info->project);
-  assert_string_equal(description, s->default_test_info->description);
+  assert_string_equal(name, s->default_start_info->name);
+  assert_string_equal(client, s->default_start_info->client);
+  assert_string_equal(project, s->default_start_info->project);
+  assert_string_equal(description, s->default_start_info->description);
   assert_string_equal(start, EXPECTED_START_TIME);
   assert_string_equal(end, NO_END_TIME);
   assert_string_equal(duration, EXPECTED_DURATION);// If timer was not restarted with correct start time this should fail as duration would be 0
@@ -293,10 +293,10 @@ void test_trackme_start_timer_not_started(void **state){
   // Then
   assert_null(current_timer_result);
   assert_true(is_timer_running());
-  assert_string_equal(name, s->default_test_info->name);
-  assert_string_equal(client, s->default_test_info->client);
-  assert_string_equal(project, s->default_test_info->project);
-  assert_string_equal(description, s->default_test_info->description);
+  assert_string_equal(name, s->default_start_info->name);
+  assert_string_equal(client, s->default_start_info->client);
+  assert_string_equal(project, s->default_start_info->project);
+  assert_string_equal(description, s->default_start_info->description);
   assert_string_equal(start, EXPECTED_START_TIME);
   assert_string_equal(end, NO_END_TIME);
   assert_string_equal(duration, EXPECTED_DURATION);
@@ -389,10 +389,10 @@ void test_trackme_stop_timer_started(void **state) {
   // Then
   assert_non_null(current_timer_result);
   assert_false(is_timer_running());
-  assert_string_equal(name, s->default_test_info->name);
-  assert_string_equal(client, s->default_test_info->client);
-  assert_string_equal(project, s->default_test_info->project);
-  assert_string_equal(description, s->default_test_info->description);
+  assert_string_equal(name, s->default_start_info->name);
+  assert_string_equal(client, s->default_start_info->client);
+  assert_string_equal(project, s->default_start_info->project);
+  assert_string_equal(description, s->default_start_info->description);
   assert_string_equal(start, expected_start);
   assert_string_equal(end, expected_end);
   assert_string_equal(duration, expected_duration);
@@ -706,7 +706,7 @@ void test_trackme_get_name_started_set(void **state) {
   char *name = get_name();
 
   // Then
-  assert_string_equal(name, s->default_test_info->name);
+  assert_string_equal(name, s->default_start_info->name);
   assert_null(current_timer_result);
   assert_true(is_timer_running());
 
@@ -730,7 +730,7 @@ void test_trackme_get_name_stopped(void **state){
   char *name = get_name();
 
   // Then
-  assert_string_equal(name, s->default_test_info->name);
+  assert_string_equal(name, s->default_start_info->name);
   assert_non_null(current_timer_result);
   assert_false(is_timer_running());
 
@@ -786,7 +786,7 @@ void test_trackme_get_client_started_set(void **state) {
   char *client = get_client();
 
   // Then
-  assert_string_equal(client, s->default_test_info->client);
+  assert_string_equal(client, s->default_start_info->client);
   assert_null(current_timer_result);
   assert_true(is_timer_running());
 
@@ -810,7 +810,7 @@ void test_trackme_get_client_stopped(void **state){
   char *client = get_client();
 
   // Then
-  assert_string_equal(client, s->default_test_info->client);
+  assert_string_equal(client, s->default_start_info->client);
   assert_non_null(current_timer_result);
   assert_false(is_timer_running());
 
@@ -866,7 +866,7 @@ void test_trackme_get_project_started_set(void **state) {
   char *project = get_project();
 
   // Then
-  assert_string_equal(project, s->default_test_info->project);
+  assert_string_equal(project, s->default_start_info->project);
   assert_null(current_timer_result);
   assert_true(is_timer_running());
 
@@ -890,7 +890,7 @@ void test_trackme_get_project_stopped(void **state){
   char *project = get_project();
 
   // Then
-  assert_string_equal(project, s->default_test_info->project);
+  assert_string_equal(project, s->default_start_info->project);
   assert_non_null(current_timer_result);
   assert_false(is_timer_running());
 
@@ -946,7 +946,7 @@ void test_trackme_get_description_started_set(void **state) {
   char *description = get_description();
 
   // Then
-  assert_string_equal(description, s->default_test_info->description);
+  assert_string_equal(description, s->default_start_info->description);
   assert_null(current_timer_result);
   assert_true(is_timer_running());
 
@@ -970,7 +970,7 @@ void test_trackme_get_description_stopped(void **state){
   char *description = get_description();
 
   // Then
-  assert_string_equal(description, s->default_test_info->description);
+  assert_string_equal(description, s->default_start_info->description);
   assert_non_null(current_timer_result);
   assert_false(is_timer_running());
 

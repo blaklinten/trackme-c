@@ -84,7 +84,7 @@ void test_timer_free_timer_result(void **state) {
 
   expect_value(__wrap_time, __timer, NULL);
   will_return(__wrap_time, s->TEST_START_TIME_S);
-  start(&t, _copy_start_info(s->default_test_info));
+  start(&t, _copy_start_info(s->default_start_info));
 
   expect_value(__wrap_time, __timer, NULL);
   will_return(__wrap_time, s->TEST_END_TIME_S);
@@ -102,7 +102,7 @@ void test_timer_free_timer_result(void **state) {
 void test_timer_free_start_info(void **state) {
   // Given
   test_state_t *s = (test_state_t *)*state;
-  StartInfo *si = _copy_start_info(s->default_test_info);
+  StartInfo *si = _copy_start_info(s->default_start_info);
 
   // When
   free_start_info(si);
@@ -122,22 +122,22 @@ void test_timer_start(void **state) {
   will_return(__wrap_time, s->TEST_START_TIME_S);
 
   // When
-  bool success = start(&t, _copy_start_info(s->default_test_info));
+  bool success = start(&t, _copy_start_info(s->default_start_info));
 
   // Then
   assert_true(success);
 
-  assert_ptr_not_equal(s->default_test_info->name, t.name);
-  assert_string_equal(s->default_test_info->name, t.name);
+  assert_ptr_not_equal(s->default_start_info->name, t.name);
+  assert_string_equal(s->default_start_info->name, t.name);
 
-  assert_ptr_not_equal(s->default_test_info->client, t.client);
-  assert_string_equal(s->default_test_info->client, t.client);
+  assert_ptr_not_equal(s->default_start_info->client, t.client);
+  assert_string_equal(s->default_start_info->client, t.client);
 
-  assert_ptr_not_equal(s->default_test_info->project, t.project);
-  assert_string_equal(s->default_test_info->project, t.project);
+  assert_ptr_not_equal(s->default_start_info->project, t.project);
+  assert_string_equal(s->default_start_info->project, t.project);
 
-  assert_ptr_not_equal(s->default_test_info->description, t.description);
-  assert_string_equal(s->default_test_info->description, t.description);
+  assert_ptr_not_equal(s->default_start_info->description, t.description);
+  assert_string_equal(s->default_start_info->description, t.description);
 
   assert_true(t.start_time > 0);
   assert_true(t.start_time == s->TEST_START_TIME_S);
@@ -149,7 +149,7 @@ void test_timer_start(void **state) {
 void test_timer_start_NULL(void **state) {
   // Given
   test_state_t *s = (test_state_t *)*state;
-  StartInfo *si = _copy_start_info(s->default_test_info);
+  StartInfo *si = _copy_start_info(s->default_start_info);
 
   // When
   bool fail_null_timer = start(NULL, si);
@@ -183,7 +183,7 @@ void test_timer_stop_started(void **state) {
 
   expect_value(__wrap_time, __timer, NULL);
   will_return(__wrap_time, s->TEST_START_TIME_S);
-  start(&t, _copy_start_info(s->default_test_info));
+  start(&t, _copy_start_info(s->default_start_info));
 
   expect_value(__wrap_time, __timer, NULL);
   will_return(__wrap_time, s->TEST_END_TIME_S); // diff = 38m 19s
@@ -194,15 +194,15 @@ void test_timer_stop_started(void **state) {
   // Then
   assert_non_null(stopped_result);
 
-  assert_ptr_not_equal(s->default_test_info->name, stopped_result->name);
-  assert_ptr_not_equal(s->default_test_info->client, stopped_result->client);
-  assert_ptr_not_equal(s->default_test_info->project, stopped_result->project);
-  assert_ptr_not_equal(s->default_test_info->description, stopped_result->description);
+  assert_ptr_not_equal(s->default_start_info->name, stopped_result->name);
+  assert_ptr_not_equal(s->default_start_info->client, stopped_result->client);
+  assert_ptr_not_equal(s->default_start_info->project, stopped_result->project);
+  assert_ptr_not_equal(s->default_start_info->description, stopped_result->description);
 
-  assert_string_equal(s->default_test_info->name, stopped_result->name);
-  assert_string_equal(s->default_test_info->client, stopped_result->client);
-  assert_string_equal(s->default_test_info->project, stopped_result->project);
-  assert_string_equal(s->default_test_info->description, stopped_result->description);
+  assert_string_equal(s->default_start_info->name, stopped_result->name);
+  assert_string_equal(s->default_start_info->client, stopped_result->client);
+  assert_string_equal(s->default_start_info->project, stopped_result->project);
+  assert_string_equal(s->default_start_info->description, stopped_result->description);
 
   assert_int_equal(stopped_result->start_time, s->TEST_START_TIME_S);
   assert_int_equal(stopped_result->end_time, s->TEST_END_TIME_S);
@@ -246,14 +246,14 @@ void test_timer_get_name(void **state) {
   reset(&t);
   expect_value(__wrap_time, __timer, NULL);
   will_return(__wrap_time, s->TEST_START_TIME_S);
-  start(&t, _copy_start_info(s->default_test_info));
+  start(&t, _copy_start_info(s->default_start_info));
 
   // When
   char *name = t.name;
 
   // Then
   assert_non_null(name);
-  assert_string_equal(s->default_test_info->name, name);
+  assert_string_equal(s->default_start_info->name, name);
 
   // Finally
   reset(&t);
@@ -280,14 +280,14 @@ void test_timer_get_client(void **state) {
   reset(&t);
   expect_value(__wrap_time, __timer, NULL);
   will_return(__wrap_time, s->TEST_START_TIME_S);
-  start(&t, _copy_start_info(s->default_test_info));
+  start(&t, _copy_start_info(s->default_start_info));
 
   // When
   char *client = t.client;
 
   // Then
   assert_non_null(client);
-  assert_string_equal(s->default_test_info->client, client);
+  assert_string_equal(s->default_start_info->client, client);
 
   // Finally
   reset(&t);
@@ -315,14 +315,14 @@ void test_timer_get_project(void **state) {
   reset(&t);
   expect_value(__wrap_time, __timer, NULL);
   will_return(__wrap_time, s->TEST_START_TIME_S);
-  start(&t, _copy_start_info(s->default_test_info));
+  start(&t, _copy_start_info(s->default_start_info));
 
   // When
   char *project = t.project;
 
   // Then
   assert_non_null(project);
-  assert_string_equal(s->default_test_info->project, project);
+  assert_string_equal(s->default_start_info->project, project);
 
   // Finally
   reset(&t);
@@ -350,14 +350,14 @@ void test_timer_get_description(void **state) {
   reset(&t);
   expect_value(__wrap_time, __timer, NULL);
   will_return(__wrap_time, s->TEST_START_TIME_S);
-  start(&t, _copy_start_info(s->default_test_info));
+  start(&t, _copy_start_info(s->default_start_info));
 
   // When
   char *description = t.description;
 
   // Then
   assert_non_null(description);
-  assert_string_equal(s->default_test_info->description, description);
+  assert_string_equal(s->default_start_info->description, description);
 
   // Finally
   reset(&t);

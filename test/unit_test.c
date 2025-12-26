@@ -32,7 +32,16 @@ static int group_setup(void **state) {
   si->client = "test_client";
   si->project = "test_project";
   si->description = "this is a test description";
-  s->default_test_info = si;
+  s->default_start_info = si;
+
+  UpdateInfo *ui = malloc(sizeof(UpdateInfo));
+  ui->name = "updated_name";
+  ui->client = "updated_client";
+  ui->project = "updated_project";
+  ui->description = "this is an updated description";
+  ui->start_time = 1721665160;  // Mon 22 Jul 18:19:20 CEST 2024
+  ui->end_time = 1721668890;    // Mon 22 Jul 19:20:30 CEST 2024
+  s->default_update_info = ui;
   s->TEST_NAME_1 = "Alice";
   s->TEST_NAME_2 = "Bob";
   s->TEST_CLIENT = "test client";
@@ -66,8 +75,8 @@ static int group_setup(void **state) {
   char *buf = malloc(5 * REQUEST_FIELD_SHORT_SIZE);
   snprintf(buf, 5 * REQUEST_FIELD_SHORT_SIZE,
            "client=%s&project=%s&name=%s&description=%s",
-           s->default_test_info->client, s->default_test_info->project,
-           s->default_test_info->name, s->default_test_info->description);
+           s->default_start_info->client, s->default_start_info->project,
+           s->default_start_info->name, s->default_start_info->description);
   struct mg_str *body = malloc(sizeof(struct mg_str));
   *body = mg_str(buf);
   s->TEST_HTTP_REQUEST_BODY = body;
@@ -95,8 +104,11 @@ static int group_teardown(void **state) {
       free(s->NOT_SET_TEST_HTTP_REQUEST_BODY->buf);
       free(s->NOT_SET_TEST_HTTP_REQUEST_BODY);
     }
-    if (s->default_test_info) {
-      free(s->default_test_info);
+    if (s->default_start_info) {
+      free(s->default_start_info);
+    }
+    if (s->default_update_info) {
+      free(s->default_update_info);
     }
     if (s->test_document_1) {
       bson_destroy(s->test_document_1);

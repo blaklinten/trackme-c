@@ -14,7 +14,8 @@
 time_t __wrap_time(time_t *__timer);
 
 typedef struct {
-  StartInfo *default_test_info;
+  StartInfo *default_start_info;
+  UpdateInfo *default_update_info;
   bson_t *test_document_1;
   bson_t *test_document_2;
   bson_oid_t test_id_1;
