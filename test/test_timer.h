@@ -9,7 +9,7 @@ void test_timer_start_NULL();
 void test_timer_start_NULL_start_info();
 void test_timer_stop_started();
 void test_timer_stop_NULL();
-void test_timer_not_started_stop();
+void test_timer_stop_not_started();
 void test_timer_get_name();
 void test_timer_NULL_get_name();
 void test_timer_not_started_get_name();

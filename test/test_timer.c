@@ -221,7 +221,7 @@ void test_timer_stop_NULL(void **state) {
   assert_null(fail_null_timer);
 }
 
-void test_timer_not_started_stop(void **state) {
+void test_timer_stop_not_started(void **state) {
   // Given
   Timer t;
   reset(&t);
