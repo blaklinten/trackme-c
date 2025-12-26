@@ -188,7 +188,8 @@ bool _compare_entries(bson_t *e1, bson_t *e2) {
 
 /*** Tests begin ***/
 
-void test_db_connect() {
+void test_db_connect(void **state) {
+  (void) state;
   // Given
   bson_t *command = BCON_NEW("ping", BCON_INT32(1));
   bson_t reply;
@@ -258,6 +259,7 @@ void test_db_save(void **state) {
 }
 
 void test_db_save_NULL(void **state) {
+  (void) state;
   // Given
   // When
   bool failed_null = save(NULL);

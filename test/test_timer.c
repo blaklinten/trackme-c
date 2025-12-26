@@ -61,7 +61,8 @@ fail_test:
 
 /*** Tests begin ***/
 // Timer
-void test_timer_reset() {
+void test_timer_reset(void **state) {
+  (void) state;
   // Given
   Timer t;
   // When
@@ -160,6 +161,7 @@ void test_timer_start_NULL(void **state) {
   free_start_info(si);
 }
 void test_timer_start_NULL_start_info(void **state) {
+  (void) state;
   // Given
   Timer t;
   reset(&t);
@@ -213,6 +215,7 @@ void test_timer_stop_started(void **state) {
 }
 
 void test_timer_stop_NULL(void **state) {
+  (void) state;
   // Given
   // When
   TimerResult *fail_null_timer = stop(NULL);
@@ -222,6 +225,7 @@ void test_timer_stop_NULL(void **state) {
 }
 
 void test_timer_stop_not_started(void **state) {
+  (void) state;
   // Given
   Timer t;
   reset(&t);
@@ -256,6 +260,7 @@ void test_timer_get_name(void **state) {
 }
 
 void test_timer_not_started_get_name(void **state) {
+  (void) state;
   // Given
   Timer t;
   reset(&t);
@@ -289,6 +294,7 @@ void test_timer_get_client(void **state) {
 }
 
 void test_timer_not_started_get_client(void **state) {
+  (void) state;
   // Given
   Timer t;
   reset(&t);
@@ -323,6 +329,7 @@ void test_timer_get_project(void **state) {
 }
 
 void test_timer_not_started_get_project(void **state) {
+  (void) state;
   // Given
   Timer t;
   reset(&t);
@@ -357,6 +364,7 @@ void test_timer_get_description(void **state) {
 }
 
 void test_timer_not_started_get_description(void **state) {
+  (void) state;
   // Given
   Timer t;
   reset(&t);
