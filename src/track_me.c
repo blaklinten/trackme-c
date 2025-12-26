@@ -33,25 +33,25 @@ StartInfo *_start_info_from_request_body(struct mg_str *request_body) {
     goto log_error;
   }
 
-  char *name = malloc(REQUEST_FIELD_MAX_SIZE * sizeof(char));
+  char *name = malloc(REQUEST_FIELD_SHORT_SIZE * sizeof(char));
   if (!name) {
     free(si);
     goto log_error;
   }
-  char *client = malloc(REQUEST_FIELD_MAX_SIZE * sizeof(char));
+  char *client = malloc(REQUEST_FIELD_SHORT_SIZE * sizeof(char));
   if (!client) {
     free(si);
     free(name);
     goto log_error;
   }
-  char *project = malloc(REQUEST_FIELD_MAX_SIZE * sizeof(char));
+  char *project = malloc(REQUEST_FIELD_SHORT_SIZE * sizeof(char));
   if (!project) {
     free(si);
     free(name);
     free(client);
     goto log_error;
   }
-  char *description = malloc(10 * REQUEST_FIELD_MAX_SIZE * sizeof(char));
+  char *description = malloc(REQUEST_FIELD_LONG_SIZE * sizeof(char));
   if (!description) {
     free(si);
     free(name);
@@ -68,7 +68,7 @@ StartInfo *_start_info_from_request_body(struct mg_str *request_body) {
 
   char *var_key_name = "name";
   if (mg_http_get_var(request_body, var_key_name, name,
-                      REQUEST_FIELD_MAX_SIZE) < 1) {
+                      REQUEST_FIELD_SHORT_SIZE) < 1) {
     t_log(ERROR, __func__,
           "Variable [name] could not be extracted from body. Not set or too "
           "long?");
@@ -77,7 +77,7 @@ StartInfo *_start_info_from_request_body(struct mg_str *request_body) {
 
   char *var_key_client = "client";
   if (mg_http_get_var(request_body, var_key_client, client,
-                      REQUEST_FIELD_MAX_SIZE) < 1) {
+                      REQUEST_FIELD_SHORT_SIZE) < 1) {
     t_log(ERROR, __func__,
           "Variable [client] could not be extracted from body. Not set or too "
           "long?");
@@ -86,7 +86,7 @@ StartInfo *_start_info_from_request_body(struct mg_str *request_body) {
 
   char *var_key_project = "project";
   if (mg_http_get_var(request_body, var_key_project, project,
-                      REQUEST_FIELD_MAX_SIZE) < 1) {
+                      REQUEST_FIELD_SHORT_SIZE) < 1) {
     t_log(ERROR, __func__,
           "Variable [project] could not be extracted from body. Not set or too "
           "long?");
@@ -95,7 +95,7 @@ StartInfo *_start_info_from_request_body(struct mg_str *request_body) {
 
   char *var_key_description = "description";
   if (mg_http_get_var(request_body, var_key_description, description,
-                      REQUEST_FIELD_MAX_SIZE) < 1) {
+                      REQUEST_FIELD_SHORT_SIZE) < 1) {
     t_log(ERROR, __func__,
           "Variable [description] could not be extracted from body. Not set or "
           "too long?");

@@ -63,8 +63,8 @@ static int group_setup(void **state) {
   BSON_APPEND_TIME_T(s->test_document_2, DB_KEY_END_TIME, s->TEST_END_TIME_S);
   BSON_APPEND_TIME_T(s->test_document_2, DB_KEY_DURATION, s->TEST_DURATION_S);
 
-  char *buf = malloc(5 * REQUEST_FIELD_MAX_SIZE);
-  snprintf(buf, 5 * REQUEST_FIELD_MAX_SIZE,
+  char *buf = malloc(5 * REQUEST_FIELD_SHORT_SIZE);
+  snprintf(buf, 5 * REQUEST_FIELD_SHORT_SIZE,
            "client=%s&project=%s&name=%s&description=%s",
            s->default_test_info->client, s->default_test_info->project,
            s->default_test_info->name, s->default_test_info->description);
@@ -72,8 +72,8 @@ static int group_setup(void **state) {
   *body = mg_str(buf);
   s->TEST_HTTP_REQUEST_BODY = body;
 
-  char *not_set_buf = malloc(5 * REQUEST_FIELD_MAX_SIZE);
-  snprintf(not_set_buf, 5 * REQUEST_FIELD_MAX_SIZE,
+  char *not_set_buf = malloc(5 * REQUEST_FIELD_SHORT_SIZE);
+  snprintf(not_set_buf, 5 * REQUEST_FIELD_SHORT_SIZE,
            "client=%s&project=%s&name=%s&description=%s", "", "", "", "");
   struct mg_str *not_set_body = malloc(sizeof(struct mg_str));
   *not_set_body = mg_str(not_set_buf);

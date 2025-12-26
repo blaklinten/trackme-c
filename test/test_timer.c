@@ -17,25 +17,25 @@ StartInfo *_copy_start_info(StartInfo *orig_si) {
     goto fail_test;
   }
 
-  char *name = malloc(REQUEST_FIELD_MAX_SIZE * sizeof(char));
+  char *name = malloc(REQUEST_FIELD_SHORT_SIZE * sizeof(char));
   if (!name) {
     free(si);
     goto fail_test;
   }
-  char *client = malloc(REQUEST_FIELD_MAX_SIZE * sizeof(char));
+  char *client = malloc(REQUEST_FIELD_SHORT_SIZE * sizeof(char));
   if (!client) {
     free(si);
     free(name);
     goto fail_test;
   }
-  char *project = malloc(REQUEST_FIELD_MAX_SIZE * sizeof(char));
+  char *project = malloc(REQUEST_FIELD_SHORT_SIZE * sizeof(char));
   if (!project) {
     free(si);
     free(name);
     free(client);
     goto fail_test;
   }
-  char *description = malloc(10 * REQUEST_FIELD_MAX_SIZE * sizeof(char));
+  char *description = malloc(REQUEST_FIELD_LONG_SIZE * sizeof(char));
   if (!description) {
     free(si);
     free(name);
@@ -49,10 +49,10 @@ StartInfo *_copy_start_info(StartInfo *orig_si) {
   si->description = description;
 
   // Fill StartInfo struct
-  snprintf(name, REQUEST_FIELD_MAX_SIZE, "%s", orig_si->name);
-  snprintf(client, REQUEST_FIELD_MAX_SIZE, "%s", orig_si->client);
-  snprintf(project, REQUEST_FIELD_MAX_SIZE, "%s", orig_si->project);
-  snprintf(description, 10 * REQUEST_FIELD_MAX_SIZE, "%s", orig_si->description);
+  snprintf(name, REQUEST_FIELD_SHORT_SIZE, "%s", orig_si->name);
+  snprintf(client, REQUEST_FIELD_SHORT_SIZE, "%s", orig_si->client);
+  snprintf(project, REQUEST_FIELD_SHORT_SIZE, "%s", orig_si->project);
+  snprintf(description, REQUEST_FIELD_LONG_SIZE, "%s", orig_si->description);
 
   return si;
 fail_test:

@@ -4,8 +4,8 @@
 #include "../lib/mongoose.h"
 #include <bson/bson.h>
 
-#define REQUEST_FIELD_MAX_SIZE 50
-
+#define REQUEST_FIELD_SHORT_SIZE 50
+#define REQUEST_FIELD_LONG_SIZE 500
 #define DATE_FORMAT_STR "DAY, DD MON YYYY HH:MM:SS +ZONE"
 #define STRF_DATE_FORMAT "%a, %d %b %Y %H:%M:%S %z"
 #define NULL_TIME "Thu, 01 Jan 1970 01:00:00 +0100"
