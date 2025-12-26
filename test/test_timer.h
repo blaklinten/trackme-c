@@ -4,6 +4,7 @@
 void test_timer_reset(void **);
 void test_timer_free_timer_result(void **);
 void test_timer_free_start_info(void **);
+void test_timer_free_update_info(void **);
 void test_timer_start(void **);
 void test_timer_start_NULL(void **);
 void test_timer_start_NULL_start_info(void **);
@@ -11,6 +12,10 @@ void test_timer_stop_started(void **);
 void test_timer_stop_NULL(void **);
 void test_timer_stop_not_started(void **);
 void test_timer_get_name(void **);
+void test_timer_update(void **);
+void test_timer_update_NULL(void **);
+void test_timer_update_NULL_update_info(void **);
+void test_timer_update_not_started(void **);
 void test_timer_not_started_get_name(void **);
 void test_timer_get_client(void **);
 void test_timer_not_started_get_client(void **);

@@ -7,6 +7,60 @@
 
 /*** Helper functions ***/
 // Make sure to pass newly allocated memory so that we can safely free() it later.
+UpdateInfo *_copy_update_info(UpdateInfo *orig_ui) {
+  if (!orig_ui) {
+    fail();
+  }
+  // init UpdateInfo struct
+  UpdateInfo *ui = calloc(1, sizeof(UpdateInfo));
+  if (!ui) {
+    goto fail_test;
+  }
+
+  char *name = malloc(REQUEST_FIELD_SHORT_SIZE * sizeof(char));
+  if (!name) {
+    free(ui);
+    goto fail_test;
+  }
+  char *client = malloc(REQUEST_FIELD_SHORT_SIZE * sizeof(char));
+  if (!client) {
+    free(ui);
+    free(name);
+    goto fail_test;
+  }
+  char *project = malloc(REQUEST_FIELD_SHORT_SIZE * sizeof(char));
+  if (!project) {
+    free(ui);
+    free(name);
+    free(client);
+    goto fail_test;
+  }
+  char *description = malloc(REQUEST_FIELD_LONG_SIZE * sizeof(char));
+  if (!description) {
+    free(ui);
+    free(name);
+    free(client);
+    free(project);
+    goto fail_test;
+  }
+  ui->name = name;
+  ui->client = client;
+  ui->project = project;
+  ui->description = description;
+
+  // Fill StartInfo struct
+  snprintf(name, REQUEST_FIELD_SHORT_SIZE, "%s", orig_ui->name);
+  snprintf(client, REQUEST_FIELD_SHORT_SIZE, "%s", orig_ui->client);
+  snprintf(project, REQUEST_FIELD_SHORT_SIZE, "%s", orig_ui->project);
+  snprintf(description, REQUEST_FIELD_LONG_SIZE, "%s", orig_ui->description);
+  ui->start_time = orig_ui->start_time;
+  ui->end_time = orig_ui->end_time;
+
+  return ui;
+fail_test:
+  fail();
+};
+
 StartInfo *_copy_start_info(StartInfo *orig_si) {
   if (!orig_si) {
     fail();
@@ -106,6 +160,20 @@ void test_timer_free_start_info(void **state) {
 
   // When
   free_start_info(si);
+
+  // Then
+  /* No memory leaks indicate successful free */
+
+  // Finally
+}
+
+void test_timer_free_update_info(void **state) {
+  // Given
+  test_state_t *s = (test_state_t *)*state;
+  UpdateInfo *ui = _copy_update_info(s->default_update_info);
+
+  // When
+  free_update_info(ui);
 
   // Then
   /* No memory leaks indicate successful free */
@@ -237,6 +305,107 @@ void test_timer_stop_not_started(void **state) {
   assert_null(fail_not_started);
 
   // Finally
+}
+
+void test_timer_update(void **state) {
+  // Given
+  test_state_t *s = (test_state_t *)*state;
+  Timer t;
+  reset(&t);
+  expect_value(__wrap_time, __timer, NULL);
+  will_return(__wrap_time, s->TEST_START_TIME_S);
+  start(&t, _copy_start_info(s->default_start_info));
+
+  // When
+  UpdateInfo *new_name_and_start_time = _copy_update_info(s->default_update_info);
+
+  /* edit only name and start time, NULL/0 means no change */
+  free(new_name_and_start_time->client);
+  new_name_and_start_time->client = NULL;
+  free(new_name_and_start_time->project);
+  new_name_and_start_time->project = NULL;
+  free(new_name_and_start_time->description);
+  new_name_and_start_time->description = NULL;
+  new_name_and_start_time->end_time = 0;
+
+  bool updated = update(&t, new_name_and_start_time);
+
+  // Then
+  assert_true(updated);
+
+  assert_ptr_not_equal(new_name_and_start_time->name, t.name);
+  assert_string_equal(new_name_and_start_time->name, t.name);
+  assert_ptr_not_equal(s->default_start_info->name, t.name);
+  assert_string_not_equal(s->default_start_info->name, t.name);
+
+  assert_true(t.start_time > 0);
+  assert_int_equal(t.start_time, new_name_and_start_time->start_time);
+  assert_int_not_equal(t.start_time, s->TEST_START_TIME_S);
+
+  assert_ptr_not_equal(s->default_start_info->client, t.client);
+  assert_string_equal(s->default_start_info->client, t.client);
+
+  assert_ptr_not_equal(s->default_start_info->project, t.project);
+  assert_string_equal(s->default_start_info->project, t.project);
+
+  assert_ptr_not_equal(s->default_start_info->description, t.description);
+  assert_string_equal(s->default_start_info->description, t.description);
+
+  // Finally
+  free_update_info(new_name_and_start_time);
+  reset(&t);
+}
+
+void test_timer_update_NULL(void **state) {
+  // Given
+  test_state_t *s = (test_state_t *)*state;
+  UpdateInfo *ui = _copy_update_info(s->default_update_info);
+
+  // When
+  bool fail_null_timer = update(NULL, ui);
+
+  // Then
+  assert_false(fail_null_timer);
+
+  // Finally
+  free_update_info(ui);
+}
+
+void test_timer_update_NULL_update_info(void **state) {
+  // Given
+  test_state_t *s = (test_state_t *)*state;
+  Timer t;
+  reset(&t);
+  expect_value(__wrap_time, __timer, NULL);
+  will_return(__wrap_time, s->TEST_START_TIME_S);
+  start(&t, _copy_start_info(s->default_start_info));
+
+  // When
+  bool fail_null_update_info = update(&t, NULL);
+
+  // Then
+  assert_false(fail_null_update_info);
+
+  // Finally
+  reset(&t);
+}
+
+void test_timer_update_not_started(void **state) {
+  // Given
+  test_state_t *s = (test_state_t *)*state;
+  Timer t;
+  reset(&t);
+  UpdateInfo *ui = _copy_update_info(s->default_update_info);
+
+  // When
+  bool fail_not_started = update(&t, ui);
+
+  // Then
+  assert_false(fail_not_started);
+
+  // Finally
+  free_update_info(ui);
+  reset(&t);
 }
 
 void test_timer_get_name(void **state) {

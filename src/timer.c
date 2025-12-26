@@ -84,6 +84,10 @@ void free_start_info(StartInfo *si) {
   free(si);
 }
 
+void free_update_info(UpdateInfo *ui) {
+  free_start_info((StartInfo *) ui);
+}
+
 bool start(Timer *t, StartInfo *si) {
   if (!t) {
     t_log(ERROR, __func__, "No timer - cannot start timer!");
@@ -143,6 +147,74 @@ bool start(Timer *t, StartInfo *si) {
     t_log(ERROR, __func__, "Could not get start time.");
     return false;
   }
+  return true;
+}
+
+bool update(Timer *t, UpdateInfo *ui) {
+  if (!t) {
+    t_log(ERROR, __func__, "No timer - cannot update timer!");
+    return false;
+  }
+
+  if (!ui) {
+    t_log(ERROR, __func__, "No updateInfo - cannot update timer!");
+    return false;
+  }
+
+  if (!t->start_time){
+    t_log(ERROR, __func__, "Timer not started so cannot update!");
+    return false;
+  }
+
+  if (ui->start_time > 0){
+    t->start_time = ui->start_time;
+  }
+
+  if (ui->end_time > 0){
+    // TODO should we stop timer with suggested stop time here?
+    t_log(INFO, __func__, "Change stop time of running timer makes no sense.");
+  }
+
+  if (ui->name){
+    free(t->name);
+    char *name = malloc(strlen(ui->name) + 1);
+    if (!name) {
+      t_log(ERROR, __func__, "Malloc: could not allocate enough memory.");
+      return false;
+    }
+    t->name = strcpy(name, ui->name);
+  }
+
+  if (ui->client){
+    free(t->client);
+    char *client = malloc(strlen(ui->client) + 1);
+    if (!client) {
+      t_log(ERROR, __func__, "Malloc: could not allocate enough memory.");
+      return false;
+    }
+    t->client = strcpy(client, ui->client);
+  }
+
+  if (ui->project){
+    free(t->project);
+    char *project = malloc(strlen(ui->project) + 1);
+    if (!project) {
+      t_log(ERROR, __func__, "Malloc: could not allocate enough memory.");
+      return false;
+    }
+    t->project = strcpy(project, ui->project);
+  }
+
+  if (ui->description){
+    free(t->description);
+    char *description = malloc(strlen(ui->description) + 1);
+    if (!description) {
+      t_log(ERROR, __func__, "Malloc: could not allocate enough memory.");
+      return false;
+    }
+    t->description = strcpy(description, ui->description);
+  }
+
   return true;
 }
 
