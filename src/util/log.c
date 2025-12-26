@@ -16,13 +16,13 @@ void t_log(LOG_LEVEL level, const char *func, ...) {
   char *format;
   switch (level) {
   case INFO:
-    format = ANSI_COLOR_YELLOW "[%s] Info: " ANSI_COLOR_RESET "%s\n";
+    format = ANSI_COLOR_GREEN "[%s] Info: " ANSI_COLOR_RESET "%s\n";
     break;
   case ERROR:
     format = ANSI_COLOR_RED "[%s] Error: " ANSI_COLOR_RESET "%s\n";
     break;
-  case SUCCESS:
-    format = ANSI_COLOR_GREEN "[%s] Success: " ANSI_COLOR_RESET "%s\n";
+  case DEBUG:
+    format = ANSI_COLOR_YELLOW "[%s] Debug: " ANSI_COLOR_RESET "%s\n";
     break;
   }
 

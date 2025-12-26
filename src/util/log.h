@@ -6,7 +6,7 @@
 #define ANSI_COLOR_YELLOW "\x1b[33m"
 #define ANSI_COLOR_RESET "\x1b[0m"
 
-typedef enum { SUCCESS = 1, ERROR = 2, INFO = 3 } LOG_LEVEL;
+typedef enum { ERROR = 1, INFO = 2, DEBUG = 3 } LOG_LEVEL;
 
 void t_log(LOG_LEVEL, const char *func, ...);
 
