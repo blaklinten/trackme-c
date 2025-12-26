@@ -11,8 +11,8 @@ static int group_setup(void **state) {
   init_db(uri_string);
   mongoc_collection_drop(entries, NULL);
 
-  s->TEST_NAME_1 = "Alice";
-  s->TEST_NAME_2 = "Bob";
+  s->TEST_ACTIVITY_1 = "Alice";
+  s->TEST_ACTIVITY_2 = "Bob";
   s->TEST_CLIENT = "test client";
   s->TEST_PROJECT = "test project";
   s->TEST_START_TIME_S = 1721664594;           // Mon 22 Jul 18:09:54 CEST 2024
@@ -22,7 +22,7 @@ static int group_setup(void **state) {
   s->test_document_1 = bson_new();
   bson_oid_init(&s->test_id_1, NULL);
   BSON_APPEND_OID(s->test_document_1, DB_KEY_ID, &s->test_id_1);
-  BSON_APPEND_UTF8(s->test_document_1, DB_KEY_NAME, s->TEST_NAME_1);
+  BSON_APPEND_UTF8(s->test_document_1, DB_KEY_ACTIVITY, s->TEST_ACTIVITY_1);
   BSON_APPEND_UTF8(s->test_document_1, DB_KEY_CLIENT, s->TEST_CLIENT);
   BSON_APPEND_UTF8(s->test_document_1, DB_KEY_PROJECT, s->TEST_PROJECT);
   BSON_APPEND_TIME_T(s->test_document_1, DB_KEY_START_TIME,
@@ -33,7 +33,7 @@ static int group_setup(void **state) {
   s->test_document_2 = bson_new();
   bson_oid_init(&s->test_id_2, NULL);
   BSON_APPEND_OID(s->test_document_2, DB_KEY_ID, &s->test_id_2);
-  BSON_APPEND_UTF8(s->test_document_2, DB_KEY_NAME, s->TEST_NAME_2);
+  BSON_APPEND_UTF8(s->test_document_2, DB_KEY_ACTIVITY, s->TEST_ACTIVITY_2);
   BSON_APPEND_UTF8(s->test_document_2, DB_KEY_CLIENT, s->TEST_CLIENT);
   BSON_APPEND_UTF8(s->test_document_2, DB_KEY_PROJECT, s->TEST_PROJECT);
   BSON_APPEND_TIME_T(s->test_document_2, DB_KEY_START_TIME,

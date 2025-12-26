@@ -17,42 +17,42 @@ UpdateInfo *_copy_update_info(UpdateInfo *orig_ui) {
     goto fail_test;
   }
 
-  char *name = malloc(REQUEST_FIELD_SHORT_SIZE * sizeof(char));
-  if (!name) {
+  char *activity = malloc(REQUEST_FIELD_SHORT_SIZE * sizeof(char));
+  if (!activity) {
     free(ui);
     goto fail_test;
   }
   char *client = malloc(REQUEST_FIELD_SHORT_SIZE * sizeof(char));
   if (!client) {
     free(ui);
-    free(name);
+    free(activity);
     goto fail_test;
   }
   char *project = malloc(REQUEST_FIELD_SHORT_SIZE * sizeof(char));
   if (!project) {
     free(ui);
-    free(name);
+    free(activity);
     free(client);
     goto fail_test;
   }
   char *description = malloc(REQUEST_FIELD_LONG_SIZE * sizeof(char));
   if (!description) {
     free(ui);
-    free(name);
+    free(activity);
     free(client);
     free(project);
     goto fail_test;
   }
-  ui->name = name;
-  ui->client = client;
-  ui->project = project;
-  ui->description = description;
+  ui->info.activity = activity;
+  ui->info.client = client;
+  ui->info.project = project;
+  ui->info.description = description;
 
   // Fill StartInfo struct
-  snprintf(name, REQUEST_FIELD_SHORT_SIZE, "%s", orig_ui->name);
-  snprintf(client, REQUEST_FIELD_SHORT_SIZE, "%s", orig_ui->client);
-  snprintf(project, REQUEST_FIELD_SHORT_SIZE, "%s", orig_ui->project);
-  snprintf(description, REQUEST_FIELD_LONG_SIZE, "%s", orig_ui->description);
+  snprintf(activity, REQUEST_FIELD_SHORT_SIZE, "%s", orig_ui->info.activity);
+  snprintf(client, REQUEST_FIELD_SHORT_SIZE, "%s", orig_ui->info.client);
+  snprintf(project, REQUEST_FIELD_SHORT_SIZE, "%s", orig_ui->info.project);
+  snprintf(description, REQUEST_FIELD_LONG_SIZE, "%s", orig_ui->info.description);
   ui->start_time = orig_ui->start_time;
   ui->end_time = orig_ui->end_time;
 
@@ -71,39 +71,39 @@ StartInfo *_copy_start_info(StartInfo *orig_si) {
     goto fail_test;
   }
 
-  char *name = malloc(REQUEST_FIELD_SHORT_SIZE * sizeof(char));
-  if (!name) {
+  char *activity = malloc(REQUEST_FIELD_SHORT_SIZE * sizeof(char));
+  if (!activity) {
     free(si);
     goto fail_test;
   }
   char *client = malloc(REQUEST_FIELD_SHORT_SIZE * sizeof(char));
   if (!client) {
     free(si);
-    free(name);
+    free(activity);
     goto fail_test;
   }
   char *project = malloc(REQUEST_FIELD_SHORT_SIZE * sizeof(char));
   if (!project) {
     free(si);
-    free(name);
+    free(activity);
     free(client);
     goto fail_test;
   }
   char *description = malloc(REQUEST_FIELD_LONG_SIZE * sizeof(char));
   if (!description) {
     free(si);
-    free(name);
+    free(activity);
     free(client);
     free(project);
     goto fail_test;
   }
-  si->name = name;
+  si->activity = activity;
   si->client = client;
   si->project = project;
   si->description = description;
 
   // Fill StartInfo struct
-  snprintf(name, REQUEST_FIELD_SHORT_SIZE, "%s", orig_si->name);
+  snprintf(activity, REQUEST_FIELD_SHORT_SIZE, "%s", orig_si->activity);
   snprintf(client, REQUEST_FIELD_SHORT_SIZE, "%s", orig_si->client);
   snprintf(project, REQUEST_FIELD_SHORT_SIZE, "%s", orig_si->project);
   snprintf(description, REQUEST_FIELD_LONG_SIZE, "%s", orig_si->description);
@@ -123,10 +123,10 @@ void test_timer_reset(void **state) {
   reset(&t);
 
   // Then
-  assert_null(t.name);
-  assert_null(t.client);
-  assert_null(t.project);
-  assert_null(t.description);
+  assert_null(t.info.activity);
+  assert_null(t.info.client);
+  assert_null(t.info.project);
+  assert_null(t.info.description);
   assert_int_equal(0, t.start_time);
 }
 
@@ -195,17 +195,17 @@ void test_timer_start(void **state) {
   // Then
   assert_true(success);
 
-  assert_ptr_not_equal(s->default_start_info->name, t.name);
-  assert_string_equal(s->default_start_info->name, t.name);
+  assert_ptr_not_equal(s->default_start_info->activity, t.info.activity);
+  assert_string_equal(s->default_start_info->activity, t.info.activity);
 
-  assert_ptr_not_equal(s->default_start_info->client, t.client);
-  assert_string_equal(s->default_start_info->client, t.client);
+  assert_ptr_not_equal(s->default_start_info->client, t.info.client);
+  assert_string_equal(s->default_start_info->client, t.info.client);
 
-  assert_ptr_not_equal(s->default_start_info->project, t.project);
-  assert_string_equal(s->default_start_info->project, t.project);
+  assert_ptr_not_equal(s->default_start_info->project, t.info.project);
+  assert_string_equal(s->default_start_info->project, t.info.project);
 
-  assert_ptr_not_equal(s->default_start_info->description, t.description);
-  assert_string_equal(s->default_start_info->description, t.description);
+  assert_ptr_not_equal(s->default_start_info->description, t.info.description);
+  assert_string_equal(s->default_start_info->description, t.info.description);
 
   assert_true(t.start_time > 0);
   assert_true(t.start_time == s->TEST_START_TIME_S);
@@ -262,15 +262,15 @@ void test_timer_stop_started(void **state) {
   // Then
   assert_non_null(stopped_result);
 
-  assert_ptr_not_equal(s->default_start_info->name, stopped_result->name);
-  assert_ptr_not_equal(s->default_start_info->client, stopped_result->client);
-  assert_ptr_not_equal(s->default_start_info->project, stopped_result->project);
-  assert_ptr_not_equal(s->default_start_info->description, stopped_result->description);
+  assert_ptr_not_equal(s->default_start_info->activity, stopped_result->info.activity);
+  assert_ptr_not_equal(s->default_start_info->client, stopped_result->info.client);
+  assert_ptr_not_equal(s->default_start_info->project, stopped_result->info.project);
+  assert_ptr_not_equal(s->default_start_info->description, stopped_result->info.description);
 
-  assert_string_equal(s->default_start_info->name, stopped_result->name);
-  assert_string_equal(s->default_start_info->client, stopped_result->client);
-  assert_string_equal(s->default_start_info->project, stopped_result->project);
-  assert_string_equal(s->default_start_info->description, stopped_result->description);
+  assert_string_equal(s->default_start_info->activity, stopped_result->info.activity);
+  assert_string_equal(s->default_start_info->client, stopped_result->info.client);
+  assert_string_equal(s->default_start_info->project, stopped_result->info.project);
+  assert_string_equal(s->default_start_info->description, stopped_result->info.description);
 
   assert_int_equal(stopped_result->start_time, s->TEST_START_TIME_S);
   assert_int_equal(stopped_result->end_time, s->TEST_END_TIME_S);
@@ -317,42 +317,42 @@ void test_timer_update(void **state) {
   start(&t, _copy_start_info(s->default_start_info));
 
   // When
-  UpdateInfo *new_name_and_start_time = _copy_update_info(s->default_update_info);
+  UpdateInfo *new_activity_and_start_time = _copy_update_info(s->default_update_info);
 
-  /* edit only name and start time, NULL/0 means no change */
-  free(new_name_and_start_time->client);
-  new_name_and_start_time->client = NULL;
-  free(new_name_and_start_time->project);
-  new_name_and_start_time->project = NULL;
-  free(new_name_and_start_time->description);
-  new_name_and_start_time->description = NULL;
-  new_name_and_start_time->end_time = 0;
+  /* edit only activity and start time, NULL/0 means no change */
+  free(new_activity_and_start_time->info.client);
+  new_activity_and_start_time->info.client = NULL;
+  free(new_activity_and_start_time->info.project);
+  new_activity_and_start_time->info.project = NULL;
+  free(new_activity_and_start_time->info.description);
+  new_activity_and_start_time->info.description = NULL;
+  new_activity_and_start_time->end_time = 0;
 
-  bool updated = update(&t, new_name_and_start_time);
+  bool updated = update(&t, new_activity_and_start_time);
 
   // Then
   assert_true(updated);
 
-  assert_ptr_not_equal(new_name_and_start_time->name, t.name);
-  assert_string_equal(new_name_and_start_time->name, t.name);
-  assert_ptr_not_equal(s->default_start_info->name, t.name);
-  assert_string_not_equal(s->default_start_info->name, t.name);
+  assert_ptr_not_equal(new_activity_and_start_time->info.activity, t.info.activity);
+  assert_string_equal(new_activity_and_start_time->info.activity, t.info.activity);
+  assert_ptr_not_equal(s->default_start_info->activity, t.info.activity);
+  assert_string_not_equal(s->default_start_info->activity, t.info.activity);
 
   assert_true(t.start_time > 0);
-  assert_int_equal(t.start_time, new_name_and_start_time->start_time);
+  assert_int_equal(t.start_time, new_activity_and_start_time->start_time);
   assert_int_not_equal(t.start_time, s->TEST_START_TIME_S);
 
-  assert_ptr_not_equal(s->default_start_info->client, t.client);
-  assert_string_equal(s->default_start_info->client, t.client);
+  assert_ptr_not_equal(s->default_start_info->client, t.info.client);
+  assert_string_equal(s->default_start_info->client, t.info.client);
 
-  assert_ptr_not_equal(s->default_start_info->project, t.project);
-  assert_string_equal(s->default_start_info->project, t.project);
+  assert_ptr_not_equal(s->default_start_info->project, t.info.project);
+  assert_string_equal(s->default_start_info->project, t.info.project);
 
-  assert_ptr_not_equal(s->default_start_info->description, t.description);
-  assert_string_equal(s->default_start_info->description, t.description);
+  assert_ptr_not_equal(s->default_start_info->description, t.info.description);
+  assert_string_equal(s->default_start_info->description, t.info.description);
 
   // Finally
-  free_update_info(new_name_and_start_time);
+  free_update_info(new_activity_and_start_time);
   reset(&t);
 }
 
@@ -408,7 +408,7 @@ void test_timer_update_not_started(void **state) {
   reset(&t);
 }
 
-void test_timer_get_name(void **state) {
+void test_timer_get_activity(void **state) {
   // Given
   test_state_t *s = (test_state_t *)*state;
   Timer t;
@@ -418,23 +418,23 @@ void test_timer_get_name(void **state) {
   start(&t, _copy_start_info(s->default_start_info));
 
   // When
-  char *name = t.name;
+  char *activity = t.info.activity;
 
   // Then
-  assert_non_null(name);
-  assert_string_equal(s->default_start_info->name, name);
+  assert_non_null(activity);
+  assert_string_equal(s->default_start_info->activity, activity);
 
   // Finally
   reset(&t);
 }
 
-void test_timer_not_started_get_name(void **state) {
+void test_timer_not_started_get_activity(void **state) {
   (void) state;
   // Given
   Timer t;
   reset(&t);
   // When
-  char *not_started = t.name;
+  char *not_started = t.info.activity;
 
   // Then
   assert_null(not_started);
@@ -452,7 +452,7 @@ void test_timer_get_client(void **state) {
   start(&t, _copy_start_info(s->default_start_info));
 
   // When
-  char *client = t.client;
+  char *client = t.info.client;
 
   // Then
   assert_non_null(client);
@@ -469,7 +469,7 @@ void test_timer_not_started_get_client(void **state) {
   reset(&t);
 
   // When
-  char *not_started = t.client;
+  char *not_started = t.info.client;
 
   // Then
   assert_null(not_started);
@@ -487,7 +487,7 @@ void test_timer_get_project(void **state) {
   start(&t, _copy_start_info(s->default_start_info));
 
   // When
-  char *project = t.project;
+  char *project = t.info.project;
 
   // Then
   assert_non_null(project);
@@ -504,7 +504,7 @@ void test_timer_not_started_get_project(void **state) {
   reset(&t);
 
   // When
-  char *not_started = t.project;
+  char *not_started = t.info.project;
 
   // Then
   assert_null(not_started);
@@ -522,7 +522,7 @@ void test_timer_get_description(void **state) {
   start(&t, _copy_start_info(s->default_start_info));
 
   // When
-  char *description = t.description;
+  char *description = t.info.description;
 
   // Then
   assert_non_null(description);
@@ -539,7 +539,7 @@ void test_timer_not_started_get_description(void **state) {
   reset(&t);
 
   // When
-  char *not_started = t.description;
+  char *not_started = t.info.description;
 
   // Then
   assert_null(not_started);

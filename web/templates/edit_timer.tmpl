@@ -31,32 +31,35 @@
       <article>
         <TMPL_IF name = "start_time">
           <h2>Change the values you wish to update.</h2>
-          <form action="/start_info" method="post">
+          <form action="/edit_timer" method="post">
             <table>
               <tbody>
                 <tr>
-                  <td><label>Name: <TMPL_VAR name = "name"></label></td>
-                  <td> <input type="text" id="name" name="name"> <br><br></td>
+                  <td><label>Activity:</label></td>
+                  <td> <input type="text" id="activity" name="activity" value="<TMPL_VAR name = "activity">"> <br><br></td>
                 </tr>
                 <tr>
-                  <td> <label>Client: <TMPL_VAR name = "client"></label> </td>
-                  <td> <input type="text" id="client" name="client"> <br><br></td>
+                  <td> <label>Client:</label> </td>
+                  <td> <input type="text" id="client" name="client" value="<TMPL_VAR name = "client">"> <br><br></td>
                 </tr>
                 <tr>
-                  <td><label>Project: <TMPL_VAR name = "project"></label></td>
-                  <td><input type="text" id="project" name="project"><br><br></td>
+                  <td><label>Project:</label></td>
+                  <td> <input type="text" id="project" name="project" value="<TMPL_VAR name = "project">"> <br><br></td>
                 </tr>
                 <tr>
-                  <td><label>Description: <TMPL_VAR name = "description"></label></td>
-                  <td> <input type="text" id="name" name="name"> <br><br></td>
+                  <td><label>Description:</label></td>
+                  <td> <input type="text" id="description" name="description" value="<TMPL_VAR name = "description">"> <br><br></td>
                 </tr>
                 <tr>
-                  <td><label>Start time: <TMPL_VAR name = "start_time"></label></td>
-                  <td><input type="text" id="description" name="description"><br><br></td>
+                  <td><label>Start time:</label></td>
+                  <td> <input type="text" id="description" name="description" value="<TMPL_VAR name = "start_time">"> <br><br></td>
                 </tr>
                 <tr>
-                  <td><label>End time: <TMPL_VAR name = "end_time"></label></td>
-                  <td><input type="text" id="end time" name="end time"><br><br></td>
+                  <td><label>End time:</label></td>
+                  <td> <input type="text" id="end time" name="end time" value="<TMPL_VAR name = "end_time">"> <br><br></td>
+                </tr>
+                <tr>
+                  <td colspan="2"><input type="submit" value="Update"></td>
                 </tr>
               </tbody>
             </table>

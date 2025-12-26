@@ -18,8 +18,9 @@ static void ev_handler(struct mg_connection *c, int ev, void *ev_data) {
     /* 
      * Pages 
      */
+
     if (mg_match(hm->uri, mg_str("/"), NULL)) {
-      create_index_html(is_timer_running() ? "true" : NULL, get_name(),
+      create_index_html(is_timer_running() ? "true" : NULL, get_activity(),
                         get_client(), get_project(), get_description(),
                         get_duration());
     }
@@ -34,7 +35,7 @@ static void ev_handler(struct mg_connection *c, int ev, void *ev_data) {
         t_log(INFO, __func__, "Could not stop timer, returning NULL...");
         create_stop_timer_html(NULL, NULL, NULL, NULL, NULL, NULL, NULL);
       } else {
-        create_stop_timer_html(get_name(), get_client(), get_project(),
+        create_stop_timer_html(get_activity(), get_client(), get_project(),
                                get_description(), get_start_time(),
                                get_end_time(), get_duration());
       }
@@ -46,7 +47,7 @@ static void ev_handler(struct mg_connection *c, int ev, void *ev_data) {
         t_log(INFO, __func__, "Timer not started, can not edit");
         create_edit_html(NULL, NULL, NULL, NULL, NULL, NULL);
       } else {
-        create_edit_html(get_name(), get_client(), get_project(),
+        create_edit_html(get_activity(), get_client(), get_project(),
                          get_description(), get_start_time(), get_end_time());
       }
     }
@@ -58,7 +59,7 @@ static void ev_handler(struct mg_connection *c, int ev, void *ev_data) {
     else if (mg_match(hm->uri, mg_str("/start_info"), NULL) &&
              (mg_match(hm->method, mg_str("POST"), NULL))) {
       if (start_timer(&hm->body)) {
-        create_index_html(is_timer_running() ? "true" : NULL, get_name(),
+        create_index_html(is_timer_running() ? "true" : NULL, get_activity(),
                           get_client(), get_project(), get_description(),
                           get_duration());
         return mg_http_serve_file(c, ev_data, "./index.html", &opts);

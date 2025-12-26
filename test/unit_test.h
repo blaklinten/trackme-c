@@ -20,8 +20,8 @@ typedef struct {
   bson_t *test_document_2;
   bson_oid_t test_id_1;
   bson_oid_t test_id_2;
-  char *TEST_NAME_1;
-  char *TEST_NAME_2;
+  char *TEST_ACTIVITY_1;
+  char *TEST_ACTIVITY_2;
   char *TEST_CLIENT;
   char *TEST_PROJECT;
   time_t TEST_DURATION_S;

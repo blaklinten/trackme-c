@@ -7,7 +7,7 @@
 #define TRACKME_ENTRIES_COLLECTION "_entries"
 #define TRACKME_DB "trackme_db"
 #define DB_KEY_ID "_id"
-#define DB_KEY_NAME "_name"
+#define DB_KEY_ACTIVITY "_activity"
 #define DB_KEY_CLIENT "_client"
 #define DB_KEY_PROJECT "_project"
 #define DB_KEY_DESCRIPTION "_description"

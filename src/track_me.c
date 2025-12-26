@@ -15,6 +15,7 @@ bson_t *from_timer_result(TimerResult *tr) {
   (void)tr;
   return bson_new();
 }
+
 TimerResult *from_bson(bson_t *b) {
   (void)b;
   return malloc(sizeof(TimerResult));
@@ -33,46 +34,46 @@ StartInfo *_start_info_from_request_body(struct mg_str *request_body) {
     goto log_error;
   }
 
-  char *name = malloc(REQUEST_FIELD_SHORT_SIZE * sizeof(char));
-  if (!name) {
+  char *activity = malloc(REQUEST_FIELD_SHORT_SIZE * sizeof(char));
+  if (!activity) {
     free(si);
     goto log_error;
   }
   char *client = malloc(REQUEST_FIELD_SHORT_SIZE * sizeof(char));
   if (!client) {
     free(si);
-    free(name);
+    free(activity);
     goto log_error;
   }
   char *project = malloc(REQUEST_FIELD_SHORT_SIZE * sizeof(char));
   if (!project) {
     free(si);
-    free(name);
+    free(activity);
     free(client);
     goto log_error;
   }
   char *description = malloc(REQUEST_FIELD_LONG_SIZE * sizeof(char));
   if (!description) {
     free(si);
-    free(name);
+    free(activity);
     free(client);
     free(project);
     goto log_error;
   }
-  si->name = name;
+  si->activity = activity;
   si->client = client;
   si->project = project;
   si->description = description;
 
   // Fill StartInfo struct
 
-  char *var_key_name = "name";
-  if (mg_http_get_var(request_body, var_key_name, name,
+  char *var_key_activity = "activity";
+  if (mg_http_get_var(request_body, var_key_activity, activity,
                       REQUEST_FIELD_SHORT_SIZE) < 1) {
     t_log(ERROR, __func__,
-          "Variable [name] could not be extracted from body. Not set or too "
+          "Variable [activity] could not be extracted from body. Not set or too "
           "long?");
-    strcpy(name, NOT_SET);
+    strcpy(activity, NOT_SET);
   }
 
   char *var_key_client = "client";
@@ -236,47 +237,47 @@ char *get_duration() {
   return _duration_int_to_string(duration);
 }
 
-char *get_name() {
+char *get_activity() {
   if (current_timer_result) {
-    char *name = malloc(strlen(current_timer_result->name) + 1);
-    if (!name) {
+    char *activity = malloc(strlen(current_timer_result->info.activity) + 1);
+    if (!activity) {
       t_log(ERROR, __func__, "Malloc: could not allocate enough memory.");
       return NULL;
     }
-    return strcpy(name, current_timer_result->name);
+    return strcpy(activity, current_timer_result->info.activity);
   }
 
-  if (current_timer.name) {
-    char *name = malloc(strlen(current_timer.name) + 1);
-    if (!name) {
+  if (current_timer.info.activity) {
+    char *activity = malloc(strlen(current_timer.info.activity) + 1);
+    if (!activity) {
       t_log(ERROR, __func__, "Malloc: could not allocate enough memory.");
       return NULL;
     }
-    return strcpy(name, current_timer.name);
+    return strcpy(activity, current_timer.info.activity);
   }
 
-  t_log(INFO, __func__, "Name not set");
-  char *name_not_set = malloc(strlen(NOT_SET) + 1);
-  return strcpy(name_not_set, NOT_SET);
+  t_log(INFO, __func__, "Activity not set");
+  char *activity_not_set = malloc(strlen(NOT_SET) + 1);
+  return strcpy(activity_not_set, NOT_SET);
 }
 
 char *get_client() {
   if (current_timer_result) {
-    char *client = malloc(strlen(current_timer_result->client) + 1);
+    char *client = malloc(strlen(current_timer_result->info.client) + 1);
     if (!client) {
       t_log(ERROR, __func__, "Malloc: could not allocate enough memory.");
       return NULL;
     }
-    return strcpy(client, current_timer_result->client);
+    return strcpy(client, current_timer_result->info.client);
   }
 
-  if (current_timer.client) {
-    char *client = malloc(strlen(current_timer.client) + 1);
+  if (current_timer.info.client) {
+    char *client = malloc(strlen(current_timer.info.client) + 1);
     if (!client) {
       t_log(ERROR, __func__, "Malloc: could not allocate enough memory.");
       return NULL;
     }
-    return strcpy(client, current_timer.client);
+    return strcpy(client, current_timer.info.client);
   }
 
   t_log(INFO, __func__, "Client not set");
@@ -286,21 +287,21 @@ char *get_client() {
 
 char *get_project() {
   if (current_timer_result) {
-    char *project = malloc(strlen(current_timer_result->project) + 1);
+    char *project = malloc(strlen(current_timer_result->info.project) + 1);
     if (!project) {
       t_log(ERROR, __func__, "Malloc: could not allocate enough memory.");
       return NULL;
     }
-    return strcpy(project, current_timer_result->project);
+    return strcpy(project, current_timer_result->info.project);
   }
 
-  if (current_timer.project) {
-    char *project = malloc(strlen(current_timer.project) + 1);
+  if (current_timer.info.project) {
+    char *project = malloc(strlen(current_timer.info.project) + 1);
     if (!project) {
       t_log(ERROR, __func__, "Malloc: could not allocate enough memory.");
       return NULL;
     }
-    return strcpy(project, current_timer.project);
+    return strcpy(project, current_timer.info.project);
   }
 
   t_log(INFO, __func__, "Project not set");
@@ -310,21 +311,21 @@ char *get_project() {
 
 char *get_description() {
   if (current_timer_result) {
-    char *description = malloc(strlen(current_timer_result->description) + 1);
+    char *description = malloc(strlen(current_timer_result->info.description) + 1);
     if (!description) {
       t_log(ERROR, __func__, "Malloc: could not allocate enough memory.");
       return NULL;
     }
-    return strcpy(description, current_timer_result->description);
+    return strcpy(description, current_timer_result->info.description);
   }
 
-  if (current_timer.description) {
-    char *description = malloc(strlen(current_timer.description) + 1);
+  if (current_timer.info.description) {
+    char *description = malloc(strlen(current_timer.info.description) + 1);
     if (!description) {
       t_log(ERROR, __func__, "Malloc: could not allocate enough memory.");
       return NULL;
     }
-    return strcpy(description, current_timer.description);
+    return strcpy(description, current_timer.info.description);
   }
 
     t_log(INFO, __func__, "Description not set");

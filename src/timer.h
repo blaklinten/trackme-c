@@ -5,40 +5,29 @@
 #include <stdbool.h>
 
 typedef struct {
-  char *name;
+  char *activity;
   char *client;
   char *project;
   char *description;
 } StartInfo;
 
 typedef struct {
-  char *name;
-  char *client;
-  char *project;
-  char *description;
+  StartInfo info;
   time_t start_time;
 } Timer;
 
 typedef struct {
-  char *name;
-  char *client;
-  char *project;
-  char *description;
+  StartInfo info;
   time_t start_time;
   time_t end_time;
 } UpdateInfo;
 
 typedef struct {
-  char *name;
-  char *client;
-  char *project;
-  char *description;
+  StartInfo info;
   time_t start_time;
   time_t end_time;
   time_t duration;
 } TimerResult;
-
-} Timer;
 
 void reset(Timer *t);
 void free_timer_result(TimerResult *tr);

@@ -30,22 +30,22 @@ char **_get_oids_as_strings(bson_t *e1, bson_t *e2) {
   ret[1] = oid_string2;
   return ret;
 }
-char **_get_bson_names(bson_t *e1, bson_t *e2) {
+char **_get_bson_activities(bson_t *e1, bson_t *e2) {
   bson_iter_t e1_iter, e2_iter;
   if (!bson_iter_init(&e1_iter, e1) || !bson_iter_init(&e2_iter, e2)) {
     t_log(ERROR, __func__, "Could not init iterator");
     fail();
   }
-  if (!bson_iter_find(&e1_iter, DB_KEY_NAME) ||
-      !bson_iter_find(&e2_iter, DB_KEY_NAME)) {
-    t_log(ERROR, __func__, "No %s found in document", DB_KEY_NAME);
+  if (!bson_iter_find(&e1_iter, DB_KEY_ACTIVITY) ||
+      !bson_iter_find(&e2_iter, DB_KEY_ACTIVITY)) {
+    t_log(ERROR, __func__, "No %s found in document", DB_KEY_ACTIVITY);
     fail();
   }
-  const char *name1 = bson_iter_utf8(&e1_iter, NULL);
-  const char *name2 = bson_iter_utf8(&e2_iter, NULL);
+  const char *activity1 = bson_iter_utf8(&e1_iter, NULL);
+  const char *activity2 = bson_iter_utf8(&e2_iter, NULL);
   char **ret = malloc(2 * sizeof(char *));
-  ret[0] = bson_strndup(name1, strlen(name1));
-  ret[1] = bson_strndup(name2, strlen(name2));
+  ret[0] = bson_strndup(activity1, strlen(activity1));
+  ret[1] = bson_strndup(activity2, strlen(activity2));
   return ret;
 }
 char **_get_bson_clients(bson_t *e1, bson_t *e2) {
@@ -147,12 +147,12 @@ bool _compare_entries(bson_t *e1, bson_t *e2) {
   free(oids[1]);
   free(oids);
 
-  // Name
-  char **names = _get_bson_names(e1, e2);
-  assert_string_equal(names[0], names[1]);
-  bson_free(names[0]);
-  bson_free(names[1]);
-  free(names);
+  // Activity
+  char **activities = _get_bson_activities(e1, e2);
+  assert_string_equal(activities[0], activities[1]);
+  bson_free(activities[0]);
+  bson_free(activities[1]);
+  free(activities);
 
   // Client
   char **clients = _get_bson_clients(e1, e2);
@@ -225,11 +225,11 @@ void test_db_save(void **state) {
     fail();
   }
 
-  const char *name;
-  if (bson_iter_find(&result_iter, DB_KEY_NAME)) {
-    name = bson_iter_utf8(&result_iter, NULL);
+  const char *activity;
+  if (bson_iter_find(&result_iter, DB_KEY_ACTIVITY)) {
+    activity = bson_iter_utf8(&result_iter, NULL);
   } else {
-    t_log(ERROR, __func__, "No %s found in document", DB_KEY_NAME);
+    t_log(ERROR, __func__, "No %s found in document", DB_KEY_ACTIVITY);
     fail();
   }
 
@@ -252,7 +252,7 @@ void test_db_save(void **state) {
   assert_non_null(entry);
   assert_null(entry->next);
   assert_true(bson_oid_equal(oid, &s->test_id_1));
-  assert_string_equal(name, s->TEST_NAME_1);
+  assert_string_equal(activity, s->TEST_ACTIVITY_1);
 
   // Finally
   free_list(entry);
@@ -274,10 +274,10 @@ void test_db_insert_and_get(void **state) {
   // Given
   test_state_t *s = (test_state_t *)*state;
   bson_t *doc1 = bson_new();
-  BSON_APPEND_UTF8(doc1, DB_KEY_NAME, s->TEST_NAME_1);
+  BSON_APPEND_UTF8(doc1, DB_KEY_ACTIVITY, s->TEST_ACTIVITY_1);
 
   bson_t *doc2 = bson_new();
-  BSON_APPEND_UTF8(doc2, DB_KEY_NAME, s->TEST_NAME_2);
+  BSON_APPEND_UTF8(doc2, DB_KEY_ACTIVITY, s->TEST_ACTIVITY_2);
 
   if (!entries) {
     t_log(ERROR, __func__, "No collection");
@@ -317,7 +317,7 @@ void test_db_insert_and_get(void **state) {
 
   // Then
   bson_t *query = bson_new();
-  BSON_APPEND_UTF8(query, DB_KEY_NAME, s->TEST_NAME_1);
+  BSON_APPEND_UTF8(query, DB_KEY_ACTIVITY, s->TEST_ACTIVITY_1);
   char *str;
   mongoc_cursor_t *cursor =
       mongoc_collection_find_with_opts(entries, query, NULL, NULL);
@@ -348,7 +348,7 @@ void test_db_get_by(void **state) {
   bool sucess_1 = save(s->test_document_1);
   bool sucess_2 = save(s->test_document_2);
   bson_t_list *entries_by_project = get_by(DB_KEY_PROJECT, s->TEST_PROJECT);
-  bson_t_list *entries_by_name = get_by(DB_KEY_NAME, s->TEST_NAME_2);
+  bson_t_list *entries_by_activity = get_by(DB_KEY_ACTIVITY, s->TEST_ACTIVITY_2);
   bson_t_list *entries_by_duration =
       get_by(DB_KEY_DURATION, &s->TEST_DURATION_S);
 
@@ -356,14 +356,14 @@ void test_db_get_by(void **state) {
   assert_true(sucess_1);
   assert_true(sucess_2);
   assert_non_null(entries_by_project->value);
-  assert_non_null(entries_by_name->value);
+  assert_non_null(entries_by_activity->value);
   _compare_entries(s->test_document_1, entries_by_project->value);
-  _compare_entries(s->test_document_2, entries_by_name->value);
+  _compare_entries(s->test_document_2, entries_by_activity->value);
   _compare_entries(s->test_document_1, entries_by_duration->value);
   assert_int_equal(count_elements(entries_by_duration), 2);
 
   // Finally
   free_list(entries_by_project);
-  free_list(entries_by_name);
+  free_list(entries_by_activity);
   free_list(entries_by_duration);
 }

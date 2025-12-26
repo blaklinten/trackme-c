@@ -160,7 +160,7 @@ bson_t_list *get_by(char *key, void *value) {
     return create_list_from(_get_by_id(*id));
   }
 
-  if (!strcmp(key, DB_KEY_NAME) || !strcmp(key, DB_KEY_CLIENT) ||
+  if (!strcmp(key, DB_KEY_ACTIVITY) || !strcmp(key, DB_KEY_CLIENT) ||
       !strcmp(key, DB_KEY_PROJECT)) {
     return _get_by_char(key, value);
   }

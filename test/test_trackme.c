@@ -7,10 +7,10 @@
 
 /*** Internal helper test functions ***/
 
-char **_get_start_info_names(StartInfo *si1, StartInfo *si2) {
+char **_get_start_info_activities(StartInfo *si1, StartInfo *si2) {
   char **ret = malloc(2 * sizeof(char *));
-  ret[0] = si1->name;
-  ret[1] = si2->name;
+  ret[0] = si1->activity;
+  ret[1] = si2->activity;
   return ret;
 }
 
@@ -36,10 +36,10 @@ char **_get_start_info_descriptions(StartInfo *si1, StartInfo *si2) {
 }
 
 bool _compare_start_info(StartInfo *si1, StartInfo *si2) {
-  char **names = _get_start_info_names(si1, si2);
-  t_log(INFO, __func__, "Names are [%s] and [%s]", names[0], names[1]);
-  assert_string_equal(names[0], names[1]);
-  free(names);
+  char **activities = _get_start_info_activities(si1, si2);
+  t_log(INFO, __func__, "Activities are [%s] and [%s]", activities[0], activities[1]);
+  assert_string_equal(activities[0], activities[1]);
+  free(activities);
 
   char **clients = _get_start_info_clients(si1, si2);
   t_log(INFO, __func__, "Clients are [%s] and [%s]", clients[0], clients[1]);
@@ -237,7 +237,7 @@ void test_trackme_start_timer_started(void **state) {
   // When
   start_timer(s->TEST_HTTP_REQUEST_BODY);
 
-  char *name = get_name();
+  char *activity = get_activity();
   char *client = get_client();
   char *project = get_project();
   char *description = get_description();
@@ -251,7 +251,7 @@ void test_trackme_start_timer_started(void **state) {
   // Then
   assert_null(current_timer_result);
   assert_true(is_timer_running());
-  assert_string_equal(name, s->default_start_info->name);
+  assert_string_equal(activity, s->default_start_info->activity);
   assert_string_equal(client, s->default_start_info->client);
   assert_string_equal(project, s->default_start_info->project);
   assert_string_equal(description, s->default_start_info->description);
@@ -260,7 +260,7 @@ void test_trackme_start_timer_started(void **state) {
   assert_string_equal(duration, EXPECTED_DURATION);// If timer was not restarted with correct start time this should fail as duration would be 0
 
   // Finally
-  free(name);
+  free(activity);
   free(start);
   free(description);
   free(project);
@@ -279,7 +279,7 @@ void test_trackme_start_timer_not_started(void **state){
   // When
   start_timer(s->TEST_HTTP_REQUEST_BODY);
 
-  char *name = get_name();
+  char *activity = get_activity();
   char *client = get_client();
   char *project = get_project();
   char *description = get_description();
@@ -293,7 +293,7 @@ void test_trackme_start_timer_not_started(void **state){
   // Then
   assert_null(current_timer_result);
   assert_true(is_timer_running());
-  assert_string_equal(name, s->default_start_info->name);
+  assert_string_equal(activity, s->default_start_info->activity);
   assert_string_equal(client, s->default_start_info->client);
   assert_string_equal(project, s->default_start_info->project);
   assert_string_equal(description, s->default_start_info->description);
@@ -302,7 +302,7 @@ void test_trackme_start_timer_not_started(void **state){
   assert_string_equal(duration, EXPECTED_DURATION);
 
   // Finally
-  free(name);
+  free(activity);
   free(client);
   free(project);
   free(description);
@@ -375,7 +375,7 @@ void test_trackme_stop_timer_started(void **state) {
   will_return(__wrap_time, s->TEST_END_TIME_S);
   stop_timer();
 
-  char *name = get_name();
+  char *activity = get_activity();
   char *client = get_client();
   char *project = get_project();
   char *description = get_description();
@@ -389,7 +389,7 @@ void test_trackme_stop_timer_started(void **state) {
   // Then
   assert_non_null(current_timer_result);
   assert_false(is_timer_running());
-  assert_string_equal(name, s->default_start_info->name);
+  assert_string_equal(activity, s->default_start_info->activity);
   assert_string_equal(client, s->default_start_info->client);
   assert_string_equal(project, s->default_start_info->project);
   assert_string_equal(description, s->default_start_info->description);
@@ -399,7 +399,7 @@ void test_trackme_stop_timer_started(void **state) {
 
 
   //Finally
-  free(name);
+  free(activity);
   free(client);
   free(project);
   free(description);
@@ -417,7 +417,7 @@ void test_trackme_stop_timer_not_started(void **state){
   // When
   bool success = stop_timer();
 
-  char *name = get_name();
+  char *activity = get_activity();
   char *client = get_client();
   char *project = get_project();
   char *description = get_description();
@@ -429,7 +429,7 @@ void test_trackme_stop_timer_not_started(void **state){
   assert_false(success); // timer is stopped but no result is created; something is wrong (i.e. not started)!
   assert_null(current_timer_result);
   assert_false(is_timer_running());
-  assert_string_equal(name, NOT_SET);
+  assert_string_equal(activity, NOT_SET);
   assert_string_equal(client, NOT_SET);
   assert_string_equal(project, NOT_SET);
   assert_string_equal(description, NOT_SET);
@@ -438,7 +438,7 @@ void test_trackme_stop_timer_not_started(void **state){
   assert_string_equal(duration, ZERO_STR);
 
   //Finally
-  free(name);
+  free(activity);
   free(client);
   free(project);
   free(description);
@@ -659,22 +659,22 @@ void test_trackme_get_duration_stopped(void **state) {
   free(duration);
 }
 
-void test_trackme_get_name_not_started(void **state){
+void test_trackme_get_activity_not_started(void **state){
   // Given
   // When
-  char *name = get_name();
+  char *activity = get_activity();
 
   // Then
-  assert_string_equal(name, NOT_SET);
+  assert_string_equal(activity, NOT_SET);
 
   assert_null(current_timer_result);
   assert_false(is_timer_running());
 
   // Finally
-  free(name);
+  free(activity);
 }
 
-void test_trackme_get_name_started_not_set(void **state){
+void test_trackme_get_activity_started_not_set(void **state){
   // Given
   test_state_t *s = (test_state_t *)*state;
 
@@ -683,18 +683,18 @@ void test_trackme_get_name_started_not_set(void **state){
   start_timer(s->NOT_SET_TEST_HTTP_REQUEST_BODY);
 
   // When
-  char *name = get_name();
+  char *activity = get_activity();
 
   // Then
-  assert_string_equal(name, NOT_SET);
+  assert_string_equal(activity, NOT_SET);
   assert_null(current_timer_result);
   assert_true(is_timer_running());
 
   // Finally
-  free(name);
+  free(activity);
 }
 
-void test_trackme_get_name_started_set(void **state) {
+void test_trackme_get_activity_started_set(void **state) {
   // Given
   test_state_t *s = (test_state_t *)*state;
 
@@ -703,18 +703,18 @@ void test_trackme_get_name_started_set(void **state) {
   start_timer(s->TEST_HTTP_REQUEST_BODY);
 
   // When
-  char *name = get_name();
+  char *activity = get_activity();
 
   // Then
-  assert_string_equal(name, s->default_start_info->name);
+  assert_string_equal(activity, s->default_start_info->activity);
   assert_null(current_timer_result);
   assert_true(is_timer_running());
 
   // Finally
-  free(name);
+  free(activity);
 }
 
-void test_trackme_get_name_stopped(void **state){
+void test_trackme_get_activity_stopped(void **state){
   // Given
   test_state_t *s = (test_state_t *)*state;
 
@@ -727,15 +727,15 @@ void test_trackme_get_name_stopped(void **state){
   stop_timer();
 
   // When
-  char *name = get_name();
+  char *activity = get_activity();
 
   // Then
-  assert_string_equal(name, s->default_start_info->name);
+  assert_string_equal(activity, s->default_start_info->activity);
   assert_non_null(current_timer_result);
   assert_false(is_timer_running());
 
   // Finally
-  free(name);
+  free(activity);
 
 }
 

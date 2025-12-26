@@ -19,7 +19,7 @@ bool stop_timer();
 char *get_start_time();
 char *get_end_time();
 char *get_duration();
-char *get_name();
+char *get_activity();
 char *get_client();
 char *get_project();
 char *get_description();

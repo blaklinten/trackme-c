@@ -5,11 +5,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-void create_index_html(char *is_running, char *name, char *client,
+void create_index_html(char *is_running, char *activity, char *client,
                        char *project, char *description,
                        char *current_duration) {
   TMPL_varlist *tmpl_vars = NULL;
-  tmpl_vars = TMPL_add_var(NULL, "is_running", is_running, "name", name,
+  tmpl_vars = TMPL_add_var(NULL, "is_running", is_running, "activity", activity,
                            "client", client, "project", project, "description",
                            description, "duration", current_duration, NULL);
 
@@ -37,12 +37,12 @@ void create_start_timer_html() {
   }
 }
 
-void create_stop_timer_html(char *name, char *client, char *project,
+void create_stop_timer_html(char *activity, char *client, char *project,
                             char *description, char *start_time, char *end_time,
                             char *final_duration) {
   TMPL_varlist *tmpl_vars = NULL;
   tmpl_vars =
-      TMPL_add_var(NULL, "name", name, "client", client, "project", project,
+      TMPL_add_var(NULL, "activity", activity, "client", client, "project", project,
                    "description", description, "start_time", start_time,
                    "end_time", end_time, "duration", final_duration, NULL);
 
@@ -57,10 +57,10 @@ void create_stop_timer_html(char *name, char *client, char *project,
   }
 }
 
-void create_edit_html(char *name, char *client, char *project,
+void create_edit_html(char *activity, char *client, char *project,
                       char *description, char *start_time, char *end_time) {
   TMPL_varlist *tmpl_vars = NULL;
-  tmpl_vars = TMPL_add_var(NULL, "name", name, "client", client, "project",
+  tmpl_vars = TMPL_add_var(NULL, "activity", activity, "client", client, "project",
                            project, "description", description, "start_time",
                            start_time, "end_time", end_time, NULL);
 
