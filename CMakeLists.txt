@@ -53,17 +53,17 @@ add_executable(integration_test
   ${INTEGRATION_TEST_SOURCES})
 set_property(TARGET integration_test PROPERTY CXX_STANDARD 23)
 
-find_package(mongoc-1.0 1.26 REQUIRED)
+find_package(mongoc REQUIRED)
 
 target_link_libraries(main
-  mongo::mongoc_shared)
+  mongoc::shared)
 
 target_link_libraries(unit_test
-  mongo::mongoc_shared
+  mongoc::shared
   cmocka)
 
 target_link_libraries(integration_test
-  mongo::mongoc_shared
+  mongoc::shared
   cmocka)
 
 target_link_options(unit_test PRIVATE "LINKER:--wrap=time"
