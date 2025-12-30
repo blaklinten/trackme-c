@@ -4,62 +4,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-void reset(Timer *t) {
-  if (!t) {
-    t_log(INFO, __func__, "Timer is NULL, something is wrong here...");
-    return;
-  }
-
-  if (t->info.activity) {
-    free(t->info.activity);
-    t->info.activity = NULL;
-  }
-
-  if (t->info.client) {
-    free(t->info.client);
-    t->info.client = NULL;
-  }
-
-  if (t->info.project) {
-    free(t->info.project);
-    t->info.project = NULL;
-  }
-
-  if (t->info.description) {
-    free(t->info.description);
-    t->info.description = NULL;
-  }
-
-  t->start_time = 0;
-}
-
-void free_timer_result(TimerResult *tr) {
-  if (!tr) {
-    return;
-  }
-
-  if (tr->info.activity) {
-    free(tr->info.activity);
-    tr->info.activity = NULL;
-  }
-
-  if (tr->info.client) {
-    free(tr->info.client);
-    tr->info.client = NULL;
-  }
-
-  if (tr->info.project) {
-    free(tr->info.project);
-    tr->info.project = NULL;
-  }
-
-  if (tr->info.description) {
-    free(tr->info.description);
-    tr->info.description = NULL;
-  }
-  free(tr);
-}
-
 void free_start_info(StartInfo *si) {
   if (!si) {
     return;
@@ -84,8 +28,78 @@ void free_start_info(StartInfo *si) {
   free(si);
 }
 
+StartInfo *copy_start_info(StartInfo *orig_si) {
+  if (!orig_si) {
+    t_log(ERROR, __func__, "No StartInfo to copy!");
+  }
+  // init StartInfo struct
+  StartInfo *si = calloc(1, sizeof(StartInfo));
+  if (!si) {
+  }
+
+  char *activity = malloc(strlen(orig_si->activity) + 1);
+  if (!activity) {
+    free(si);
+  }
+  char *client = malloc(strlen(orig_si->client) + 1);
+  if (!client) {
+    free(si);
+    free(activity);
+  }
+  char *project = malloc(strlen(orig_si->project) + 1);
+  if (!project) {
+    free(si);
+    free(activity);
+    free(client);
+  }
+  char *description = malloc(strlen(orig_si->description) + 1);
+  if (!description) {
+    free(si);
+    free(activity);
+    free(client);
+    free(project);
+  }
+
+  // Fill new StartInfo struct
+  si->activity = strcpy(activity, orig_si->activity);
+  si->client = strcpy(client, orig_si->client);
+  si->project = strcpy(project, orig_si->project);
+  si->description = strcpy(description, orig_si->description);
+
+  return si;
+};
+
+void reset(Timer *t) {
+  if (!t) {
+    t_log(DEBUG, __func__, "Timer is NULL, something is wrong here...");
+    return;
+  }
+
+  free_start_info(t->info);
+  t->info = NULL;
+  t->start_time = 0;
+}
+
+void free_timer_result(TimerResult *tr) {
+  if (!tr) {
+    t_log(DEBUG, __func__, "TimerResult is NULL, nothing to free...");
+    return;
+  }
+
+  free_start_info(tr->info);
+
+  free(tr);
+}
+
 void free_update_info(UpdateInfo *ui) {
-  free_start_info((StartInfo *) ui);
+  if (!ui) {
+    t_log(DEBUG, __func__, "TimerResult is NULL, nothing to free...");
+    return;
+  }
+
+  free_start_info(ui->info);
+  
+  free(ui);
 }
 
 bool start(Timer *t, StartInfo *si) {
@@ -104,46 +118,10 @@ bool start(Timer *t, StartInfo *si) {
     return false;
   }
 
-  char *activity = malloc(strlen(si->activity) + 1);
-  if (!activity) {
-    t_log(ERROR, __func__, "Malloc: could not allocate enough memory.");
-    return false;
-  }
-  char *client = malloc(strlen(si->client) + 1);
-  if (!client) {
-    free(activity);
-    t_log(ERROR, __func__, "Malloc: could not allocate enough memory.");
-    return false;
-  }
-  char *project = malloc(strlen(si->project) + 1);
-  if (!project) {
-    free(activity);
-    free(client);
-    t_log(ERROR, __func__, "Malloc: could not allocate enough memory.");
-    return false;
-  }
-  char *description = malloc(strlen(si->description) + 1);
-  if (!description) {
-    free(activity);
-    free(client);
-    free(project);
-    t_log(ERROR, __func__, "Malloc: could not allocate enough memory.");
-    return false;
-  }
-
-  t->info.activity = strcpy(activity, si->activity);
-  t->info.client = strcpy(client, si->client);
-  t->info.project = strcpy(project, si->project);
-  t->info.description = strcpy(description, si->description);
-  free_start_info(si);
-
+  t->info = si;
   t->start_time = time(NULL);
   if (t->start_time <= 0) {
     reset(t);
-    free(activity);
-    free(client);
-    free(project);
-    free(description);
     t_log(ERROR, __func__, "Could not get start time.");
     return false;
   }
@@ -175,44 +153,44 @@ bool update(Timer *t, UpdateInfo *ui) {
     t_log(INFO, __func__, "Change stop time of running timer makes no sense.");
   }
 
-  if (ui->info.activity){
-    free(t->info.activity);
-    char *activity = malloc(strlen(ui->info.activity) + 1);
+  if (ui->info->activity){
+    free(t->info->activity);
+    char *activity = malloc(strlen(ui->info->activity) + 1);
     if (!activity) {
       t_log(ERROR, __func__, "Malloc: could not allocate enough memory.");
       return false;
     }
-    t->info.activity = strcpy(activity, ui->info.activity);
+    t->info->activity = strcpy(activity, ui->info->activity);
   }
 
-  if (ui->info.client){
-    free(t->info.client);
-    char *client = malloc(strlen(ui->info.client) + 1);
+  if (ui->info->client){
+    free(t->info->client);
+    char *client = malloc(strlen(ui->info->client) + 1);
     if (!client) {
       t_log(ERROR, __func__, "Malloc: could not allocate enough memory.");
       return false;
     }
-    t->info.client = strcpy(client, ui->info.client);
+    t->info->client = strcpy(client, ui->info->client);
   }
 
-  if (ui->info.project){
-    free(t->info.project);
-    char *project = malloc(strlen(ui->info.project) + 1);
+  if (ui->info->project){
+    free(t->info->project);
+    char *project = malloc(strlen(ui->info->project) + 1);
     if (!project) {
       t_log(ERROR, __func__, "Malloc: could not allocate enough memory.");
       return false;
     }
-    t->info.project = strcpy(project, ui->info.project);
+    t->info->project = strcpy(project, ui->info->project);
   }
 
-  if (ui->info.description){
-    free(t->info.description);
-    char *description = malloc(strlen(ui->info.description) + 1);
+  if (ui->info->description){
+    free(t->info->description);
+    char *description = malloc(strlen(ui->info->description) + 1);
     if (!description) {
       t_log(ERROR, __func__, "Malloc: could not allocate enough memory.");
       return false;
     }
-    t->info.description = strcpy(description, ui->info.description);
+    t->info->description = strcpy(description, ui->info->description);
   }
 
   return true;
@@ -236,57 +214,16 @@ TimerResult *stop(Timer *t) {
     t_log(ERROR, __func__, "Malloc: could not allocate enough memory.");
     goto finally;
   }
-  char *activity = malloc(strlen(t->info.activity) + 1);
-  if (!activity) {
-    free(tr);
-    tr = NULL;
-    t_log(ERROR, __func__, "Malloc: could not allocate enough memory.");
-    goto finally;
-  }
-  char *client = malloc(strlen(t->info.client) + 1);
-  if (!client) {
-    free(tr);
-    free(activity);
-    tr = NULL;
-    t_log(ERROR, __func__, "Malloc: could not allocate enough memory.");
-    goto finally;
-  }
-  char *project = malloc(strlen(t->info.project) + 1);
-  if (!project) {
-    free(tr);
-    free(activity);
-    free(client);
-    tr = NULL;
-    t_log(ERROR, __func__, "Malloc: could not allocate enough memory.");
-    goto finally;
-  }
-  char *description = malloc(strlen(t->info.description) + 1);
-  if (!description) {
-    free(tr);
-    free(activity);
-    free(client);
-    free(project);
-    tr = NULL;
-    t_log(ERROR, __func__, "Malloc: could not allocate enough memory.");
-    goto finally;
-  }
 
+  tr->info = copy_start_info(t->info);
   tr->end_time = time(NULL);
   if (tr->end_time <= 0) {
     free(tr);
-    free(activity);
-    free(client);
-    free(project);
-    free(description);
     tr = NULL;
     t_log(ERROR, __func__, "Could not get end time.");
     goto finally;
   }
 
-  tr->info.activity = strcpy(activity, t->info.activity);
-  tr->info.client = strcpy(client, t->info.client);
-  tr->info.project = strcpy(project, t->info.project);
-  tr->info.description = strcpy(description, t->info.description);
   tr->start_time = t->start_time;
   tr->duration = tr->end_time - tr->start_time;
 

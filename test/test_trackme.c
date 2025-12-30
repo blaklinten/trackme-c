@@ -60,14 +60,22 @@ bool _compare_start_info(StartInfo *si1, StartInfo *si2) {
   return true;
 }
 
+bool _compare_update_info(UpdateInfo *ui1, UpdateInfo *ui2) {
+  assert_true(_compare_start_info(ui1->info, ui2->info));
+  assert_int_equal(ui1->end_time, ui2->end_time);
+  assert_int_equal(ui1->start_time, ui2->start_time);
+
+  return true;
+}
+
 /*** Tests begin ***/
 /*** Internal functions ***/
-void test_trackme_from_request_body(void **state) {
+void test_trackme_parse_start_info_request_body(void **state) {
   // Given
   test_state_t *s = (test_state_t *)*state;
 
   // When
-  StartInfo *si = _start_info_from_request_body(s->TEST_HTTP_REQUEST_BODY);
+  StartInfo *si = _start_info_from_request_body(ERROR, s->TEST_START_INFO_HTTP_REQUEST_BODY);
 
   // Then
   assert_non_null(si);
@@ -77,30 +85,71 @@ void test_trackme_from_request_body(void **state) {
   free_start_info(si);
 }
 
-void test_trackme_from_NULL_request_body(void **state) {
+void test_trackme_parse_update_info_request_body(void **state) {
+  // Given
+  test_state_t *s = (test_state_t *)*state;
+
+  // When
+  UpdateInfo *ui = _update_info_from_request_body(s->TEST_UPDATE_INFO_HTTP_REQUEST_BODY);
+
+  // Then
+  assert_non_null(ui);
+  assert_true(_compare_update_info(s->default_update_info, ui));
+
+  // Finally
+  free_update_info(ui);
+}
+
+void test_trackme_parse_start_info_NULL_request_body(void **state) {
   // Given
 
   // When
-  StartInfo *fail_null = _start_info_from_request_body(NULL);
+  StartInfo *fail_null_si = _start_info_from_request_body(ERROR, NULL);
 
   // Then
-  assert_null(fail_null);
+  assert_null(fail_null_si);
 
   // Finally
 }
 
-void test_trackme_from_empty_request_body(void **state) {
+void test_trackme_parse_update_info_NULL_request_body(void **state) {
+  // Given
+
+  // When
+  UpdateInfo *fail_null_ui = _update_info_from_request_body(NULL);
+
+  // Then
+  assert_null(fail_null_ui);
+
+  // Finally
+}
+
+void test_trackme_parse_start_info_empty_request_body(void **state) {
   // Given
   struct mg_str invalid_body = mg_str("");
 
   // When
-  StartInfo *fail_empty = _start_info_from_request_body(&invalid_body);
+  StartInfo *fail_empty_si = _start_info_from_request_body(ERROR, &invalid_body);
 
   // Then
-  assert_non_null(fail_empty);
+  assert_non_null(fail_empty_si);
 
   // Finally
-  free_start_info(fail_empty);
+  free_start_info(fail_empty_si);
+}
+
+void test_trackme_parse_update_info_empty_request_body(void **state) {
+  // Given
+  struct mg_str invalid_body = mg_str("");
+
+  // When
+  UpdateInfo *fail_empty_ui = _update_info_from_request_body(&invalid_body);
+
+  // Then
+  assert_non_null(fail_empty_ui);
+
+  // Finally
+  free_update_info(fail_empty_ui);
 }
 
 void test_trackme_time_t_to_string(void ** state) {
@@ -140,7 +189,7 @@ void test_trackme_get_duration_int_started(void **state){
   will_return(__wrap_time, s->TEST_START_TIME_S);
 
   // When
-  start_timer(s->TEST_HTTP_REQUEST_BODY);
+  start_timer(s->TEST_START_INFO_HTTP_REQUEST_BODY);
 
   expect_value(__wrap_time, __timer, NULL);
   will_return(__wrap_time, s->TEST_END_TIME_S);
@@ -163,7 +212,7 @@ void test_trackme_get_duration_int_not_started(void **state){
   // Then
   assert_null(current_timer_result);
   assert_false(is_timer_running());
-  assert_int_equal(duration_sec, 0);
+  assert_int_equal(duration_sec, -1);
 
   // Finally
 }
@@ -174,7 +223,7 @@ void test_trackme_get_duration_int_stopped(void **state){
 
   expect_value(__wrap_time, __timer, NULL);
   will_return(__wrap_time, s->TEST_START_TIME_S);
-  start_timer(s->TEST_HTTP_REQUEST_BODY);
+  start_timer(s->TEST_START_INFO_HTTP_REQUEST_BODY);
 
   expect_value(__wrap_time, __timer, NULL);
   will_return(__wrap_time, s->TEST_END_TIME_S);
@@ -228,14 +277,14 @@ void test_trackme_start_timer_started(void **state) {
   // return end time first time - not the start time we want
   expect_value(__wrap_time, __timer, NULL);
   will_return(__wrap_time, s->TEST_END_TIME_S);
-  start_timer(s->TEST_HTTP_REQUEST_BODY);
+  start_timer(s->TEST_START_INFO_HTTP_REQUEST_BODY);
 
   // return start time second time - the start time we do want!
   expect_value(__wrap_time, __timer, NULL);
   will_return(__wrap_time, s->TEST_START_TIME_S);
 
   // When
-  start_timer(s->TEST_HTTP_REQUEST_BODY);
+  start_timer(s->TEST_START_INFO_HTTP_REQUEST_BODY);
 
   char *activity = get_activity();
   char *client = get_client();
@@ -277,7 +326,7 @@ void test_trackme_start_timer_not_started(void **state){
   will_return(__wrap_time, s->TEST_START_TIME_S);
 
   // When
-  start_timer(s->TEST_HTTP_REQUEST_BODY);
+  start_timer(s->TEST_START_INFO_HTTP_REQUEST_BODY);
 
   char *activity = get_activity();
   char *client = get_client();
@@ -316,7 +365,7 @@ void test_trackme_is_timer_running_started(void **state) {
   test_state_t *s = (test_state_t *)*state;
   expect_value(__wrap_time, __timer, NULL);
   will_return(__wrap_time, s->TEST_START_TIME_S);
-  start_timer(s->TEST_HTTP_REQUEST_BODY);
+  start_timer(s->TEST_START_INFO_HTTP_REQUEST_BODY);
 
   // When
   bool running = is_timer_running();
@@ -347,7 +396,7 @@ void test_trackme_is_timer_running_stopped(void **state) {
 
   expect_value(__wrap_time, __timer, NULL);
   will_return(__wrap_time, s->TEST_START_TIME_S);
-  start_timer(s->TEST_HTTP_REQUEST_BODY);
+  start_timer(s->TEST_START_INFO_HTTP_REQUEST_BODY);
 
   expect_value(__wrap_time, __timer, NULL);
   will_return(__wrap_time, s->TEST_END_TIME_S);
@@ -368,7 +417,7 @@ void test_trackme_stop_timer_started(void **state) {
 
   expect_value(__wrap_time, __timer, NULL);
   will_return(__wrap_time, s->TEST_START_TIME_S);
-  start_timer(s->TEST_HTTP_REQUEST_BODY);
+  start_timer(s->TEST_START_INFO_HTTP_REQUEST_BODY);
 
   // When
   expect_value(__wrap_time, __timer, NULL);
@@ -429,13 +478,13 @@ void test_trackme_stop_timer_not_started(void **state){
   assert_false(success); // timer is stopped but no result is created; something is wrong (i.e. not started)!
   assert_null(current_timer_result);
   assert_false(is_timer_running());
-  assert_string_equal(activity, NOT_SET);
-  assert_string_equal(client, NOT_SET);
-  assert_string_equal(project, NOT_SET);
-  assert_string_equal(description, NOT_SET);
-  assert_string_equal(start, NULL_TIME);
-  assert_string_equal(end, NO_END_TIME);
-  assert_string_equal(duration, ZERO_STR);
+  assert_null(activity);
+  assert_null(client);
+  assert_null(project);
+  assert_null(description);
+  assert_null(start);
+  assert_null(end);
+  assert_null(duration);
 
   //Finally
   free(activity);
@@ -453,7 +502,7 @@ void test_trackme_get_start_time_started(void **state) {
 
   expect_value(__wrap_time, __timer, NULL);
   will_return(__wrap_time, s->TEST_START_TIME_S);
-  start_timer(s->TEST_HTTP_REQUEST_BODY);
+  start_timer(s->TEST_START_INFO_HTTP_REQUEST_BODY);
 
   // When
   char *start_time = get_start_time();
@@ -486,12 +535,12 @@ void test_trackme_get_start_time_not_started(void **state) {
   char *duration = get_duration();
 
   // Then
-  assert_string_equal(start_time, NULL_TIME);
+  assert_null(start_time);
 
   assert_null(current_timer_result);
   assert_false(is_timer_running());
-  assert_string_equal(end_time, NO_END_TIME);
-  assert_string_equal(duration, ZERO_STR);
+  assert_null(end_time);
+  assert_null(duration);
 
   // Finally
   free(start_time);
@@ -505,7 +554,7 @@ void test_trackme_get_start_time_stopped(void **state){
 
   expect_value(__wrap_time, __timer, NULL);
   will_return(__wrap_time, s->TEST_START_TIME_S);
-  start_timer(s->TEST_HTTP_REQUEST_BODY);
+  start_timer(s->TEST_START_INFO_HTTP_REQUEST_BODY);
 
   expect_value(__wrap_time, __timer, NULL);
   will_return(__wrap_time, s->TEST_END_TIME_S);
@@ -536,7 +585,7 @@ void test_trackme_get_end_time_started(void **state){
 
   expect_value(__wrap_time, __timer, NULL);
   will_return(__wrap_time, s->TEST_START_TIME_S);
-  start_timer(s->TEST_HTTP_REQUEST_BODY);
+  start_timer(s->TEST_START_INFO_HTTP_REQUEST_BODY);
 
   // When
   char *end_time = get_end_time();
@@ -563,7 +612,7 @@ void test_trackme_get_end_time_not_started(void **state){
   char *end_time = get_end_time();
 
   // Then
-  assert_string_equal(end_time, NO_END_TIME);
+  assert_null(end_time);
   assert_null(current_timer_result);
   assert_false(is_timer_running());
 
@@ -577,7 +626,7 @@ void test_trackme_get_end_time_stopped(void **state){
 
   expect_value(__wrap_time, __timer, NULL);
   will_return(__wrap_time, s->TEST_START_TIME_S);
-  start_timer(s->TEST_HTTP_REQUEST_BODY);
+  start_timer(s->TEST_START_INFO_HTTP_REQUEST_BODY);
 
   expect_value(__wrap_time, __timer, NULL);
   will_return(__wrap_time, s->TEST_END_TIME_S);
@@ -605,7 +654,7 @@ void test_trackme_get_duration_not_started(void **state) {
   char *duration = get_duration();
 
   // Then
-  assert_string_equal(duration, ZERO_STR);
+  assert_null(duration);
   assert_null(current_timer_result);
   assert_false(is_timer_running());
 
@@ -619,7 +668,7 @@ void test_trackme_get_duration_started(void **state) {
 
   expect_value(__wrap_time, __timer, NULL);
   will_return(__wrap_time, s->TEST_START_TIME_S);
-  start_timer(s->TEST_HTTP_REQUEST_BODY);
+  start_timer(s->TEST_START_INFO_HTTP_REQUEST_BODY);
 
   // When
   expect_value(__wrap_time, __timer, NULL);
@@ -641,7 +690,7 @@ void test_trackme_get_duration_stopped(void **state) {
 
   expect_value(__wrap_time, __timer, NULL);
   will_return(__wrap_time, s->TEST_START_TIME_S);
-  start_timer(s->TEST_HTTP_REQUEST_BODY);
+  start_timer(s->TEST_START_INFO_HTTP_REQUEST_BODY);
 
   expect_value(__wrap_time, __timer, NULL);
   will_return(__wrap_time, s->TEST_END_TIME_S);
@@ -665,7 +714,7 @@ void test_trackme_get_activity_not_started(void **state){
   char *activity = get_activity();
 
   // Then
-  assert_string_equal(activity, NOT_SET);
+  assert_null(activity);
 
   assert_null(current_timer_result);
   assert_false(is_timer_running());
@@ -700,7 +749,7 @@ void test_trackme_get_activity_started_set(void **state) {
 
   expect_value(__wrap_time, __timer, NULL);
   will_return(__wrap_time, s->TEST_START_TIME_S);
-  start_timer(s->TEST_HTTP_REQUEST_BODY);
+  start_timer(s->TEST_START_INFO_HTTP_REQUEST_BODY);
 
   // When
   char *activity = get_activity();
@@ -720,7 +769,7 @@ void test_trackme_get_activity_stopped(void **state){
 
   expect_value(__wrap_time, __timer, NULL);
   will_return(__wrap_time, s->TEST_START_TIME_S);
-  start_timer(s->TEST_HTTP_REQUEST_BODY);
+  start_timer(s->TEST_START_INFO_HTTP_REQUEST_BODY);
 
   expect_value(__wrap_time, __timer, NULL);
   will_return(__wrap_time, s->TEST_END_TIME_S);
@@ -745,7 +794,7 @@ void test_trackme_get_client_not_started(void **state){
   char *client = get_client();
 
   // Then
-  assert_string_equal(client, NOT_SET);
+  assert_null(client);
 
   assert_null(current_timer_result);
   assert_false(is_timer_running());
@@ -780,7 +829,7 @@ void test_trackme_get_client_started_set(void **state) {
 
   expect_value(__wrap_time, __timer, NULL);
   will_return(__wrap_time, s->TEST_START_TIME_S);
-  start_timer(s->TEST_HTTP_REQUEST_BODY);
+  start_timer(s->TEST_START_INFO_HTTP_REQUEST_BODY);
 
   // When
   char *client = get_client();
@@ -800,7 +849,7 @@ void test_trackme_get_client_stopped(void **state){
 
   expect_value(__wrap_time, __timer, NULL);
   will_return(__wrap_time, s->TEST_START_TIME_S);
-  start_timer(s->TEST_HTTP_REQUEST_BODY);
+  start_timer(s->TEST_START_INFO_HTTP_REQUEST_BODY);
 
   expect_value(__wrap_time, __timer, NULL);
   will_return(__wrap_time, s->TEST_END_TIME_S);
@@ -825,7 +874,7 @@ void test_trackme_get_project_not_started(void **state){
   char *project = get_project();
 
   // Then
-  assert_string_equal(project, NOT_SET);
+  assert_null(project);
 
   assert_null(current_timer_result);
   assert_false(is_timer_running());
@@ -860,7 +909,7 @@ void test_trackme_get_project_started_set(void **state) {
 
   expect_value(__wrap_time, __timer, NULL);
   will_return(__wrap_time, s->TEST_START_TIME_S);
-  start_timer(s->TEST_HTTP_REQUEST_BODY);
+  start_timer(s->TEST_START_INFO_HTTP_REQUEST_BODY);
 
   // When
   char *project = get_project();
@@ -880,7 +929,7 @@ void test_trackme_get_project_stopped(void **state){
 
   expect_value(__wrap_time, __timer, NULL);
   will_return(__wrap_time, s->TEST_START_TIME_S);
-  start_timer(s->TEST_HTTP_REQUEST_BODY);
+  start_timer(s->TEST_START_INFO_HTTP_REQUEST_BODY);
 
   expect_value(__wrap_time, __timer, NULL);
   will_return(__wrap_time, s->TEST_END_TIME_S);
@@ -905,7 +954,7 @@ void test_trackme_get_description_not_started(void **state){
   char *description = get_description();
 
   // Then
-  assert_string_equal(description, NOT_SET);
+  assert_null(description);
 
   assert_null(current_timer_result);
   assert_false(is_timer_running());
@@ -940,7 +989,7 @@ void test_trackme_get_description_started_set(void **state) {
 
   expect_value(__wrap_time, __timer, NULL);
   will_return(__wrap_time, s->TEST_START_TIME_S);
-  start_timer(s->TEST_HTTP_REQUEST_BODY);
+  start_timer(s->TEST_START_INFO_HTTP_REQUEST_BODY);
 
   // When
   char *description = get_description();
@@ -960,7 +1009,7 @@ void test_trackme_get_description_stopped(void **state){
 
   expect_value(__wrap_time, __timer, NULL);
   will_return(__wrap_time, s->TEST_START_TIME_S);
-  start_timer(s->TEST_HTTP_REQUEST_BODY);
+  start_timer(s->TEST_START_INFO_HTTP_REQUEST_BODY);
 
   expect_value(__wrap_time, __timer, NULL);
   will_return(__wrap_time, s->TEST_END_TIME_S);

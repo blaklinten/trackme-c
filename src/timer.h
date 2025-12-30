@@ -12,18 +12,18 @@ typedef struct {
 } StartInfo;
 
 typedef struct {
-  StartInfo info;
+  StartInfo *info;
   time_t start_time;
 } Timer;
 
 typedef struct {
-  StartInfo info;
+  StartInfo *info;
   time_t start_time;
   time_t end_time;
 } UpdateInfo;
 
 typedef struct {
-  StartInfo info;
+  StartInfo *info;
   time_t start_time;
   time_t end_time;
   time_t duration;
@@ -36,5 +36,6 @@ void free_update_info(UpdateInfo *ui);
 bool start(Timer *t, StartInfo *si);
 bool update(Timer *t, UpdateInfo *ui);
 TimerResult *stop(Timer *t);
+StartInfo *copy_start_info(StartInfo *orig_si);
 
 #endif // !TIMER_H

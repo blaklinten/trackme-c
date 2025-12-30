@@ -14,6 +14,7 @@
 #define NOT_SET_LENGTH (strlen(NOT_SET) + 1)
 
 bool start_timer(struct mg_str *request_body);
+bool update_timer(struct mg_str *request_body);
 bool is_timer_running();
 bool stop_timer();
 char *get_start_time();

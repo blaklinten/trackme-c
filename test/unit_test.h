@@ -27,7 +27,8 @@ typedef struct {
   time_t TEST_DURATION_S;
   time_t TEST_START_TIME_S;
   time_t TEST_END_TIME_S;
-  struct mg_str *TEST_HTTP_REQUEST_BODY;
+  struct mg_str *TEST_START_INFO_HTTP_REQUEST_BODY;
+  struct mg_str *TEST_UPDATE_INFO_HTTP_REQUEST_BODY;
   struct mg_str *NOT_SET_TEST_HTTP_REQUEST_BODY;
 } test_state_t;
 

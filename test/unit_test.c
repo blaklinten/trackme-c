@@ -1,7 +1,7 @@
 #include "unit_test.h"
 #include "../src/db.h"
-#include "../src/track_me.h"
 #include "../src/timer.h"
+#include "../src/track_me.h"
 #include "test_list.h"
 #include "test_timer.h"
 #include "test_trackme.h"
@@ -22,7 +22,6 @@ time_t __wrap_time(time_t *__timer) {
   return mock_time;
 }
 
-
 static int group_setup(void **state) {
   test_state_t *s = malloc(sizeof(test_state_t));
   // s->TEST_START_TIME_S = 1690876956; // Tue  1 Aug 10:02:36 CEST 2023
@@ -34,16 +33,19 @@ static int group_setup(void **state) {
   si->description = "this is a test description";
   s->default_start_info = si;
 
+  StartInfo *info = malloc(sizeof(StartInfo));
+  info->activity = "updated_activity";
+  info->client = "updated_client";
+  info->project = "updated_project";
+  info->description = "this is an updated description";
   UpdateInfo *ui = malloc(sizeof(UpdateInfo));
-  ui->info.activity = "updated_activity";
-  ui->info.client = "updated_client";
-  ui->info.project = "updated_project";
-  ui->info.description = "this is an updated description";
-  ui->start_time = 1721665160;  // Mon 22 Jul 18:19:20 CEST 2024
-  ui->end_time = 1721668890;    // Mon 22 Jul 19:20:30 CEST 2024
+  ui->info = info,
+  ui->start_time = 1721665160; // Mon 22 Jul 18:19:20 CEST 2024
+  ui->end_time = 1721668890;   // Mon 22 Jul 19:20:30 CEST 2024
   s->default_update_info = ui;
 
-  // TODO Clean this up! Do we need duplicate test_activity_name - TEST_ACTIVITY and so on...?
+  // TODO Clean this up! Do we need duplicate test_activity_name - TEST_ACTIVITY
+  // and so on...?
   s->TEST_ACTIVITY_1 = "Alice";
   s->TEST_ACTIVITY_2 = "Bob";
   s->TEST_CLIENT = "test client";
@@ -58,8 +60,7 @@ static int group_setup(void **state) {
   BSON_APPEND_UTF8(s->test_document_1, DB_KEY_ACTIVITY, s->TEST_ACTIVITY_1);
   BSON_APPEND_UTF8(s->test_document_1, DB_KEY_CLIENT, s->TEST_CLIENT);
   BSON_APPEND_UTF8(s->test_document_1, DB_KEY_PROJECT, s->TEST_PROJECT);
-  BSON_APPEND_TIME_T(s->test_document_1, DB_KEY_START_TIME,
-                     s->TEST_START_TIME_S);
+  BSON_APPEND_TIME_T(s->test_document_1, DB_KEY_START_TIME, s->TEST_START_TIME_S);
   BSON_APPEND_TIME_T(s->test_document_1, DB_KEY_END_TIME, s->TEST_END_TIME_S);
   BSON_APPEND_TIME_T(s->test_document_1, DB_KEY_DURATION, s->TEST_DURATION_S);
 
@@ -69,19 +70,29 @@ static int group_setup(void **state) {
   BSON_APPEND_UTF8(s->test_document_2, DB_KEY_ACTIVITY, s->TEST_ACTIVITY_2);
   BSON_APPEND_UTF8(s->test_document_2, DB_KEY_CLIENT, s->TEST_CLIENT);
   BSON_APPEND_UTF8(s->test_document_2, DB_KEY_PROJECT, s->TEST_PROJECT);
-  BSON_APPEND_TIME_T(s->test_document_2, DB_KEY_START_TIME,
-                     s->TEST_START_TIME_S);
+  BSON_APPEND_TIME_T(s->test_document_2, DB_KEY_START_TIME, s->TEST_START_TIME_S);
   BSON_APPEND_TIME_T(s->test_document_2, DB_KEY_END_TIME, s->TEST_END_TIME_S);
   BSON_APPEND_TIME_T(s->test_document_2, DB_KEY_DURATION, s->TEST_DURATION_S);
 
-  char *buf = malloc(5 * REQUEST_FIELD_SHORT_SIZE);
-  snprintf(buf, 5 * REQUEST_FIELD_SHORT_SIZE,
+  char *start_info_buf = malloc(5 * REQUEST_FIELD_SHORT_SIZE);
+  snprintf(start_info_buf, 5 * REQUEST_FIELD_SHORT_SIZE ,
            "client=%s&project=%s&activity=%s&description=%s",
            s->default_start_info->client, s->default_start_info->project,
            s->default_start_info->activity, s->default_start_info->description);
-  struct mg_str *body = malloc(sizeof(struct mg_str));
-  *body = mg_str(buf);
-  s->TEST_HTTP_REQUEST_BODY = body;
+  struct mg_str *start_body = malloc(sizeof(struct mg_str));
+  *start_body = mg_str(start_info_buf);
+  s->TEST_START_INFO_HTTP_REQUEST_BODY = start_body;
+
+  char *update_info_buf = malloc(5 * REQUEST_FIELD_SHORT_SIZE + 2 * sizeof(time_t));
+  snprintf(update_info_buf, 5 * REQUEST_FIELD_SHORT_SIZE + 2 * sizeof(time_t),
+           "client=%s&project=%s&activity=%s&description=%s&start_time=%ld&"
+           "end_time=%ld",
+           s->default_update_info->info->client, s->default_update_info->info->project,
+           s->default_update_info->info->activity, s->default_update_info->info->description,
+           s->default_update_info->start_time, s->default_update_info->end_time);
+  struct mg_str *update_body = malloc(sizeof(struct mg_str));
+  *update_body = mg_str(update_info_buf);
+  s->TEST_UPDATE_INFO_HTTP_REQUEST_BODY = update_body;
 
   char *not_set_buf = malloc(5 * REQUEST_FIELD_SHORT_SIZE);
   snprintf(not_set_buf, 5 * REQUEST_FIELD_SHORT_SIZE,
@@ -98,9 +109,13 @@ static int group_teardown(void **state) {
   test_state_t *s = (test_state_t *)*state;
 
   if (s) {
-    if (s->TEST_HTTP_REQUEST_BODY) {
-      free(s->TEST_HTTP_REQUEST_BODY->buf);
-      free(s->TEST_HTTP_REQUEST_BODY);
+    if (s->TEST_START_INFO_HTTP_REQUEST_BODY) {
+      free(s->TEST_START_INFO_HTTP_REQUEST_BODY->buf);
+      free(s->TEST_START_INFO_HTTP_REQUEST_BODY);
+    }
+    if (s->TEST_UPDATE_INFO_HTTP_REQUEST_BODY) {
+      free(s->TEST_UPDATE_INFO_HTTP_REQUEST_BODY->buf);
+      free(s->TEST_UPDATE_INFO_HTTP_REQUEST_BODY);
     }
     if (s->NOT_SET_TEST_HTTP_REQUEST_BODY) {
       free(s->NOT_SET_TEST_HTTP_REQUEST_BODY->buf);
@@ -110,6 +125,7 @@ static int group_teardown(void **state) {
       free(s->default_start_info);
     }
     if (s->default_update_info) {
+      free(s->default_update_info->info);
       free(s->default_update_info);
     }
     if (s->test_document_1) {
@@ -124,11 +140,11 @@ static int group_teardown(void **state) {
   return 0;
 }
 
-static int reset_timer( void **state) {
+static int reset_timer(void **state) {
   test_state_t *s = (test_state_t *)*state;
   expect_value(__wrap_time, __timer, NULL);
   will_return(__wrap_time, 1);
-  start_timer(s->TEST_HTTP_REQUEST_BODY);
+  start_timer(s->TEST_START_INFO_HTTP_REQUEST_BODY);
 
   expect_value(__wrap_time, __timer, NULL);
   will_return(__wrap_time, 1);
@@ -175,9 +191,12 @@ int main(void) {
       cmocka_unit_test(test_list_count_element),
       /* Trackme */
       /* private functions */
-      cmocka_unit_test_teardown(test_trackme_from_request_body, reset_timer),
-      cmocka_unit_test_teardown(test_trackme_from_NULL_request_body, reset_timer),
-      cmocka_unit_test_teardown(test_trackme_from_empty_request_body, reset_timer),
+      cmocka_unit_test_teardown(test_trackme_parse_start_info_request_body, reset_timer),
+      cmocka_unit_test_teardown(test_trackme_parse_update_info_request_body, reset_timer),
+      cmocka_unit_test_teardown(test_trackme_parse_start_info_NULL_request_body, reset_timer),
+      cmocka_unit_test_teardown(test_trackme_parse_update_info_NULL_request_body, reset_timer),
+      cmocka_unit_test_teardown(test_trackme_parse_start_info_empty_request_body, reset_timer),
+      cmocka_unit_test_teardown(test_trackme_parse_update_info_empty_request_body, reset_timer),
       cmocka_unit_test_teardown(test_trackme_time_t_to_string, reset_timer),
       cmocka_unit_test_teardown(test_trackme_time_t_null_to_string, reset_timer),
       cmocka_unit_test_teardown(test_trackme_get_duration_int_started, reset_timer),

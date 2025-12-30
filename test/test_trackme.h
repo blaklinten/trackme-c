@@ -2,6 +2,7 @@
 #define TRACKME_H
 
 #include "unit_test.h"
+#include "../src/util/log.h"
 
 // Maybe move these to common shared state?
 #define NO_END_TIME "No end time - stop timer first"
@@ -10,7 +11,8 @@
 #define EXPECTED_END_TIME "Mon, 22 Jul 2024 19:33:06 +0200"
 
 // Internal symbols from trackme.c
-extern StartInfo *_start_info_from_request_body(struct mg_str *);
+extern StartInfo *_start_info_from_request_body(LOG_LEVEL, struct mg_str *);
+extern UpdateInfo *_update_info_from_request_body(struct mg_str *);
 extern TimerResult *current_timer_result;
 extern char *_duration_int_to_string(int);
 extern char *_time_t_to_str(time_t *);
@@ -18,9 +20,12 @@ extern int _get_duration_int();
 
 
 /* Private functions */
-void test_trackme_from_request_body(void **);
-void test_trackme_from_NULL_request_body(void **);
-void test_trackme_from_empty_request_body(void **);
+void test_trackme_parse_start_info_request_body(void **);
+void test_trackme_parse_update_info_request_body(void **);
+void test_trackme_parse_start_info_NULL_request_body(void **);
+void test_trackme_parse_update_info_NULL_request_body(void **);
+void test_trackme_parse_start_info_empty_request_body(void **);
+void test_trackme_parse_update_info_empty_request_body(void **);
 void test_trackme_time_t_to_string(void **);
 void test_trackme_time_t_null_to_string(void **);
 void test_trackme_get_duration_int_started(void **);
