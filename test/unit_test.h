@@ -12,6 +12,7 @@
 #include "../src/timer.h"
 
 time_t __wrap_time(time_t *__timer);
+int check_pointer(CMockaValueData value, CMockaValueData expected);
 
 typedef struct {
   StartInfo *default_start_info;
