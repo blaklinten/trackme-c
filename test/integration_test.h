@@ -1,13 +1,15 @@
 #ifndef INTEGRATION_TEST
 #define INTEGRATION_TEST
 
-#include <bson/bson.h>
-#include <setjmp.h>
+#include <cmocka.h>
+#ifdef stop
+#undef stop
+#endif // stop
+#include "../src/timer.h"
 #include <stdarg.h>
 
 #include <stddef.h>
-
-#include <cmocka.h>
+#include <time.h>
 
 typedef struct {
   bson_t *test_document_1;

@@ -4,14 +4,18 @@
 #include <bson/bson.h>
 #include <setjmp.h>
 #include <stdarg.h>
-
 #include <stddef.h>
 
+// Order is important here, cmocka >> timer.h
 #include <cmocka.h>
+#ifdef stop
+#undef stop
+#endif // stop
 
 #include "../src/timer.h"
 
 time_t __wrap_time(time_t *__timer);
+int check_pointer(CMockaValueData value, CMockaValueData expected);
 
 typedef struct {
   StartInfo *default_start_info;

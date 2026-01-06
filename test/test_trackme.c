@@ -1,4 +1,10 @@
 #include "test_trackme.h"
+
+#include <cmocka.h>
+#ifdef stop
+#undef stop
+#endif // stop
+
 #include "../lib/mongoose.h"
 #include "../src/track_me.h"
 #include "../src/util/log.h"
@@ -185,13 +191,14 @@ void test_trackme_get_duration_int_started(void **state){
   // Given
   test_state_t *s = (test_state_t *)*state;
 
-  expect_value(__wrap_time, __timer, NULL);
+  CMockaValueData null_ptr_value_data = cast_ptr_to_cmocka_value(NULL);
+  expect_check_data(__wrap_time, __timer, check_pointer, null_ptr_value_data);
   will_return(__wrap_time, s->TEST_START_TIME_S);
 
   // When
   start_timer(s->TEST_START_INFO_HTTP_REQUEST_BODY);
 
-  expect_value(__wrap_time, __timer, NULL);
+  expect_check_data(__wrap_time, __timer, check_pointer, null_ptr_value_data);
   will_return(__wrap_time, s->TEST_END_TIME_S);
   int duration_sec = _get_duration_int();
 
@@ -221,11 +228,12 @@ void test_trackme_get_duration_int_stopped(void **state){
   // Given
   test_state_t *s = (test_state_t *)*state;
 
-  expect_value(__wrap_time, __timer, NULL);
+  CMockaValueData null_ptr_value_data = cast_ptr_to_cmocka_value(NULL);
+  expect_check_data(__wrap_time, __timer, check_pointer, null_ptr_value_data);
   will_return(__wrap_time, s->TEST_START_TIME_S);
   start_timer(s->TEST_START_INFO_HTTP_REQUEST_BODY);
 
-  expect_value(__wrap_time, __timer, NULL);
+  expect_check_data(__wrap_time, __timer, check_pointer, null_ptr_value_data);
   will_return(__wrap_time, s->TEST_END_TIME_S);
   stop_timer();
 
@@ -275,12 +283,13 @@ void test_trackme_start_timer_started(void **state) {
   test_state_t *s = (test_state_t *)*state;
 
   // return end time first time - not the start time we want
-  expect_value(__wrap_time, __timer, NULL);
+  CMockaValueData null_ptr_value_data = cast_ptr_to_cmocka_value(NULL);
+  expect_check_data(__wrap_time, __timer, check_pointer, null_ptr_value_data);
   will_return(__wrap_time, s->TEST_END_TIME_S);
   start_timer(s->TEST_START_INFO_HTTP_REQUEST_BODY);
 
   // return start time second time - the start time we do want!
-  expect_value(__wrap_time, __timer, NULL);
+  expect_check_data(__wrap_time, __timer, check_pointer, null_ptr_value_data);
   will_return(__wrap_time, s->TEST_START_TIME_S);
 
   // When
@@ -293,7 +302,7 @@ void test_trackme_start_timer_started(void **state) {
   char *start = get_start_time();
   char *end = get_end_time();
 
-  expect_value(__wrap_time, __timer, NULL);
+  expect_check_data(__wrap_time, __timer, check_pointer, null_ptr_value_data);
   will_return(__wrap_time, s->TEST_END_TIME_S);
   char *duration = get_duration();
 
@@ -322,7 +331,8 @@ void test_trackme_start_timer_not_started(void **state){
   // Given
   test_state_t *s = (test_state_t *)*state;
 
-  expect_value(__wrap_time, __timer, NULL);
+  CMockaValueData null_ptr_value_data = cast_ptr_to_cmocka_value(NULL);
+  expect_check_data(__wrap_time, __timer, check_pointer, null_ptr_value_data);
   will_return(__wrap_time, s->TEST_START_TIME_S);
 
   // When
@@ -335,7 +345,7 @@ void test_trackme_start_timer_not_started(void **state){
   char *start = get_start_time();
   char *end = get_end_time();
 
-  expect_value(__wrap_time, __timer, NULL);
+  expect_check_data(__wrap_time, __timer, check_pointer, null_ptr_value_data);
   will_return(__wrap_time, s->TEST_END_TIME_S);
   char *duration = get_duration();
 
@@ -363,7 +373,8 @@ void test_trackme_start_timer_not_started(void **state){
 void test_trackme_is_timer_running_started(void **state) {
   // Given
   test_state_t *s = (test_state_t *)*state;
-  expect_value(__wrap_time, __timer, NULL);
+  CMockaValueData null_ptr_value_data = cast_ptr_to_cmocka_value(NULL);
+  expect_check_data(__wrap_time, __timer, check_pointer, null_ptr_value_data);
   will_return(__wrap_time, s->TEST_START_TIME_S);
   start_timer(s->TEST_START_INFO_HTTP_REQUEST_BODY);
 
@@ -394,11 +405,12 @@ void test_trackme_is_timer_running_stopped(void **state) {
   // Given
   test_state_t *s = (test_state_t *)*state;
 
-  expect_value(__wrap_time, __timer, NULL);
+  CMockaValueData null_ptr_value_data = cast_ptr_to_cmocka_value(NULL);
+  expect_check_data(__wrap_time, __timer, check_pointer, null_ptr_value_data);
   will_return(__wrap_time, s->TEST_START_TIME_S);
   start_timer(s->TEST_START_INFO_HTTP_REQUEST_BODY);
 
-  expect_value(__wrap_time, __timer, NULL);
+  expect_check_data(__wrap_time, __timer, check_pointer, null_ptr_value_data);
   will_return(__wrap_time, s->TEST_END_TIME_S);
   stop_timer();
 
@@ -415,12 +427,13 @@ void test_trackme_stop_timer_started(void **state) {
   // Given
   test_state_t *s = (test_state_t *)*state;
 
-  expect_value(__wrap_time, __timer, NULL);
+  CMockaValueData null_ptr_value_data = cast_ptr_to_cmocka_value(NULL);
+  expect_check_data(__wrap_time, __timer, check_pointer, null_ptr_value_data);
   will_return(__wrap_time, s->TEST_START_TIME_S);
   start_timer(s->TEST_START_INFO_HTTP_REQUEST_BODY);
 
   // When
-  expect_value(__wrap_time, __timer, NULL);
+  expect_check_data(__wrap_time, __timer, check_pointer, null_ptr_value_data);
   will_return(__wrap_time, s->TEST_END_TIME_S);
   stop_timer();
 
@@ -500,7 +513,8 @@ void test_trackme_get_start_time_started(void **state) {
   // Given
   test_state_t *s = (test_state_t *)*state;
 
-  expect_value(__wrap_time, __timer, NULL);
+  CMockaValueData null_ptr_value_data = cast_ptr_to_cmocka_value(NULL);
+  expect_check_data(__wrap_time, __timer, check_pointer, null_ptr_value_data);
   will_return(__wrap_time, s->TEST_START_TIME_S);
   start_timer(s->TEST_START_INFO_HTTP_REQUEST_BODY);
 
@@ -508,7 +522,7 @@ void test_trackme_get_start_time_started(void **state) {
   char *start_time = get_start_time();
   char *end_time = get_end_time();
 
-  expect_value(__wrap_time, __timer, NULL);
+  expect_check_data(__wrap_time, __timer, check_pointer, null_ptr_value_data);
   will_return(__wrap_time, s->TEST_END_TIME_S);
   char *duration = get_duration();
 
@@ -552,11 +566,12 @@ void test_trackme_get_start_time_stopped(void **state){
   // Given
   test_state_t *s = (test_state_t *)*state;
 
-  expect_value(__wrap_time, __timer, NULL);
+  CMockaValueData null_ptr_value_data = cast_ptr_to_cmocka_value(NULL);
+  expect_check_data(__wrap_time, __timer, check_pointer, null_ptr_value_data);
   will_return(__wrap_time, s->TEST_START_TIME_S);
   start_timer(s->TEST_START_INFO_HTTP_REQUEST_BODY);
 
-  expect_value(__wrap_time, __timer, NULL);
+  expect_check_data(__wrap_time, __timer, check_pointer, null_ptr_value_data);
   will_return(__wrap_time, s->TEST_END_TIME_S);
   stop_timer();
 
@@ -583,14 +598,15 @@ void test_trackme_get_end_time_started(void **state){
   // Given
   test_state_t *s = (test_state_t *)*state;
 
-  expect_value(__wrap_time, __timer, NULL);
+  CMockaValueData null_ptr_value_data = cast_ptr_to_cmocka_value(NULL);
+  expect_check_data(__wrap_time, __timer, check_pointer, null_ptr_value_data);
   will_return(__wrap_time, s->TEST_START_TIME_S);
   start_timer(s->TEST_START_INFO_HTTP_REQUEST_BODY);
 
   // When
   char *end_time = get_end_time();
 
-  expect_value(__wrap_time, __timer, NULL);
+  expect_check_data(__wrap_time, __timer, check_pointer, null_ptr_value_data);
   will_return(__wrap_time, s->TEST_END_TIME_S);
   char *duration = get_duration();
 
@@ -624,11 +640,12 @@ void test_trackme_get_end_time_stopped(void **state){
   // Given
   test_state_t *s = (test_state_t *)*state;
 
-  expect_value(__wrap_time, __timer, NULL);
+  CMockaValueData null_ptr_value_data = cast_ptr_to_cmocka_value(NULL);
+  expect_check_data(__wrap_time, __timer, check_pointer, null_ptr_value_data);
   will_return(__wrap_time, s->TEST_START_TIME_S);
   start_timer(s->TEST_START_INFO_HTTP_REQUEST_BODY);
 
-  expect_value(__wrap_time, __timer, NULL);
+  expect_check_data(__wrap_time, __timer, check_pointer, null_ptr_value_data);
   will_return(__wrap_time, s->TEST_END_TIME_S);
   stop_timer();
 
@@ -666,12 +683,13 @@ void test_trackme_get_duration_started(void **state) {
   // Given
   test_state_t *s = (test_state_t *)*state;
 
-  expect_value(__wrap_time, __timer, NULL);
+  CMockaValueData null_ptr_value_data = cast_ptr_to_cmocka_value(NULL);
+  expect_check_data(__wrap_time, __timer, check_pointer, null_ptr_value_data);
   will_return(__wrap_time, s->TEST_START_TIME_S);
   start_timer(s->TEST_START_INFO_HTTP_REQUEST_BODY);
 
   // When
-  expect_value(__wrap_time, __timer, NULL);
+  expect_check_data(__wrap_time, __timer, check_pointer, null_ptr_value_data);
   will_return(__wrap_time, s->TEST_END_TIME_S);
   char *duration = get_duration();
 
@@ -688,11 +706,12 @@ void test_trackme_get_duration_stopped(void **state) {
   // Given
   test_state_t *s = (test_state_t *)*state;
 
-  expect_value(__wrap_time, __timer, NULL);
+  CMockaValueData null_ptr_value_data = cast_ptr_to_cmocka_value(NULL);
+  expect_check_data(__wrap_time, __timer, check_pointer, null_ptr_value_data);
   will_return(__wrap_time, s->TEST_START_TIME_S);
   start_timer(s->TEST_START_INFO_HTTP_REQUEST_BODY);
 
-  expect_value(__wrap_time, __timer, NULL);
+  expect_check_data(__wrap_time, __timer, check_pointer, null_ptr_value_data);
   will_return(__wrap_time, s->TEST_END_TIME_S);
   stop_timer();
 
@@ -727,7 +746,8 @@ void test_trackme_get_activity_started_not_set(void **state){
   // Given
   test_state_t *s = (test_state_t *)*state;
 
-  expect_value(__wrap_time, __timer, NULL);
+  CMockaValueData null_ptr_value_data = cast_ptr_to_cmocka_value(NULL);
+  expect_check_data(__wrap_time, __timer, check_pointer, null_ptr_value_data);
   will_return(__wrap_time, s->TEST_START_TIME_S);
   start_timer(s->NOT_SET_TEST_HTTP_REQUEST_BODY);
 
@@ -747,7 +767,8 @@ void test_trackme_get_activity_started_set(void **state) {
   // Given
   test_state_t *s = (test_state_t *)*state;
 
-  expect_value(__wrap_time, __timer, NULL);
+  CMockaValueData null_ptr_value_data = cast_ptr_to_cmocka_value(NULL);
+  expect_check_data(__wrap_time, __timer, check_pointer, null_ptr_value_data);
   will_return(__wrap_time, s->TEST_START_TIME_S);
   start_timer(s->TEST_START_INFO_HTTP_REQUEST_BODY);
 
@@ -767,11 +788,12 @@ void test_trackme_get_activity_stopped(void **state){
   // Given
   test_state_t *s = (test_state_t *)*state;
 
-  expect_value(__wrap_time, __timer, NULL);
+  CMockaValueData null_ptr_value_data = cast_ptr_to_cmocka_value(NULL);
+  expect_check_data(__wrap_time, __timer, check_pointer, null_ptr_value_data);
   will_return(__wrap_time, s->TEST_START_TIME_S);
   start_timer(s->TEST_START_INFO_HTTP_REQUEST_BODY);
 
-  expect_value(__wrap_time, __timer, NULL);
+  expect_check_data(__wrap_time, __timer, check_pointer, null_ptr_value_data);
   will_return(__wrap_time, s->TEST_END_TIME_S);
   stop_timer();
 
@@ -807,7 +829,8 @@ void test_trackme_get_client_started_not_set(void **state){
   // Given
   test_state_t *s = (test_state_t *)*state;
 
-  expect_value(__wrap_time, __timer, NULL);
+  CMockaValueData null_ptr_value_data = cast_ptr_to_cmocka_value(NULL);
+  expect_check_data(__wrap_time, __timer, check_pointer, null_ptr_value_data);
   will_return(__wrap_time, s->TEST_START_TIME_S);
   start_timer(s->NOT_SET_TEST_HTTP_REQUEST_BODY);
 
@@ -827,7 +850,8 @@ void test_trackme_get_client_started_set(void **state) {
   // Given
   test_state_t *s = (test_state_t *)*state;
 
-  expect_value(__wrap_time, __timer, NULL);
+  CMockaValueData null_ptr_value_data = cast_ptr_to_cmocka_value(NULL);
+  expect_check_data(__wrap_time, __timer, check_pointer, null_ptr_value_data);
   will_return(__wrap_time, s->TEST_START_TIME_S);
   start_timer(s->TEST_START_INFO_HTTP_REQUEST_BODY);
 
@@ -847,11 +871,12 @@ void test_trackme_get_client_stopped(void **state){
   // Given
   test_state_t *s = (test_state_t *)*state;
 
-  expect_value(__wrap_time, __timer, NULL);
+  CMockaValueData null_ptr_value_data = cast_ptr_to_cmocka_value(NULL);
+  expect_check_data(__wrap_time, __timer, check_pointer, null_ptr_value_data);
   will_return(__wrap_time, s->TEST_START_TIME_S);
   start_timer(s->TEST_START_INFO_HTTP_REQUEST_BODY);
 
-  expect_value(__wrap_time, __timer, NULL);
+  expect_check_data(__wrap_time, __timer, check_pointer, null_ptr_value_data);
   will_return(__wrap_time, s->TEST_END_TIME_S);
   stop_timer();
 
@@ -887,7 +912,8 @@ void test_trackme_get_project_started_not_set(void **state){
   // Given
   test_state_t *s = (test_state_t *)*state;
 
-  expect_value(__wrap_time, __timer, NULL);
+  CMockaValueData null_ptr_value_data = cast_ptr_to_cmocka_value(NULL);
+  expect_check_data(__wrap_time, __timer, check_pointer, null_ptr_value_data);
   will_return(__wrap_time, s->TEST_START_TIME_S);
   start_timer(s->NOT_SET_TEST_HTTP_REQUEST_BODY);
 
@@ -907,7 +933,8 @@ void test_trackme_get_project_started_set(void **state) {
   // Given
   test_state_t *s = (test_state_t *)*state;
 
-  expect_value(__wrap_time, __timer, NULL);
+  CMockaValueData null_ptr_value_data = cast_ptr_to_cmocka_value(NULL);
+  expect_check_data(__wrap_time, __timer, check_pointer, null_ptr_value_data);
   will_return(__wrap_time, s->TEST_START_TIME_S);
   start_timer(s->TEST_START_INFO_HTTP_REQUEST_BODY);
 
@@ -927,11 +954,12 @@ void test_trackme_get_project_stopped(void **state){
   // Given
   test_state_t *s = (test_state_t *)*state;
 
-  expect_value(__wrap_time, __timer, NULL);
+  CMockaValueData null_ptr_value_data = cast_ptr_to_cmocka_value(NULL);
+  expect_check_data(__wrap_time, __timer, check_pointer, null_ptr_value_data);
   will_return(__wrap_time, s->TEST_START_TIME_S);
   start_timer(s->TEST_START_INFO_HTTP_REQUEST_BODY);
 
-  expect_value(__wrap_time, __timer, NULL);
+  expect_check_data(__wrap_time, __timer, check_pointer, null_ptr_value_data);
   will_return(__wrap_time, s->TEST_END_TIME_S);
   stop_timer();
 
@@ -967,7 +995,8 @@ void test_trackme_get_description_started_not_set(void **state){
   // Given
   test_state_t *s = (test_state_t *)*state;
 
-  expect_value(__wrap_time, __timer, NULL);
+  CMockaValueData null_ptr_value_data = cast_ptr_to_cmocka_value(NULL);
+  expect_check_data(__wrap_time, __timer, check_pointer, null_ptr_value_data);
   will_return(__wrap_time, s->TEST_START_TIME_S);
   start_timer(s->NOT_SET_TEST_HTTP_REQUEST_BODY);
 
@@ -987,7 +1016,8 @@ void test_trackme_get_description_started_set(void **state) {
   // Given
   test_state_t *s = (test_state_t *)*state;
 
-  expect_value(__wrap_time, __timer, NULL);
+  CMockaValueData null_ptr_value_data = cast_ptr_to_cmocka_value(NULL);
+  expect_check_data(__wrap_time, __timer, check_pointer, null_ptr_value_data);
   will_return(__wrap_time, s->TEST_START_TIME_S);
   start_timer(s->TEST_START_INFO_HTTP_REQUEST_BODY);
 
@@ -1007,11 +1037,12 @@ void test_trackme_get_description_stopped(void **state){
   // Given
   test_state_t *s = (test_state_t *)*state;
 
-  expect_value(__wrap_time, __timer, NULL);
+  CMockaValueData null_ptr_value_data = cast_ptr_to_cmocka_value(NULL);
+  expect_check_data(__wrap_time, __timer, check_pointer, null_ptr_value_data);
   will_return(__wrap_time, s->TEST_START_TIME_S);
   start_timer(s->TEST_START_INFO_HTTP_REQUEST_BODY);
 
-  expect_value(__wrap_time, __timer, NULL);
+  expect_check_data(__wrap_time, __timer, check_pointer, null_ptr_value_data);
   will_return(__wrap_time, s->TEST_END_TIME_S);
   stop_timer();
 

@@ -140,13 +140,18 @@ static int group_teardown(void **state) {
   return 0;
 }
 
+int check_pointer (CMockaValueData value, CMockaValueData expected) {
+  return value.ptr == expected.ptr;
+}
+
 static int reset_timer(void **state) {
   test_state_t *s = (test_state_t *)*state;
-  expect_value(__wrap_time, __timer, NULL);
+  CMockaValueData null_ptr_value_data = cast_ptr_to_cmocka_value(NULL);
+  expect_check_data(__wrap_time, __timer, check_pointer, null_ptr_value_data);
   will_return(__wrap_time, 1);
   start_timer(s->TEST_START_INFO_HTTP_REQUEST_BODY);
 
-  expect_value(__wrap_time, __timer, NULL);
+  expect_check_data(__wrap_time, __timer, check_pointer, null_ptr_value_data);
   will_return(__wrap_time, 1);
   stop_timer();
 

@@ -35,6 +35,9 @@ void free_start_info(StartInfo *si);
 void free_update_info(UpdateInfo *ui);
 bool start(Timer *t, StartInfo *si);
 bool update(Timer *t, UpdateInfo *ui);
+// #ifdef stop
+// #undef stop
+// #endif // stop
 TimerResult *stop(Timer *t);
 StartInfo *copy_start_info(StartInfo *orig_si);
 

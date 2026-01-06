@@ -1,8 +1,11 @@
 #include "unit_test.h"
 
-#include "../src/timer.h"
-// #include "../src/track_me.h"
 #include <cmocka.h>
+#ifdef stop
+#undef stop
+#endif // stop
+
+#include "../src/timer.h"
 #include <stdlib.h>
 
 /*** Helper functions ***/
@@ -44,11 +47,12 @@ void test_timer_free_timer_result(void **state) {
   Timer t;
   reset(&t);
 
-  expect_value(__wrap_time, __timer, NULL);
+  CMockaValueData null_ptr_value_data = cast_ptr_to_cmocka_value(NULL);
+  expect_check_data(__wrap_time, __timer, check_pointer, null_ptr_value_data);
   will_return(__wrap_time, s->TEST_START_TIME_S);
   start(&t, copy_start_info(s->default_start_info));
 
-  expect_value(__wrap_time, __timer, NULL);
+  expect_check_data(__wrap_time, __timer, check_pointer, null_ptr_value_data);
   will_return(__wrap_time, s->TEST_END_TIME_S);
   TimerResult *stopped_result = stop(&t);
 
@@ -94,7 +98,8 @@ void test_timer_start(void **state) {
   test_state_t *s = (test_state_t *)*state;
   Timer t;
   reset(&t);
-  expect_value(__wrap_time, __timer, NULL);
+  CMockaValueData null_ptr_value_data = cast_ptr_to_cmocka_value(NULL);
+  expect_check_data(__wrap_time, __timer, check_pointer, null_ptr_value_data);
   will_return(__wrap_time, s->TEST_START_TIME_S);
 
   // When
@@ -157,11 +162,12 @@ void test_timer_stop_started(void **state) {
   Timer t;
   reset(&t);
 
-  expect_value(__wrap_time, __timer, NULL);
+  CMockaValueData null_ptr_value_data = cast_ptr_to_cmocka_value(NULL);
+  expect_check_data(__wrap_time, __timer, check_pointer, null_ptr_value_data);
   will_return(__wrap_time, s->TEST_START_TIME_S);
   start(&t, copy_start_info(s->default_start_info));
 
-  expect_value(__wrap_time, __timer, NULL);
+  expect_check_data(__wrap_time, __timer, check_pointer, null_ptr_value_data);
   will_return(__wrap_time, s->TEST_END_TIME_S); // diff = 38m 19s
 
   // When
@@ -220,7 +226,8 @@ void test_timer_update(void **state) {
   test_state_t *s = (test_state_t *)*state;
   Timer t;
   reset(&t);
-  expect_value(__wrap_time, __timer, NULL);
+  CMockaValueData null_ptr_value_data = cast_ptr_to_cmocka_value(NULL);
+  expect_check_data(__wrap_time, __timer, check_pointer, null_ptr_value_data);
   will_return(__wrap_time, s->TEST_START_TIME_S);
   start(&t, copy_start_info(s->default_start_info));
 
@@ -284,7 +291,8 @@ void test_timer_update_NULL_update_info(void **state) {
   test_state_t *s = (test_state_t *)*state;
   Timer t;
   reset(&t);
-  expect_value(__wrap_time, __timer, NULL);
+  CMockaValueData null_ptr_value_data = cast_ptr_to_cmocka_value(NULL);
+  expect_check_data(__wrap_time, __timer, check_pointer, null_ptr_value_data);
   will_return(__wrap_time, s->TEST_START_TIME_S);
   start(&t, copy_start_info(s->default_start_info));
 
@@ -321,7 +329,8 @@ void test_timer_get_activity(void **state) {
   test_state_t *s = (test_state_t *)*state;
   Timer t;
   reset(&t);
-  expect_value(__wrap_time, __timer, NULL);
+  CMockaValueData null_ptr_value_data = cast_ptr_to_cmocka_value(NULL);
+  expect_check_data(__wrap_time, __timer, check_pointer, null_ptr_value_data);
   will_return(__wrap_time, s->TEST_START_TIME_S);
   start(&t, copy_start_info(s->default_start_info));
 
@@ -353,7 +362,8 @@ void test_timer_get_client(void **state) {
   test_state_t *s = (test_state_t *)*state;
   Timer t;
   reset(&t);
-  expect_value(__wrap_time, __timer, NULL);
+  CMockaValueData null_ptr_value_data = cast_ptr_to_cmocka_value(NULL);
+  expect_check_data(__wrap_time, __timer, check_pointer, null_ptr_value_data);
   will_return(__wrap_time, s->TEST_START_TIME_S);
   start(&t, copy_start_info(s->default_start_info));
 
@@ -386,7 +396,8 @@ void test_timer_get_project(void **state) {
   test_state_t *s = (test_state_t *)*state;
   Timer t;
   reset(&t);
-  expect_value(__wrap_time, __timer, NULL);
+  CMockaValueData null_ptr_value_data = cast_ptr_to_cmocka_value(NULL);
+  expect_check_data(__wrap_time, __timer, check_pointer, null_ptr_value_data);
   will_return(__wrap_time, s->TEST_START_TIME_S);
   start(&t, copy_start_info(s->default_start_info));
 
@@ -419,7 +430,8 @@ void test_timer_get_description(void **state) {
   test_state_t *s = (test_state_t *)*state;
   Timer t;
   reset(&t);
-  expect_value(__wrap_time, __timer, NULL);
+  CMockaValueData null_ptr_value_data = cast_ptr_to_cmocka_value(NULL);
+  expect_check_data(__wrap_time, __timer, check_pointer, null_ptr_value_data);
   will_return(__wrap_time, s->TEST_START_TIME_S);
   start(&t, copy_start_info(s->default_start_info));
 
