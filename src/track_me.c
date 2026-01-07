@@ -255,7 +255,7 @@ char *_duration_int_to_string(int i) {
 
 /*** Public functions ***/
 
-void reset_timer(){
+void reset_timer() {
   reset(&current_timer);
   free_timer_result(current_timer_result);
   current_timer_result = NULL;
