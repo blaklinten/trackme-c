@@ -1,6 +1,3 @@
-# Continue: 
-    - Implement update function
-
 # Change DB
     - MongoDB → SQLite
 
