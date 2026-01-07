@@ -278,19 +278,13 @@ void test_trackme_duration_negative_int_to_string(void **state) {
 void test_trackme_start_timer_started(void **state) {
   // Given
   test_state_t *s = (test_state_t *)*state;
-
-  // return end time first time - not the start time we want
   CMockaValueData null_ptr_value_data = cast_ptr_to_cmocka_value(NULL);
   expect_check_data(__wrap_time, __timer, check_pointer, null_ptr_value_data);
-  will_return(__wrap_time, s->TEST_END_TIME_S);
-  start_timer(s->TEST_START_INFO_HTTP_REQUEST_BODY);
-
-  // return start time second time - the start time we do want!
-  expect_check_data(__wrap_time, __timer, check_pointer, null_ptr_value_data);
   will_return(__wrap_time, s->TEST_START_TIME_S);
+  start_timer(s->TEST_START_INFO_HTTP_REQUEST_BODY);
 
   // When
-  start_timer(s->TEST_START_INFO_HTTP_REQUEST_BODY);
+  bool fail = start_timer(s->TEST_UPDATE_INFO_HTTP_REQUEST_BODY);
 
   char *activity = get_activity();
   char *client = get_client();
@@ -304,6 +298,7 @@ void test_trackme_start_timer_started(void **state) {
   char *duration = get_duration();
 
   // Then
+  assert_false(fail);
   assert_null(current_timer_result);
   assert_true(is_timer_running());
   assert_string_equal(activity, s->default_start_info->activity);
@@ -336,7 +331,7 @@ void test_trackme_start_timer_not_started(void **state) {
   will_return(__wrap_time, s->TEST_START_TIME_S);
 
   // When
-  start_timer(s->TEST_START_INFO_HTTP_REQUEST_BODY);
+  bool succes = start_timer(s->TEST_START_INFO_HTTP_REQUEST_BODY);
 
   char *activity = get_activity();
   char *client = get_client();
@@ -350,6 +345,7 @@ void test_trackme_start_timer_not_started(void **state) {
   char *duration = get_duration();
 
   // Then
+  assert_true(succes);
   assert_null(current_timer_result);
   assert_true(is_timer_running());
   assert_string_equal(activity, s->default_start_info->activity);
