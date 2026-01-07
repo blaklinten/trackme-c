@@ -271,8 +271,13 @@ bool start_timer(struct mg_str *request_body) {
 }
 
 bool update_timer(struct mg_str *request_body) {
-  // TODO Implement this
-  return true;
+  if (!is_timer_running()) {
+    return false;
+  }
+  UpdateInfo *ui =_update_info_from_request_body(request_body); 
+  bool updated = update(&current_timer, ui);
+  free_update_info(ui);
+  return updated;
 }
 
 bool is_timer_running() {
