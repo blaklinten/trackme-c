@@ -13,6 +13,12 @@
 #define NOT_SET "Not set"
 #define NOT_SET_LENGTH (strlen(NOT_SET) + 1)
 
+enum TRACKME_ERROR {
+  ERROR_TIMER_NOT_STARTED = -1,
+  ERROR_NEGATIVE_DURATION = -2,
+  ERROR_MALLOC_FAILURE = -3
+};
+
 bool start_timer(struct mg_str *request_body);
 bool update_timer(struct mg_str *request_body);
 bool is_timer_running();
