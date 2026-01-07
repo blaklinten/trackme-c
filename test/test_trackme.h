@@ -9,6 +9,9 @@
 #define EXPECTED_DURATION "01:23:12"
 #define EXPECTED_START_TIME "Mon, 22 Jul 2024 18:09:54 +0200"
 #define EXPECTED_END_TIME "Mon, 22 Jul 2024 19:33:06 +0200"
+#define EXPECTED_UPDATED_DURATION "01:13:46"
+#define EXPECTED_UPDATED_START_TIME "Mon, 22 Jul 2024 18:19:20 +0200"
+#define EXPECTED_UPDATED_END_TIME "Mon, 22 Jul 2024 19:20:30 +0200"
 
 // Internal symbols from trackme.c
 extern StartInfo *_start_info_from_request_body(LOG_LEVEL, struct mg_str *);
@@ -37,6 +40,9 @@ void test_trackme_duration_negative_int_to_string(void **);
 /* Public functions */
 void test_trackme_start_timer_started(void **);
 void test_trackme_start_timer_not_started(void **);
+void test_trackme_update_timer_started(void **);
+void test_trackme_update_timer_not_started(void **);
+void test_trackme_update_timer_stopped(void **);
 void test_trackme_reset_timer_started(void **);
 void test_trackme_reset_timer_not_started(void **);
 void test_trackme_reset_timer_stopped(void **);
