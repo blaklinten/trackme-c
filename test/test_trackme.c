@@ -37,7 +37,8 @@ char **_get_start_info_descriptions(StartInfo *si1, StartInfo *si2) {
 
 bool _compare_start_info(StartInfo *si1, StartInfo *si2) {
   char **activities = _get_start_info_activities(si1, si2);
-  t_log(INFO, __func__, "Activities are [%s] and [%s]", activities[0], activities[1]);
+  t_log(INFO, __func__, "Activities are [%s] and [%s]", activities[0],
+        activities[1]);
   assert_string_equal(activities[0], activities[1]);
   free(activities);
 
@@ -75,7 +76,8 @@ void test_trackme_parse_start_info_request_body(void **state) {
   test_state_t *s = (test_state_t *)*state;
 
   // When
-  StartInfo *si = _start_info_from_request_body(ERROR, s->TEST_START_INFO_HTTP_REQUEST_BODY);
+  StartInfo *si = _start_info_from_request_body(
+      ERROR, s->TEST_START_INFO_HTTP_REQUEST_BODY);
 
   // Then
   assert_non_null(si);
@@ -90,7 +92,8 @@ void test_trackme_parse_update_info_request_body(void **state) {
   test_state_t *s = (test_state_t *)*state;
 
   // When
-  UpdateInfo *ui = _update_info_from_request_body(s->TEST_UPDATE_INFO_HTTP_REQUEST_BODY);
+  UpdateInfo *ui =
+      _update_info_from_request_body(s->TEST_UPDATE_INFO_HTTP_REQUEST_BODY);
 
   // Then
   assert_non_null(ui);
@@ -129,7 +132,8 @@ void test_trackme_parse_start_info_empty_request_body(void **state) {
   struct mg_str invalid_body = mg_str("");
 
   // When
-  StartInfo *fail_empty_si = _start_info_from_request_body(ERROR, &invalid_body);
+  StartInfo *fail_empty_si =
+      _start_info_from_request_body(ERROR, &invalid_body);
 
   // Then
   assert_non_null(fail_empty_si);
@@ -152,7 +156,7 @@ void test_trackme_parse_update_info_empty_request_body(void **state) {
   free_update_info(fail_empty_ui);
 }
 
-void test_trackme_time_t_to_string(void ** state) {
+void test_trackme_time_t_to_string(void **state) {
   // Given
   test_state_t *s = (test_state_t *)*state;
 
@@ -167,7 +171,7 @@ void test_trackme_time_t_to_string(void ** state) {
   free(start_time_str);
 }
 
-void test_trackme_time_t_null_to_string(void **state){
+void test_trackme_time_t_null_to_string(void **state) {
   // Given
 
   // When
@@ -181,7 +185,7 @@ void test_trackme_time_t_null_to_string(void **state){
   free(start_time_char);
 }
 
-void test_trackme_get_duration_int_started(void **state){
+void test_trackme_get_duration_int_started(void **state) {
   // Given
   test_state_t *s = (test_state_t *)*state;
 
@@ -204,7 +208,7 @@ void test_trackme_get_duration_int_started(void **state){
   // Finally
 }
 
-void test_trackme_get_duration_int_not_started(void **state){
+void test_trackme_get_duration_int_not_started(void **state) {
   // Given
 
   // When
@@ -218,7 +222,7 @@ void test_trackme_get_duration_int_not_started(void **state){
   // Finally
 }
 
-void test_trackme_get_duration_int_stopped(void **state){
+void test_trackme_get_duration_int_stopped(void **state) {
   // Given
   test_state_t *s = (test_state_t *)*state;
 
@@ -241,13 +245,12 @@ void test_trackme_get_duration_int_stopped(void **state){
 
   // Finally
 }
-void test_trackme_duration_int_to_string(void **state){
+void test_trackme_duration_int_to_string(void **state) {
   // Given
   test_state_t *s = (test_state_t *)*state;
 
   // When
-  char* duration_str = _duration_int_to_string(s->TEST_DURATION_S);
-
+  char *duration_str = _duration_int_to_string(s->TEST_DURATION_S);
 
   // Then
   assert_non_null(duration_str);
@@ -257,11 +260,11 @@ void test_trackme_duration_int_to_string(void **state){
   free(duration_str);
 }
 
-void test_trackme_duration_negative_int_to_string(void **state){
+void test_trackme_duration_negative_int_to_string(void **state) {
   // Given
 
   // When
-  char* duration_str = _duration_int_to_string(-1);
+  char *duration_str = _duration_int_to_string(-1);
 
   // Then
   assert_null(duration_str);
@@ -309,7 +312,10 @@ void test_trackme_start_timer_started(void **state) {
   assert_string_equal(description, s->default_start_info->description);
   assert_string_equal(start, EXPECTED_START_TIME);
   assert_string_equal(end, NO_END_TIME);
-  assert_string_equal(duration, EXPECTED_DURATION);// If timer was not restarted with correct start time this should fail as duration would be 0
+  assert_string_equal(
+      duration,
+      EXPECTED_DURATION); // If timer was not restarted with correct start time
+                          // this should fail as duration would be 0
 
   // Finally
   free(activity);
@@ -321,7 +327,7 @@ void test_trackme_start_timer_started(void **state) {
   free(duration);
 }
 
-void test_trackme_start_timer_not_started(void **state){
+void test_trackme_start_timer_not_started(void **state) {
   // Given
   test_state_t *s = (test_state_t *)*state;
 
@@ -574,8 +580,7 @@ void test_trackme_stop_timer_started(void **state) {
   assert_string_equal(end, expected_end);
   assert_string_equal(duration, expected_duration);
 
-
-  //Finally
+  // Finally
   free(activity);
   free(client);
   free(project);
@@ -588,7 +593,7 @@ void test_trackme_stop_timer_started(void **state) {
   free(expected_end);
 }
 
-void test_trackme_stop_timer_not_started(void **state){
+void test_trackme_stop_timer_not_started(void **state) {
   // Given
 
   // When
@@ -603,7 +608,8 @@ void test_trackme_stop_timer_not_started(void **state){
   char *duration = get_duration();
 
   // Then
-  assert_false(success); // timer is stopped but no result is created; something is wrong (i.e. not started)!
+  assert_false(success); // timer is stopped but no result is created; something
+                         // is wrong (i.e. not started)!
   assert_null(current_timer_result);
   assert_false(is_timer_running());
   assert_null(activity);
@@ -614,7 +620,7 @@ void test_trackme_stop_timer_not_started(void **state){
   assert_null(end);
   assert_null(duration);
 
-  //Finally
+  // Finally
   free(activity);
   free(client);
   free(project);
@@ -677,7 +683,7 @@ void test_trackme_get_start_time_not_started(void **state) {
   free(duration);
 }
 
-void test_trackme_get_start_time_stopped(void **state){
+void test_trackme_get_start_time_stopped(void **state) {
   // Given
   test_state_t *s = (test_state_t *)*state;
 
@@ -709,7 +715,7 @@ void test_trackme_get_start_time_stopped(void **state){
   free(duration);
 }
 
-void test_trackme_get_end_time_started(void **state){
+void test_trackme_get_end_time_started(void **state) {
   // Given
   test_state_t *s = (test_state_t *)*state;
 
@@ -736,7 +742,7 @@ void test_trackme_get_end_time_started(void **state){
   free(duration);
 }
 
-void test_trackme_get_end_time_not_started(void **state){
+void test_trackme_get_end_time_not_started(void **state) {
   // Given
 
   // When
@@ -751,7 +757,7 @@ void test_trackme_get_end_time_not_started(void **state){
   free(end_time);
 }
 
-void test_trackme_get_end_time_stopped(void **state){
+void test_trackme_get_end_time_stopped(void **state) {
   // Given
   test_state_t *s = (test_state_t *)*state;
 
@@ -842,7 +848,7 @@ void test_trackme_get_duration_stopped(void **state) {
   free(duration);
 }
 
-void test_trackme_get_activity_not_started(void **state){
+void test_trackme_get_activity_not_started(void **state) {
   // Given
   // When
   char *activity = get_activity();
@@ -857,7 +863,7 @@ void test_trackme_get_activity_not_started(void **state){
   free(activity);
 }
 
-void test_trackme_get_activity_started_not_set(void **state){
+void test_trackme_get_activity_started_not_set(void **state) {
   // Given
   test_state_t *s = (test_state_t *)*state;
 
@@ -899,7 +905,7 @@ void test_trackme_get_activity_started_set(void **state) {
   free(activity);
 }
 
-void test_trackme_get_activity_stopped(void **state){
+void test_trackme_get_activity_stopped(void **state) {
   // Given
   test_state_t *s = (test_state_t *)*state;
 
@@ -922,10 +928,9 @@ void test_trackme_get_activity_stopped(void **state){
 
   // Finally
   free(activity);
-
 }
 
-void test_trackme_get_client_not_started(void **state){
+void test_trackme_get_client_not_started(void **state) {
   // Given
   // When
   char *client = get_client();
@@ -940,7 +945,7 @@ void test_trackme_get_client_not_started(void **state){
   free(client);
 }
 
-void test_trackme_get_client_started_not_set(void **state){
+void test_trackme_get_client_started_not_set(void **state) {
   // Given
   test_state_t *s = (test_state_t *)*state;
 
@@ -982,7 +987,7 @@ void test_trackme_get_client_started_set(void **state) {
   free(client);
 }
 
-void test_trackme_get_client_stopped(void **state){
+void test_trackme_get_client_stopped(void **state) {
   // Given
   test_state_t *s = (test_state_t *)*state;
 
@@ -1007,8 +1012,7 @@ void test_trackme_get_client_stopped(void **state){
   free(client);
 }
 
-
-void test_trackme_get_project_not_started(void **state){
+void test_trackme_get_project_not_started(void **state) {
   // Given
   // When
   char *project = get_project();
@@ -1023,7 +1027,7 @@ void test_trackme_get_project_not_started(void **state){
   free(project);
 }
 
-void test_trackme_get_project_started_not_set(void **state){
+void test_trackme_get_project_started_not_set(void **state) {
   // Given
   test_state_t *s = (test_state_t *)*state;
 
@@ -1065,7 +1069,7 @@ void test_trackme_get_project_started_set(void **state) {
   free(project);
 }
 
-void test_trackme_get_project_stopped(void **state){
+void test_trackme_get_project_stopped(void **state) {
   // Given
   test_state_t *s = (test_state_t *)*state;
 
@@ -1090,8 +1094,7 @@ void test_trackme_get_project_stopped(void **state){
   free(project);
 }
 
-
-void test_trackme_get_description_not_started(void **state){
+void test_trackme_get_description_not_started(void **state) {
   // Given
   // When
   char *description = get_description();
@@ -1106,7 +1109,7 @@ void test_trackme_get_description_not_started(void **state){
   free(description);
 }
 
-void test_trackme_get_description_started_not_set(void **state){
+void test_trackme_get_description_started_not_set(void **state) {
   // Given
   test_state_t *s = (test_state_t *)*state;
 
@@ -1148,7 +1151,7 @@ void test_trackme_get_description_started_set(void **state) {
   free(description);
 }
 
-void test_trackme_get_description_stopped(void **state){
+void test_trackme_get_description_stopped(void **state) {
   // Given
   test_state_t *s = (test_state_t *)*state;
 
