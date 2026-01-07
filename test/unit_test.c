@@ -144,19 +144,8 @@ int check_pointer (CMockaValueData value, CMockaValueData expected) {
   return value.ptr == expected.ptr;
 }
 
-static int reset_timer(void **state) {
-  test_state_t *s = (test_state_t *)*state;
-  CMockaValueData null_ptr_value_data = cast_ptr_to_cmocka_value(NULL);
-  expect_check_data(__wrap_time, __timer, check_pointer, null_ptr_value_data);
-  will_return(__wrap_time, 1);
-  start_timer(s->TEST_START_INFO_HTTP_REQUEST_BODY);
-
-  expect_check_data(__wrap_time, __timer, check_pointer, null_ptr_value_data);
-  will_return(__wrap_time, 1);
-  stop_timer();
-
-  free_timer_result(current_timer_result);
-  current_timer_result = NULL;
+static int _reset_timer(void **state) {
+  reset_timer();
   return 0;
 }
 
@@ -196,52 +185,55 @@ int main(void) {
       cmocka_unit_test(test_list_count_element),
       /* Trackme */
       /* private functions */
-      cmocka_unit_test_teardown(test_trackme_parse_start_info_request_body, reset_timer),
-      cmocka_unit_test_teardown(test_trackme_parse_update_info_request_body, reset_timer),
-      cmocka_unit_test_teardown(test_trackme_parse_start_info_NULL_request_body, reset_timer),
-      cmocka_unit_test_teardown(test_trackme_parse_update_info_NULL_request_body, reset_timer),
-      cmocka_unit_test_teardown(test_trackme_parse_start_info_empty_request_body, reset_timer),
-      cmocka_unit_test_teardown(test_trackme_parse_update_info_empty_request_body, reset_timer),
-      cmocka_unit_test_teardown(test_trackme_time_t_to_string, reset_timer),
-      cmocka_unit_test_teardown(test_trackme_time_t_null_to_string, reset_timer),
-      cmocka_unit_test_teardown(test_trackme_get_duration_int_started, reset_timer),
-      cmocka_unit_test_teardown(test_trackme_get_duration_int_not_started, reset_timer),
-      cmocka_unit_test_teardown(test_trackme_get_duration_int_stopped, reset_timer),
-      cmocka_unit_test_teardown(test_trackme_duration_int_to_string, reset_timer),
-      cmocka_unit_test_teardown(test_trackme_duration_negative_int_to_string, reset_timer),
+      cmocka_unit_test_teardown(test_trackme_parse_start_info_request_body, _reset_timer),
+      cmocka_unit_test_teardown(test_trackme_parse_update_info_request_body, _reset_timer),
+      cmocka_unit_test_teardown(test_trackme_parse_start_info_NULL_request_body, _reset_timer),
+      cmocka_unit_test_teardown(test_trackme_parse_update_info_NULL_request_body, _reset_timer),
+      cmocka_unit_test_teardown(test_trackme_parse_start_info_empty_request_body, _reset_timer),
+      cmocka_unit_test_teardown(test_trackme_parse_update_info_empty_request_body, _reset_timer),
+      cmocka_unit_test_teardown(test_trackme_time_t_to_string, _reset_timer),
+      cmocka_unit_test_teardown(test_trackme_time_t_null_to_string, _reset_timer),
+      cmocka_unit_test_teardown(test_trackme_get_duration_int_started, _reset_timer),
+      cmocka_unit_test_teardown(test_trackme_get_duration_int_not_started, _reset_timer),
+      cmocka_unit_test_teardown(test_trackme_get_duration_int_stopped, _reset_timer),
+      cmocka_unit_test_teardown(test_trackme_duration_int_to_string, _reset_timer),
+      cmocka_unit_test_teardown(test_trackme_duration_negative_int_to_string, _reset_timer),
       /* public functions */
-      cmocka_unit_test_teardown(test_trackme_start_timer_started, reset_timer),
-      cmocka_unit_test_teardown(test_trackme_start_timer_not_started, reset_timer),
-      cmocka_unit_test_teardown(test_trackme_is_timer_running_started, reset_timer),
-      cmocka_unit_test_teardown(test_trackme_is_timer_running_not_started, reset_timer),
-      cmocka_unit_test_teardown(test_trackme_is_timer_running_stopped, reset_timer),
-      cmocka_unit_test_teardown(test_trackme_stop_timer_started, reset_timer),
-      cmocka_unit_test_teardown(test_trackme_stop_timer_not_started, reset_timer),
-      cmocka_unit_test_teardown(test_trackme_get_start_time_started, reset_timer),
-      cmocka_unit_test_teardown(test_trackme_get_start_time_not_started, reset_timer),
-      cmocka_unit_test_teardown(test_trackme_get_start_time_stopped, reset_timer),
-      cmocka_unit_test_teardown(test_trackme_get_end_time_started, reset_timer),
-      cmocka_unit_test_teardown(test_trackme_get_end_time_not_started, reset_timer),
-      cmocka_unit_test_teardown(test_trackme_get_end_time_stopped, reset_timer),
-      cmocka_unit_test_teardown(test_trackme_get_duration_not_started, reset_timer),
-      cmocka_unit_test_teardown(test_trackme_get_duration_started, reset_timer),
-      cmocka_unit_test_teardown(test_trackme_get_duration_stopped, reset_timer),
-      cmocka_unit_test_teardown(test_trackme_get_activity_not_started, reset_timer),
-      cmocka_unit_test_teardown(test_trackme_get_activity_started_not_set, reset_timer),
-      cmocka_unit_test_teardown(test_trackme_get_activity_started_set, reset_timer),
-      cmocka_unit_test_teardown(test_trackme_get_activity_stopped, reset_timer),
-      cmocka_unit_test_teardown(test_trackme_get_client_not_started, reset_timer),
-      cmocka_unit_test_teardown(test_trackme_get_client_started_not_set, reset_timer),
-      cmocka_unit_test_teardown(test_trackme_get_client_started_set, reset_timer),
-      cmocka_unit_test_teardown(test_trackme_get_client_stopped, reset_timer),
-      cmocka_unit_test_teardown(test_trackme_get_project_not_started, reset_timer),
-      cmocka_unit_test_teardown(test_trackme_get_project_started_not_set, reset_timer),
-      cmocka_unit_test_teardown(test_trackme_get_project_started_set, reset_timer),
-      cmocka_unit_test_teardown(test_trackme_get_project_stopped, reset_timer),
-      cmocka_unit_test_teardown(test_trackme_get_description_not_started, reset_timer),
-      cmocka_unit_test_teardown(test_trackme_get_description_started_not_set, reset_timer),
-      cmocka_unit_test_teardown(test_trackme_get_description_started_set, reset_timer),
-      cmocka_unit_test_teardown(test_trackme_get_description_stopped, reset_timer),
+      cmocka_unit_test_teardown(test_trackme_start_timer_started, _reset_timer),
+      cmocka_unit_test_teardown(test_trackme_start_timer_not_started, _reset_timer),
+      cmocka_unit_test_teardown(test_trackme_reset_timer_stopped, _reset_timer),
+      cmocka_unit_test_teardown(test_trackme_reset_timer_started, _reset_timer),
+      cmocka_unit_test_teardown(test_trackme_reset_timer_not_started, _reset_timer),
+      cmocka_unit_test_teardown(test_trackme_is_timer_running_started, _reset_timer),
+      cmocka_unit_test_teardown(test_trackme_is_timer_running_not_started, _reset_timer),
+      cmocka_unit_test_teardown(test_trackme_is_timer_running_stopped, _reset_timer),
+      cmocka_unit_test_teardown(test_trackme_stop_timer_started, _reset_timer),
+      cmocka_unit_test_teardown(test_trackme_stop_timer_not_started, _reset_timer),
+      cmocka_unit_test_teardown(test_trackme_get_start_time_started, _reset_timer),
+      cmocka_unit_test_teardown(test_trackme_get_start_time_not_started, _reset_timer),
+      cmocka_unit_test_teardown(test_trackme_get_start_time_stopped, _reset_timer),
+      cmocka_unit_test_teardown(test_trackme_get_end_time_started, _reset_timer),
+      cmocka_unit_test_teardown(test_trackme_get_end_time_not_started, _reset_timer),
+      cmocka_unit_test_teardown(test_trackme_get_end_time_stopped, _reset_timer),
+      cmocka_unit_test_teardown(test_trackme_get_duration_not_started, _reset_timer),
+      cmocka_unit_test_teardown(test_trackme_get_duration_started, _reset_timer),
+      cmocka_unit_test_teardown(test_trackme_get_duration_stopped, _reset_timer),
+      cmocka_unit_test_teardown(test_trackme_get_activity_not_started, _reset_timer),
+      cmocka_unit_test_teardown(test_trackme_get_activity_started_not_set, _reset_timer),
+      cmocka_unit_test_teardown(test_trackme_get_activity_started_set, _reset_timer),
+      cmocka_unit_test_teardown(test_trackme_get_activity_stopped, _reset_timer),
+      cmocka_unit_test_teardown(test_trackme_get_client_not_started, _reset_timer),
+      cmocka_unit_test_teardown(test_trackme_get_client_started_not_set, _reset_timer),
+      cmocka_unit_test_teardown(test_trackme_get_client_started_set, _reset_timer),
+      cmocka_unit_test_teardown(test_trackme_get_client_stopped, _reset_timer),
+      cmocka_unit_test_teardown(test_trackme_get_project_not_started, _reset_timer),
+      cmocka_unit_test_teardown(test_trackme_get_project_started_not_set, _reset_timer),
+      cmocka_unit_test_teardown(test_trackme_get_project_started_set, _reset_timer),
+      cmocka_unit_test_teardown(test_trackme_get_project_stopped, _reset_timer),
+      cmocka_unit_test_teardown(test_trackme_get_description_not_started, _reset_timer),
+      cmocka_unit_test_teardown(test_trackme_get_description_started_not_set, _reset_timer),
+      cmocka_unit_test_teardown(test_trackme_get_description_started_set, _reset_timer),
+      cmocka_unit_test_teardown(test_trackme_get_description_stopped, _reset_timer),
   };
 
   return cmocka_run_group_tests(unit_test, group_setup, group_teardown);

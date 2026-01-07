@@ -364,6 +364,127 @@ void test_trackme_start_timer_not_started(void **state){
   free(duration);
 }
 
+void test_trackme_reset_timer_started(void **state) {
+  // Given
+  test_state_t *s = (test_state_t *)*state;
+
+  CMockaValueData null_ptr_value_data = cast_ptr_to_cmocka_value(NULL);
+  expect_check_data(__wrap_time, __timer, check_pointer, null_ptr_value_data);
+  will_return(__wrap_time, s->TEST_START_TIME_S);
+  start_timer(s->TEST_START_INFO_HTTP_REQUEST_BODY);
+
+  // When
+  reset_timer();
+
+  char *activity = get_activity();
+  char *client = get_client();
+  char *project = get_project();
+  char *description = get_description();
+  char *start = get_start_time();
+  char *end = get_end_time();
+  char *duration = get_duration();
+
+  // Then
+  assert_false(is_timer_running());
+  assert_null(current_timer_result);
+  assert_null(activity);
+  assert_null(client);
+  assert_null(project);
+  assert_null(description);
+  assert_null(start);
+  assert_null(end);
+  assert_null(duration);
+
+  // Finally
+  free(activity);
+  free(client);
+  free(project);
+  free(description);
+  free(start);
+  free(end);
+  free(duration);
+};
+
+void test_trackme_reset_timer_not_started(void **state) {
+  // Given
+
+  // When
+  reset_timer();
+
+  char *activity = get_activity();
+  char *client = get_client();
+  char *project = get_project();
+  char *description = get_description();
+  char *start = get_start_time();
+  char *end = get_end_time();
+  char *duration = get_duration();
+
+  // Then
+  assert_false(is_timer_running());
+  assert_null(current_timer_result);
+  assert_null(activity);
+  assert_null(client);
+  assert_null(project);
+  assert_null(description);
+  assert_null(start);
+  assert_null(end);
+  assert_null(duration);
+
+  // Finally
+  free(activity);
+  free(client);
+  free(project);
+  free(description);
+  free(start);
+  free(end);
+  free(duration);
+};
+
+void test_trackme_reset_timer_stopped(void **state) {
+  // Given
+  test_state_t *s = (test_state_t *)*state;
+
+  CMockaValueData null_ptr_value_data = cast_ptr_to_cmocka_value(NULL);
+  expect_check_data(__wrap_time, __timer, check_pointer, null_ptr_value_data);
+  will_return(__wrap_time, s->TEST_START_TIME_S);
+  start_timer(s->TEST_START_INFO_HTTP_REQUEST_BODY);
+
+  expect_check_data(__wrap_time, __timer, check_pointer, null_ptr_value_data);
+  will_return(__wrap_time, s->TEST_END_TIME_S);
+  stop_timer();
+
+  // When
+  reset_timer();
+
+  char *activity = get_activity();
+  char *client = get_client();
+  char *project = get_project();
+  char *description = get_description();
+  char *start = get_start_time();
+  char *end = get_end_time();
+  char *duration = get_duration();
+
+  // Then
+  assert_false(is_timer_running());
+  assert_null(current_timer_result);
+  assert_null(activity);
+  assert_null(client);
+  assert_null(project);
+  assert_null(description);
+  assert_null(start);
+  assert_null(end);
+  assert_null(duration);
+
+  // Finally
+  free(activity);
+  free(client);
+  free(project);
+  free(description);
+  free(start);
+  free(end);
+  free(duration);
+};
+
 void test_trackme_is_timer_running_started(void **state) {
   // Given
   test_state_t *s = (test_state_t *)*state;
