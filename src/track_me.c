@@ -255,10 +255,14 @@ char *_duration_int_to_string(int i) {
 
 /*** Public functions ***/
 
-bool start_timer(struct mg_str *request_body) {
+void reset_timer(){
   reset(&current_timer);
   free_timer_result(current_timer_result);
   current_timer_result = NULL;
+};
+
+bool start_timer(struct mg_str *request_body) {
+  reset_timer();
   return start(&current_timer,
                _start_info_from_request_body(ERROR, request_body));
 }

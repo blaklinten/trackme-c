@@ -37,6 +37,9 @@ void test_trackme_duration_negative_int_to_string(void **);
 /* Public functions */
 void test_trackme_start_timer_started(void **);
 void test_trackme_start_timer_not_started(void **);
+void test_trackme_reset_timer_started(void **);
+void test_trackme_reset_timer_not_started(void **);
+void test_trackme_reset_timer_stopped(void **);
 void test_trackme_is_timer_running_started(void **);
 void test_trackme_is_timer_running_not_started(void **);
 void test_trackme_is_timer_running_stopped(void **);

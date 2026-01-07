@@ -23,6 +23,7 @@ bool start_timer(struct mg_str *request_body);
 bool update_timer(struct mg_str *request_body);
 bool is_timer_running();
 bool stop_timer();
+void reset_timer();
 char *get_start_time();
 char *get_end_time();
 char *get_duration();
