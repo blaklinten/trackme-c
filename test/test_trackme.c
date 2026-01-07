@@ -398,13 +398,6 @@ void test_trackme_reset_timer_started(void **state) {
   assert_null(duration);
 
   // Finally
-  free(activity);
-  free(client);
-  free(project);
-  free(description);
-  free(start);
-  free(end);
-  free(duration);
 };
 
 void test_trackme_reset_timer_not_started(void **state) {
@@ -433,13 +426,6 @@ void test_trackme_reset_timer_not_started(void **state) {
   assert_null(duration);
 
   // Finally
-  free(activity);
-  free(client);
-  free(project);
-  free(description);
-  free(start);
-  free(end);
-  free(duration);
 };
 
 void test_trackme_reset_timer_stopped(void **state) {
@@ -478,13 +464,6 @@ void test_trackme_reset_timer_stopped(void **state) {
   assert_null(duration);
 
   // Finally
-  free(activity);
-  free(client);
-  free(project);
-  free(description);
-  free(start);
-  free(end);
-  free(duration);
 };
 
 void test_trackme_is_timer_running_started(void **state) {
@@ -617,13 +596,6 @@ void test_trackme_stop_timer_not_started(void **state) {
   assert_null(duration);
 
   // Finally
-  free(activity);
-  free(client);
-  free(project);
-  free(description);
-  free(start);
-  free(end);
-  free(duration);
 }
 
 void test_trackme_get_start_time_started(void **state) {
@@ -674,9 +646,6 @@ void test_trackme_get_start_time_not_started(void **state) {
   assert_null(duration);
 
   // Finally
-  free(start_time);
-  free(end_time);
-  free(duration);
 }
 
 void test_trackme_get_start_time_stopped(void **state) {
@@ -750,7 +719,6 @@ void test_trackme_get_end_time_not_started(void **state) {
   assert_false(is_timer_running());
 
   // Finally
-  free(end_time);
 }
 
 void test_trackme_get_end_time_stopped(void **state) {
@@ -793,7 +761,6 @@ void test_trackme_get_duration_not_started(void **state) {
   assert_false(is_timer_running());
 
   // Finally
-  free(duration);
 }
 
 void test_trackme_get_duration_started(void **state) {
@@ -856,7 +823,6 @@ void test_trackme_get_activity_not_started(void **state) {
   assert_false(is_timer_running());
 
   // Finally
-  free(activity);
 }
 
 void test_trackme_get_activity_started_not_set(void **state) {
@@ -938,7 +904,6 @@ void test_trackme_get_client_not_started(void **state) {
   assert_false(is_timer_running());
 
   // Finally
-  free(client);
 }
 
 void test_trackme_get_client_started_not_set(void **state) {
@@ -1020,7 +985,6 @@ void test_trackme_get_project_not_started(void **state) {
   assert_false(is_timer_running());
 
   // Finally
-  free(project);
 }
 
 void test_trackme_get_project_started_not_set(void **state) {
@@ -1102,7 +1066,6 @@ void test_trackme_get_description_not_started(void **state) {
   assert_false(is_timer_running());
 
   // Finally
-  free(description);
 }
 
 void test_trackme_get_description_started_not_set(void **state) {
