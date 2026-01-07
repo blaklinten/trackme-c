@@ -262,6 +262,9 @@ void reset_timer() {
 };
 
 bool start_timer(struct mg_str *request_body) {
+  if (is_timer_running()) {
+    return false;
+  }
   reset_timer();
   return start(&current_timer,
                _start_info_from_request_body(ERROR, request_body));
