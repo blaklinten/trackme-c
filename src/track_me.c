@@ -205,13 +205,13 @@ int _get_duration_int() {
 
   if (!current_timer.start_time) {
     t_log(ERROR, __func__, "No start time, is timer started?");
-    return -1;
+    return ERROR_TIMER_NOT_STARTED;
   }
 
   time_t now = time(NULL);
   if (now <= 0) {
     t_log(ERROR, __func__, "Malloc: could not allocate enough memory.");
-    return -1;
+    return ERROR_MALLOC_FAILURE;
   }
 
   int duration = now - current_timer.start_time;
@@ -219,7 +219,7 @@ int _get_duration_int() {
     t_log(
         ERROR, __func__,
         "Start time is in the future, negative duration would not make sense!");
-    return -1;
+    return ERROR_NEGATIVE_DURATION;
   }
   return duration;
 }
@@ -306,7 +306,7 @@ char *get_duration() {
   int duration = _get_duration_int();
 
   if (duration < 0) {
-    t_log(ERROR, __func__, "Malloc: could not allocate enough memory.");
+    t_log(ERROR, __func__, "Error when getting duration - aborting.");
     return NULL;
   }
   return _duration_int_to_string(duration);
