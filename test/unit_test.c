@@ -201,6 +201,9 @@ int main(void) {
       /* public functions */
       cmocka_unit_test_teardown(test_trackme_start_timer_started, _reset_timer),
       cmocka_unit_test_teardown(test_trackme_start_timer_not_started, _reset_timer),
+      cmocka_unit_test_teardown(test_trackme_update_timer_started, _reset_timer),
+      cmocka_unit_test_teardown(test_trackme_update_timer_not_started, _reset_timer),
+      cmocka_unit_test_teardown(test_trackme_update_timer_stopped, _reset_timer),
       cmocka_unit_test_teardown(test_trackme_reset_timer_stopped, _reset_timer),
       cmocka_unit_test_teardown(test_trackme_reset_timer_started, _reset_timer),
       cmocka_unit_test_teardown(test_trackme_reset_timer_not_started, _reset_timer),

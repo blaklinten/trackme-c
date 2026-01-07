@@ -366,6 +366,127 @@ void test_trackme_start_timer_not_started(void **state) {
   free(duration);
 }
 
+void test_trackme_update_timer_started(void **state) {
+  // Given
+  test_state_t *s = (test_state_t *)*state;
+
+  CMockaValueData null_ptr_value_data = cast_ptr_to_cmocka_value(NULL);
+  expect_check_data(__wrap_time, __timer, check_pointer, null_ptr_value_data);
+  will_return(__wrap_time, s->TEST_START_TIME_S);
+  start_timer(s->TEST_START_INFO_HTTP_REQUEST_BODY);
+
+  // When
+  bool updated = update_timer(s->TEST_UPDATE_INFO_HTTP_REQUEST_BODY);
+
+  char *activity = get_activity();
+  char *client = get_client();
+  char *project = get_project();
+  char *description = get_description();
+  char *start = get_start_time();
+  char *end = get_end_time();
+
+  expect_check_data(__wrap_time, __timer, check_pointer, null_ptr_value_data);
+  will_return(__wrap_time, s->TEST_END_TIME_S);
+  char *duration = get_duration();
+
+  // Then
+  assert_true(updated);
+  assert_null(current_timer_result);
+  assert_true(is_timer_running());
+  assert_string_equal(activity, s->default_update_info->info->activity);
+  assert_string_equal(client, s->default_update_info->info->client);
+  assert_string_equal(project, s->default_update_info->info->project);
+  assert_string_equal(description, s->default_update_info->info->description);
+  assert_string_equal(start, EXPECTED_UPDATED_START_TIME);
+  assert_string_equal(end, NO_END_TIME);
+  assert_string_equal(duration, EXPECTED_UPDATED_DURATION);
+
+  // Finally
+  free(activity);
+  free(client);
+  free(project);
+  free(description);
+  free(start);
+  free(end);
+  free(duration);
+};
+
+void test_trackme_update_timer_not_started(void **state) {
+  // Given
+  test_state_t *s = (test_state_t *)*state;
+
+  // When
+  bool updated = update_timer(s->TEST_UPDATE_INFO_HTTP_REQUEST_BODY);
+
+  char *activity = get_activity();
+  char *client = get_client();
+  char *project = get_project();
+  char *description = get_description();
+  char *start = get_start_time();
+  char *end = get_end_time();
+  char *duration = get_duration();
+
+  // Then
+  assert_false(updated);
+  assert_null(current_timer_result);
+  assert_false(is_timer_running());
+  assert_null(activity);
+  assert_null(client);
+  assert_null(project);
+  assert_null(description);
+  assert_null(start);
+  assert_null(end);
+  assert_null(duration);
+
+  // Finally
+};
+
+void test_trackme_update_timer_stopped(void **state) {
+  // Given
+  test_state_t *s = (test_state_t *)*state;
+  CMockaValueData null_ptr_value_data = cast_ptr_to_cmocka_value(NULL);
+
+  expect_check_data(__wrap_time, __timer, check_pointer, null_ptr_value_data);
+  will_return(__wrap_time, s->TEST_START_TIME_S);
+  start_timer(s->TEST_START_INFO_HTTP_REQUEST_BODY);
+
+  expect_check_data(__wrap_time, __timer, check_pointer, null_ptr_value_data);
+  will_return(__wrap_time, s->TEST_END_TIME_S);
+  stop_timer();
+
+  // When
+  bool updated = update_timer(s->TEST_UPDATE_INFO_HTTP_REQUEST_BODY);
+
+  char *activity = get_activity();
+  char *client = get_client();
+  char *project = get_project();
+  char *description = get_description();
+  char *start = get_start_time();
+  char *end = get_end_time();
+  char *duration = get_duration();
+
+  // Then
+  assert_false(updated);
+  assert_non_null(current_timer_result);
+  assert_false(is_timer_running());
+  assert_string_equal(activity, s->default_start_info->activity);
+  assert_string_equal(client, s->default_start_info->client);
+  assert_string_equal(project, s->default_start_info->project);
+  assert_string_equal(description, s->default_start_info->description);
+  assert_string_equal(start, EXPECTED_START_TIME);
+  assert_string_equal(end, EXPECTED_END_TIME);
+  assert_string_equal(duration, EXPECTED_DURATION);
+
+  // Finally
+  free(activity);
+  free(client);
+  free(project);
+  free(description);
+  free(start);
+  free(end);
+  free(duration);
+};
+
 void test_trackme_reset_timer_started(void **state) {
   // Given
   test_state_t *s = (test_state_t *)*state;
