@@ -28,6 +28,7 @@ void free_start_info(StartInfo *si) {
   free(si);
 }
 
+// TODO write test for this
 StartInfo *copy_start_info(StartInfo *orig_si) {
   if (!orig_si) {
     t_log(ERROR, __func__, "No StartInfo to copy!");

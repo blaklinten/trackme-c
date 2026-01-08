@@ -142,6 +142,10 @@ void test_trackme_parse_start_info_empty_request_body(void **state) {
 
   // Then
   assert_non_null(fail_empty_si);
+  assert_string_equal(fail_empty_si->activity, NOT_SET);
+  assert_string_equal(fail_empty_si->client, NOT_SET);
+  assert_string_equal(fail_empty_si->project, NOT_SET);
+  assert_string_equal(fail_empty_si->description, NOT_SET);
 
   // Finally
   free_start_info(fail_empty_si);
