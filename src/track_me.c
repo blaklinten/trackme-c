@@ -10,18 +10,6 @@
 Timer current_timer;
 TimerResult *current_timer_result = NULL;
 
-// TODO implement these -->
-bson_t *from_timer_result(TimerResult *tr) {
-  (void)tr;
-  return bson_new();
-}
-
-TimerResult *from_bson(bson_t *b) {
-  (void)b;
-  return malloc(sizeof(TimerResult));
-}
-// TODO <--
-
 /*** Private helper functions **/
 StartInfo *_start_info_from_request_body(LOG_LEVEL log_level_missing_variable,
                                          struct mg_str *request_body) {

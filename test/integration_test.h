@@ -7,15 +7,11 @@
 #endif // stop
 #include "../src/timer.h"
 #include <stdarg.h>
-
 #include <stddef.h>
+#include <cmocka.h>
 #include <time.h>
 
 typedef struct {
-  bson_t *test_document_1;
-  bson_t *test_document_2;
-  bson_oid_t test_id_1;
-  bson_oid_t test_id_2;
   char *TEST_ACTIVITY_1;
   char *TEST_ACTIVITY_2;
   char *TEST_CLIENT;

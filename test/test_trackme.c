@@ -8,7 +8,6 @@
 #include "../lib/mongoose.h"
 #include "../src/track_me.h"
 #include "../src/util/log.h"
-#include <bson/bson.h>
 #include <cmocka.h>
 
 /*** Internal helper test functions ***/
