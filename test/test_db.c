@@ -8,29 +8,29 @@
 
 /*** Tests begin ***/
 
-void test_db_init(void **state) {
-  // Given
-
-  // When
-
-  // Then
-
-  // Finally
-}
-
 void test_db_save(void **state) {
   // Given
+  test_state_t *s = (test_state_t *)*state;
 
   // When
+  bool sucess = save(s->TEST_TIMER_RESULT);
 
   // Then
+  assert_true(sucess);
 
   // Finally
 }
 
 void test_db_save_NULL(void **state) {
+  // (void) state;
+  // // Given
+  // // When
+  // bool failed_null = save(NULL);
 
+  // // Then
+  // assert_false(failed_null);
 
+  // // Finally
 }
 
 void test_db_insert_and_get(void **state) {

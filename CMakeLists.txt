@@ -7,32 +7,37 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(TRACKME_LOG_LEVEL 2)
 
 set(MAIN_SOURCES
-  lib/mongoose.c
   lib/ctemplate.c
+  lib/mongoose.c
   lib/sqlite3.c
-  src/track_me.c
-  src/web.c
-  src/timer.c
   src/db.c
-  src/util/log.c)
+  src/timer.c
+  src/track_me.c
+  src/util/log.c
+  src/web.c
+)
 
 set(UNIT_TEST_SOURCES
-  lib/mongoose.c
-  test/unit_test.c
-  test/test_timer.c
   # test/test_list.c
-  test/test_trackme.c
-  src/db.c
-  src/track_me.c
-  src/timer.c
-  src/util/log.c)
-
-set(INTEGRATION_TEST_SOURCES
-  test/integration_test.c
-  test/test_db.c
+  lib/mongoose.c
   lib/sqlite3.c
   src/db.c
-  src/util/log)
+  src/timer.c
+  src/track_me.c
+  src/util/log.c
+  test/test_timer.c
+  test/test_trackme.c
+  test/unit_test.c
+)
+
+set(INTEGRATION_TEST_SOURCES
+  lib/sqlite3.c
+  src/db.c
+  src/timer.c
+  src/util/log
+  test/integration_test.c
+  test/test_db.c
+)
 
 set(
   CMAKE_C_FLAGS

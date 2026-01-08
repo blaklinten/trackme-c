@@ -3,9 +3,31 @@
 #include "util/log.h"
 #include <stdbool.h>
 
-int init_db(const char *uri) { return true; }
+sqlite3 *db;
 
-int free_db() { return 0; };
+bool init_db() {
+  if (sqlite3_open_v2(TRACKME_DB_FILENAME, &db,
+                      SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE,
+                      NULL) != SQLITE_OK) {
+    t_log(ERROR, "Could not open db \"" TRACKME_DB_FILENAME "\": ",
+          sqlite3_errmsg(db));
+    return false;
+  }
+  return true;
+}
+
+bool free_db() {
+  if (sqlite3_close(db) != SQLITE_OK) {
+    t_log(ERROR, "Could not close db \"" TRACKME_DB_FILENAME "\": ",
+          sqlite3_errmsg(db));
+    return false;
+  }
+  return true;
+}
+
+bool save(TimerResult *timer_result) {
+  return true;
+}
 
 // bson_t *_get_by_id(bson_oid_t id) {
 //   bson_t *query = bson_new();
