@@ -43,9 +43,7 @@ bool free_db() {
   return true;
 }
 
-bool save(TimerResult *timer_result) {
-  return true;
-}
+bool save(TimerResult *timer_result) { return true; }
 
 // bson_t *_get_by_id(bson_oid_t id) {
 //   bson_t *query = bson_new();

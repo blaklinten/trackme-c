@@ -140,8 +140,8 @@ void test_db_get_by(void **state) {
   // bool sucess_1 = save(s->test_document_1);
   // bool sucess_2 = save(s->test_document_2);
   // bson_t_list *entries_by_project = get_by(DB_KEY_PROJECT, s->TEST_PROJECT);
-  // bson_t_list *entries_by_activity = get_by(DB_KEY_ACTIVITY, s->TEST_ACTIVITY_2);
-  // bson_t_list *entries_by_duration =
+  // bson_t_list *entries_by_activity = get_by(DB_KEY_ACTIVITY,
+  // s->TEST_ACTIVITY_2); bson_t_list *entries_by_duration =
   //     get_by(DB_KEY_DURATION, &s->TEST_DURATION_S);
 
   // // Then
