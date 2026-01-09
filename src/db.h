@@ -5,8 +5,8 @@
 #include "timer.h"
 #include <stdbool.h>
 
-#define TRACKME_ENTRIES_COLLECTION "_entries"
-#define TRACKME_DB_FILENAME "./trackme_db"
+#define TRACKME_DB_FILENAME "./trackme.db"
+#define TRACKME_DB_TABLE_TIMER_RESULT "_timer_result"
 #define DB_KEY_ID "_id"
 #define DB_KEY_ACTIVITY "_activity"
 #define DB_KEY_CLIENT "_client"

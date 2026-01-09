@@ -13,6 +13,24 @@ bool init_db() {
           sqlite3_errmsg(db));
     return false;
   }
+  // clang-format off
+  const char *create_table_sql =
+      "CREATE TABLE IF NOT EXISTS " TRACKME_DB_TABLE_TIMER_RESULT " ("
+        DB_KEY_ACTIVITY " TEXT, "
+        DB_KEY_CLIENT " TEXT, "
+        DB_KEY_PROJECT " TEXT, "
+        DB_KEY_DESCRIPTION " TEXT, "
+        DB_KEY_START_TIME " LONG, "
+        DB_KEY_END_TIME " LONG, "
+        DB_KEY_DURATION " LONG"
+      ");";
+  // clang-format on
+
+  char *errMsg;
+  if (sqlite3_exec(db, create_table_sql, NULL, NULL, &errMsg) != SQLITE_OK) {
+    t_log(ERROR, __func__, "SQL error during table creation: %s\n", errMsg);
+    sqlite3_free(errMsg);
+  }
   return true;
 }
 

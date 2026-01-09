@@ -3,10 +3,39 @@
 #include "../src/util/log.h"
 #include "integration_test.h"
 #include <cmocka.h>
+#include <stdio.h>
+#include <stdlib.h>
 
 /*** Private helper functions ***/
 
 /*** Tests begin ***/
+
+void test_db_init(void **state) {
+  (void)state;
+  // Given
+  sqlite3 *test_db_init_handle = NULL;
+  const char *query = "SELECT * FROM " TRACKME_DB_TABLE_TIMER_RESULT;
+  sqlite3_stmt *sql;
+
+  // When
+  bool initialized = init_db();
+
+  // Then
+  assert_true(initialized);
+  assert_int_equal(sqlite3_open_v2(TRACKME_DB_FILENAME, &test_db_init_handle,
+                                   SQLITE_OPEN_READONLY, NULL),
+                   SQLITE_OK);
+  assert_int_equal(
+      sqlite3_prepare_v2(test_db_init_handle, query, -1, &sql, NULL),
+      SQLITE_OK);
+  assert_int_equal(sqlite3_step(sql), SQLITE_DONE);
+  assert_int_equal(sqlite3_column_count(sql), NUMBER_OF_COLUMS);
+
+  // Finally
+  sqlite3_finalize(sql);
+  sqlite3_close(test_db_init_handle);
+  free_db();
+};
 
 void test_db_save(void **state) {
   // Given
