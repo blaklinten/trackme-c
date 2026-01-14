@@ -14,8 +14,19 @@ void test_db_init(void **state) {
   (void)state;
   // Given
   sqlite3 *test_db_init_handle = NULL;
-  const char *query = "SELECT * FROM " TRACKME_DB_TABLE_TIMER_RESULT;
-  sqlite3_stmt *sql;
+  const char *contents_query = "SELECT * FROM " TRACKME_DB_TABLE_TIMER_RESULT;
+  sqlite3_stmt *table_contents_stmt;
+  // clang-format off
+  char *db_keys[NUMBER_OF_COLUMS] = {
+    DB_KEY_ACTIVITY,
+    DB_KEY_CLIENT,
+    DB_KEY_PROJECT,
+    DB_KEY_DESCRIPTION,
+    DB_KEY_START_TIME,
+    DB_KEY_END_TIME,
+    DB_KEY_DURATION
+  };
+  // clang-format on
 
   // When
   bool initialized = init_db();
@@ -25,14 +36,19 @@ void test_db_init(void **state) {
   assert_int_equal(sqlite3_open_v2(TRACKME_DB_FILENAME, &test_db_init_handle,
                                    SQLITE_OPEN_READONLY, NULL),
                    SQLITE_OK);
-  assert_int_equal(
-      sqlite3_prepare_v2(test_db_init_handle, query, -1, &sql, NULL),
-      SQLITE_OK);
-  assert_int_equal(sqlite3_step(sql), SQLITE_DONE);
-  assert_int_equal(sqlite3_column_count(sql), NUMBER_OF_COLUMS);
+  assert_int_equal(sqlite3_prepare_v2(test_db_init_handle, contents_query, -1,
+                                      &table_contents_stmt, NULL),
+                   SQLITE_OK);
+  assert_int_equal(sqlite3_step(table_contents_stmt), SQLITE_DONE);
+  assert_int_equal(sqlite3_column_count(table_contents_stmt), NUMBER_OF_COLUMS);
+
+  for (int i = 0; i < NUMBER_OF_COLUMS; i++) {
+    assert_string_equal(db_keys[i],
+                        sqlite3_column_name(table_contents_stmt, i));
+  }
 
   // Finally
-  sqlite3_finalize(sql);
+  sqlite3_finalize(table_contents_stmt);
   sqlite3_close(test_db_init_handle);
   free_db();
 };
