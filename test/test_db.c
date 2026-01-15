@@ -8,6 +8,19 @@
 
 /*** Private helper functions ***/
 
+bool _reset_db(sqlite3 *db_handle) {
+  char *errMsg;
+  const char *drop_table_query =
+      "DROP TABLE IF EXISTS " TRACKME_DB_TABLE_TIMER_RESULT ";";
+  if (sqlite3_exec(db_handle, drop_table_query, NULL, NULL, &errMsg) !=
+      SQLITE_OK) {
+    t_log(ERROR, __func__, "Could not reset db: %s", errMsg);
+    sqlite3_free(errMsg);
+    return false;
+  }
+  return true;
+}
+
 /*** Tests begin ***/
 
 void test_db_init(void **state) {
@@ -34,7 +47,7 @@ void test_db_init(void **state) {
   // Then
   assert_true(initialized);
   assert_int_equal(sqlite3_open_v2(TRACKME_DB_FILENAME, &test_db_init_handle,
-                                   SQLITE_OPEN_READONLY, NULL),
+                                   SQLITE_OPEN_READWRITE, NULL),
                    SQLITE_OK);
   assert_int_equal(sqlite3_prepare_v2(test_db_init_handle, contents_query, -1,
                                       &table_contents_stmt, NULL),
@@ -49,6 +62,7 @@ void test_db_init(void **state) {
 
   // Finally
   sqlite3_finalize(table_contents_stmt);
+  _reset_db(test_db_init_handle);
   sqlite3_close(test_db_init_handle);
   free_db();
 };
@@ -82,7 +96,7 @@ void test_db_save(void **state) {
   // Then
   assert_true(sucess);
   assert_int_equal(sqlite3_open_v2(TRACKME_DB_FILENAME, &test_db_save_handle,
-                                   SQLITE_OPEN_READONLY, NULL),
+                                   SQLITE_OPEN_READWRITE, NULL),
                    SQLITE_OK);
   assert_int_equal(sqlite3_prepare_v2(test_db_save_handle, contents_query, -1,
                                       &table_contents_stmt, NULL),
@@ -103,6 +117,7 @@ void test_db_save(void **state) {
 
   // Finally
   sqlite3_finalize(table_contents_stmt);
+  _reset_db(test_db_save_handle);
   sqlite3_close(test_db_save_handle);
   sqlite3_free(errmsg);
   free_db();
