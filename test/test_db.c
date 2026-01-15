@@ -56,14 +56,56 @@ void test_db_init(void **state) {
 void test_db_save(void **state) {
   // Given
   test_state_t *s = (test_state_t *)*state;
+  sqlite3 *test_db_save_handle = NULL;
+  sqlite3_stmt *table_contents_stmt;
+  const char *contents_query = "SELECT * FROM " TRACKME_DB_TABLE_TIMER_RESULT;
+  char **errmsg = NULL;
+  // clang-format off
+  char *expected_db_contents_string[4] = {
+    s->TEST_TIMER_RESULT->info->activity,
+    s->TEST_TIMER_RESULT->info->client,
+    s->TEST_TIMER_RESULT->info->project,
+    s->TEST_TIMER_RESULT->info->description
+  };
+
+  time_t expected_db_contents_time[3] = {
+    s->TEST_TIMER_RESULT->start_time,
+    s->TEST_TIMER_RESULT->end_time,
+    s->TEST_TIMER_RESULT->duration
+  };
+  // clang-format on
+  init_db();
 
   // When
   bool sucess = save(s->TEST_TIMER_RESULT);
 
   // Then
   assert_true(sucess);
+  assert_int_equal(sqlite3_open_v2(TRACKME_DB_FILENAME, &test_db_save_handle,
+                                   SQLITE_OPEN_READONLY, NULL),
+                   SQLITE_OK);
+  assert_int_equal(sqlite3_prepare_v2(test_db_save_handle, contents_query, -1,
+                                      &table_contents_stmt, NULL),
+                   SQLITE_OK);
+  assert_int_equal(sqlite3_column_count(table_contents_stmt), NUMBER_OF_COLUMS);
+  assert_int_equal(sqlite3_step(table_contents_stmt), SQLITE_ROW);
+
+  for (int i = 0; i < 4; i++) {
+    assert_string_equal(expected_db_contents_string[i],
+                        (char *)sqlite3_column_text(table_contents_stmt, i));
+  }
+
+  for (int i = 0; i < 3; i++) {
+    assert_int_equal(expected_db_contents_time[i],
+                     sqlite3_column_int(table_contents_stmt, i + 4));
+  }
+  assert_int_equal(sqlite3_step(table_contents_stmt), SQLITE_DONE);
 
   // Finally
+  sqlite3_finalize(table_contents_stmt);
+  sqlite3_close(test_db_save_handle);
+  sqlite3_free(errmsg);
+  free_db();
 }
 
 void test_db_save_NULL(void **state) {

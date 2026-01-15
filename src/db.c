@@ -43,7 +43,55 @@ bool free_db() {
   return true;
 }
 
-bool save(TimerResult *timer_result) { return true; }
+bool save(TimerResult *timer_result) {
+  // clang-format off
+  const char *save_result_query =
+      "INSERT INTO " TRACKME_DB_TABLE_TIMER_RESULT "("
+      DB_KEY_ACTIVITY ", "
+      DB_KEY_CLIENT ", "
+      DB_KEY_PROJECT ", "
+      DB_KEY_DESCRIPTION ", "
+      DB_KEY_START_TIME ", "
+      DB_KEY_END_TIME ", "
+      DB_KEY_DURATION 
+      ") VALUES ("
+      "?,?,?,?,?,?,?"
+      ")";
+  // clang-format on
+  sqlite3_stmt *insert_stmt;
+
+  if (sqlite3_prepare(db, save_result_query, -1, &insert_stmt, NULL) !=
+      SQLITE_OK) {
+    t_log(ERROR, __func__, "Could not prepare insert statement: %s",
+          sqlite3_errmsg(db));
+    return false;
+  }
+
+  if (sqlite3_bind_text(insert_stmt, 1, timer_result->info->activity, -1,
+                        SQLITE_STATIC) != SQLITE_OK ||
+      sqlite3_bind_text(insert_stmt, 2, timer_result->info->client, -1,
+                        SQLITE_STATIC) != SQLITE_OK ||
+      sqlite3_bind_text(insert_stmt, 3, timer_result->info->project, -1,
+                        SQLITE_STATIC) != SQLITE_OK ||
+      sqlite3_bind_text(insert_stmt, 4, timer_result->info->description, -1,
+                        SQLITE_STATIC) != SQLITE_OK ||
+      sqlite3_bind_int(insert_stmt, 5, timer_result->start_time) != SQLITE_OK ||
+      sqlite3_bind_int(insert_stmt, 6, timer_result->end_time) != SQLITE_OK ||
+      sqlite3_bind_int(insert_stmt, 7, timer_result->duration) != SQLITE_OK) {
+    t_log(ERROR, __func__, "Could not bind parameters to insert statement: %s",
+          sqlite3_errmsg(db));
+    return false;
+  };
+
+  if (sqlite3_step(insert_stmt) != SQLITE_DONE) {
+    t_log(ERROR, __func__, "Could not execute insert statement: %s",
+          sqlite3_errmsg(db));
+    return false;
+  }
+
+  sqlite3_finalize(insert_stmt);
+  return true;
+}
 
 // bson_t *_get_by_id(bson_oid_t id) {
 //   bson_t *query = bson_new();

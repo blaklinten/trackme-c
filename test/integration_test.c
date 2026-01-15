@@ -1,6 +1,7 @@
 #include "integration_test.h"
 #include "../src/db.h"
 #include "../src/timer.h"
+#include "../src/util/log.h"
 #include "test_db.h"
 #include <stdlib.h>
 
@@ -13,11 +14,13 @@ static int group_setup(void **state) {
   si->activity = "test_activity_name";
   si->client = "test_client";
   si->project = "test_project";
-  si->description = "this is a test description";
-  s->default_start_info = si;
-
-  start(&t, copy_start_info(si));
-  s->TEST_TIMER_RESULT = stop(&t);
+  si->description = "Description with special charactes: 1!|>åäö`^~'´([/";
+  TimerResult *tr = malloc(sizeof(TimerResult));
+  tr->info = si;
+  tr->start_time = 1721664594;           // Mon 22 Jul 18:09:54 CEST 2024
+  tr->end_time = 1721669586;             // Mon 22 Jul 19:33:06 CEST 2024
+  tr->duration = 60 * 60 + 60 * 23 + 12; // 1h23min12s
+  s->TEST_TIMER_RESULT = tr;
 
   sqlite3_open_v2(TRACKME_DB_FILENAME, &s->test_handle,
                   SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE, NULL);
@@ -31,15 +34,15 @@ static int group_teardown(void **state) {
   char *errMsg;
   const char *drop_table_sql =
       "DROP TABLE IF EXISTS " TRACKME_DB_TABLE_TIMER_RESULT ";";
-  sqlite3_exec(s->test_handle, drop_table_sql, NULL, NULL, &errMsg);
+  if ( sqlite3_exec(s->test_handle, drop_table_sql, NULL, NULL, &errMsg) != SQLITE_OK) {
+    t_log(ERROR, __func__, "Could not reset db: %s", errMsg);
+  }
   sqlite3_free(errMsg);
 
   if (s) {
-    if (s->default_start_info) {
-      free(s->default_start_info);
-    }
     if (s->TEST_TIMER_RESULT) {
-      free_timer_result(s->TEST_TIMER_RESULT);
+     free(s->TEST_TIMER_RESULT->info);
+     free(s->TEST_TIMER_RESULT);
     }
     sqlite3_close_v2(s->test_handle);
     free(s);
