@@ -44,6 +44,10 @@ bool free_db() {
 }
 
 bool save(TimerResult *timer_result) {
+  if (!timer_result) {
+    t_log(ERROR, __func__, "No timer result to save - abort!");
+    return false;
+  }
   // clang-format off
   const char *save_result_query =
       "INSERT INTO " TRACKME_DB_TABLE_TIMER_RESULT "("

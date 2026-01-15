@@ -56,8 +56,8 @@ int main(void) {
   const struct CMUnitTest integration_test[] = {
     cmocka_unit_test(test_db_init),
     cmocka_unit_test(test_db_save),
+    cmocka_unit_test(test_db_save_NULL),
     // cmocka_unit_test(test_db_insert_and_get),
-    // cmocka_unit_test(test_db_save_NULL),
     // cmocka_unit_test(test_db_get_by),
   };
   // clang-format on

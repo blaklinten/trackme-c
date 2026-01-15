@@ -124,15 +124,35 @@ void test_db_save(void **state) {
 }
 
 void test_db_save_NULL(void **state) {
-  // (void) state;
-  // // Given
-  // // When
-  // bool failed_null = save(NULL);
+  (void)state;
+  // Given
+  sqlite3 *test_db_save_handle = NULL;
+  sqlite3_stmt *table_contents_stmt;
+  const char *contents_query = "SELECT * FROM " TRACKME_DB_TABLE_TIMER_RESULT;
+  char **errmsg = NULL;
 
-  // // Then
-  // assert_false(failed_null);
+  init_db();
 
-  // // Finally
+  // When
+  bool sucess = save(NULL);
+
+  // Then
+  assert_false(sucess);
+  assert_int_equal(sqlite3_open_v2(TRACKME_DB_FILENAME, &test_db_save_handle,
+                                   SQLITE_OPEN_READWRITE, NULL),
+                   SQLITE_OK);
+  assert_int_equal(sqlite3_prepare_v2(test_db_save_handle, contents_query, -1,
+                                      &table_contents_stmt, NULL),
+                   SQLITE_OK);
+  assert_int_equal(sqlite3_column_count(table_contents_stmt), NUMBER_OF_COLUMS);
+  // SQLITE_DONE means no result to process i.e. we did not save anything :)
+  assert_int_equal(sqlite3_step(table_contents_stmt), SQLITE_DONE);
+
+  // Finally
+  sqlite3_finalize(table_contents_stmt);
+  sqlite3_close(test_db_save_handle);
+  sqlite3_free(errmsg);
+  free_db();
 }
 
 void test_db_insert_and_get(void **state) {
