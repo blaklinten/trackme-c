@@ -18,6 +18,7 @@ int check_pointer(CMockaValueData value, CMockaValueData expected);
 typedef struct {
   StartInfo *default_start_info;
   UpdateInfo *default_update_info;
+  TimerResult *TEST_TIMER_RESULT;
   char *TEST_ACTIVITY_1;
   char *TEST_ACTIVITY_2;
   char *TEST_CLIENT;

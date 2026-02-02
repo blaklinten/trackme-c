@@ -14,17 +14,19 @@ set(MAIN_SOURCES
   src/timer.c
   src/track_me.c
   src/util/log.c
+  src/util/timer_result_list.c
   src/web.c
 )
 
 set(UNIT_TEST_SOURCES
-  # test/test_list.c
+  test/test_list.c
   lib/mongoose.c
   lib/sqlite3.c
   src/db.c
   src/timer.c
   src/track_me.c
   src/util/log.c
+  src/util/timer_result_list.c
   test/test_timer.c
   test/test_trackme.c
   test/unit_test.c
@@ -35,6 +37,7 @@ set(INTEGRATION_TEST_SOURCES
   src/db.c
   src/timer.c
   src/util/log
+  src/util/timer_result_list.c
   test/integration_test.c
   test/test_db.c
 )

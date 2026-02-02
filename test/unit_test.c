@@ -30,6 +30,12 @@ static int group_setup(void **state) {
   si->project = "test_project";
   si->description = "this is a test description";
   s->default_start_info = si;
+  TimerResult *tr = malloc(sizeof(TimerResult));
+  tr->info = si;
+  tr->start_time = 1721664594;           // Mon 22 Jul 18:09:54 CEST 2024
+  tr->end_time = 1721669586;             // Mon 22 Jul 19:33:06 CEST 2024
+  tr->duration = 60 * 60 + 60 * 23 + 12; // 1h23min12s
+  s->TEST_TIMER_RESULT = tr;
 
   StartInfo *info = malloc(sizeof(StartInfo));
   info->activity = "updated_activity";
@@ -99,8 +105,10 @@ static int group_teardown(void **state) {
       free(s->NOT_SET_TEST_HTTP_REQUEST_BODY->buf);
       free(s->NOT_SET_TEST_HTTP_REQUEST_BODY);
     }
-    if (s->default_start_info) {
-      free(s->default_start_info);
+    if (s->TEST_TIMER_RESULT) {
+      // Only free the outer pointers since TEST_TIMER_RESULT strings lives on the stack
+      free(s->TEST_TIMER_RESULT->info);
+      free(s->TEST_TIMER_RESULT);
     }
     if (s->default_update_info) {
       free(s->default_update_info->info);
@@ -148,13 +156,13 @@ int main(void) {
       cmocka_unit_test(test_timer_get_description),
       cmocka_unit_test(test_timer_not_started_get_description),
       /* List */
-      // cmocka_unit_test(test_list_empty_create),
-      // cmocka_unit_test(test_list_create_from_NULL),
-      // cmocka_unit_test(test_list_create_from_document),
-      // cmocka_unit_test(test_list_add_element),
-      // cmocka_unit_test(test_list_add_invalid_element),
-      // cmocka_unit_test(test_list_free),
-      // cmocka_unit_test(test_list_count_element),
+      cmocka_unit_test(test_list_empty_create),
+      cmocka_unit_test(test_list_create_from_NULL),
+      cmocka_unit_test(test_list_create_from_timer_result),
+      cmocka_unit_test(test_list_add_element),
+      cmocka_unit_test(test_list_add_invalid_element),
+      cmocka_unit_test(test_list_free),
+      cmocka_unit_test(test_list_count_element),
       /* Trackme */
       /* private functions */
       cmocka_unit_test_teardown(test_trackme_parse_start_info_request_body, _reset_timer),

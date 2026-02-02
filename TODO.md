@@ -1,5 +1,6 @@
 # Change DB
     - MongoDB → SQLite
+        * Continue: implement get_by → timer_result_list
 
 # Migrate FSDB
     - FSDB → SQL
