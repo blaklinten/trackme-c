@@ -32,10 +32,13 @@ void free_start_info(StartInfo *si) {
 StartInfo *copy_start_info(StartInfo *orig_si) {
   if (!orig_si) {
     t_log(ERROR, __func__, "No StartInfo to copy!");
+    return NULL;
   }
   // init StartInfo struct
   StartInfo *si = calloc(1, sizeof(StartInfo));
   if (!si) {
+    t_log(ERROR, __func__, "Malloc: could not allocate enough memory.");
+    return NULL;
   }
 
   char *activity = malloc(strlen(orig_si->activity) + 1);
