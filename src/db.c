@@ -1,9 +1,116 @@
 #include "db.h"
 #include "../lib/sqlite3.h"
+#include "timer.h"
 #include "util/log.h"
+#include "util/timer_result_list.h"
 #include <stdbool.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
-sqlite3 *db;
+sqlite3 *db = NULL;
+
+/* Private helper functions */
+
+int _db_result_to_list(void *result_list, int number_of_columns,
+                       char **contents_of_columns, char **names_of_columns) {
+  StartInfo *si = malloc(sizeof(StartInfo));
+  if (!si) {
+    t_log(ERROR, __func__, "Malloc: could not allocate enough memory.");
+    return -1;
+  }
+
+  TimerResult *result = malloc(sizeof(TimerResult));
+  if (!result) {
+    t_log(ERROR, __func__, "Malloc: could not allocate enough memory.");
+    return -1;
+  }
+  result->info = si;
+
+  for (int i = 0; i < number_of_columns; i++) {
+    char *current_column_name = names_of_columns[i];
+    char *current_column_content = contents_of_columns[i];
+
+    if (!strcmp(current_column_name, DB_KEY_ACTIVITY)) {
+      if (current_column_content) {
+        /* This is probably unecessary slow and pedantic. Maybe allocate
+        ** fixed size, like REQUEST_FIELD_SHORT_SIZE, instead.
+        */
+        si->activity = malloc(strlen(current_column_content) + 1);
+        strcpy(si->activity, current_column_content);
+      } else {
+        si->activity = NULL;
+      }
+      continue;
+    } else if (!strcmp(current_column_name, DB_KEY_CLIENT)) {
+      if (current_column_content) {
+        /* This is probably unecessary slow and pedantic. Maybe allocate
+        ** fixed size, like REQUEST_FIELD_SHORT_SIZE, instead.
+        */
+        si->client = malloc(strlen(current_column_content) + 1);
+        strcpy(si->client, current_column_content);
+      } else {
+        si->client = NULL;
+      }
+      continue;
+
+    } else if (!strcmp(current_column_name, DB_KEY_PROJECT)) {
+      if (current_column_content) {
+        /* This is probably unecessary slow and pedantic. Maybe allocate
+        ** fixed size, like REQUEST_FIELD_SHORT_SIZE, instead.
+        */
+        si->project = malloc(strlen(current_column_content) + 1);
+        strcpy(si->project, current_column_content);
+      } else {
+        si->project = NULL;
+      }
+      continue;
+
+    } else if (!strcmp(current_column_name, DB_KEY_DESCRIPTION)) {
+      if (current_column_content) {
+        /* This is probably unecessary slow and pedantic. Maybe allocate
+        ** fixed size, like REQUEST_FIELD_SHORT_SIZE, instead.
+        */
+        si->description = malloc(strlen(current_column_content) + 1);
+        strcpy(si->description, current_column_content);
+      } else {
+        si->description = NULL;
+      }
+      continue;
+
+    } else if (!strcmp(current_column_name, DB_KEY_START_TIME)) {
+      if (current_column_content) {
+        result->start_time = atoi(current_column_content);
+      } else {
+        result->start_time = 0;
+      }
+      continue;
+
+    } else if (!strcmp(current_column_name, DB_KEY_END_TIME)) {
+      if (current_column_content) {
+        result->end_time = atoi(current_column_content);
+      } else {
+        result->end_time = 0;
+      }
+      continue;
+
+    } else if (!strcmp(current_column_name, DB_KEY_DURATION)) {
+      if (current_column_content) {
+        result->duration = atoi(current_column_content);
+      } else {
+        result->duration = 0;
+      }
+      continue;
+    }
+  }
+
+  if (!append_to_list(result_list, result)) {
+    t_log(ERROR, __func__, "Could not add result to list - abort");
+    return -1;
+  }
+
+  return 0;
+}
 
 bool init_db() {
   if (sqlite3_open_v2(TRACKME_DB_FILENAME, &db,
@@ -40,6 +147,7 @@ bool free_db() {
           sqlite3_errmsg(db));
     return false;
   }
+  db = NULL;
   return true;
 }
 
@@ -97,7 +205,7 @@ bool save(TimerResult *timer_result) {
   return true;
 }
 
-// bson_t *_get_by_id(bson_oid_t id) {
+// TimerResult *_get_by_id(bson_oid_t id) {
 //   bson_t *query = bson_new();
 //   BSON_APPEND_OID(query, DB_KEY_ID, &id);
 //   mongoc_cursor_t *cursor =
@@ -110,76 +218,70 @@ bool save(TimerResult *timer_result) {
 //   mongoc_cursor_destroy(cursor);
 
 //   return result;
+// return NULL;
 // }
 
-// bson_t_list *_get_by_char(char *key, char *value) {
-//   bson_t *query = bson_new();
-//   BSON_APPEND_UTF8(query, key, value);
-//   mongoc_cursor_t *cursor =
-//       mongoc_collection_find_with_opts(entries, query, NULL, NULL);
-//   bson_destroy(query);
+timer_result_list *_get_by_char(char *key, char *value) {
+  const char *query_format =
+      "SELECT * FROM " TRACKME_DB_TABLE_TIMER_RESULT " WHERE  %s IS '%s'";
+  int query_length = strlen(query_format) + strlen(key) + strlen(value);
+  char *query = malloc(query_length + 1); // + 1 = \0 ?
+  snprintf(query, query_length, query_format, key, value);
 
-//   const bson_t *doc;
-//   bson_t_list *result = create_empty_list();
-//   if (!result) {
-//     t_log(ERROR, __func__, "Could not create empty list");
-//     return NULL;
-//   }
-//   while (mongoc_cursor_next(cursor, &doc)) {
-//     bson_t *current = bson_copy(doc);
-//     append_to_list(result, current);
-//   }
-//   mongoc_cursor_destroy(cursor);
-//   return result;
-// }
+  timer_result_list *result = create_empty_list();
+  char *errmsg = NULL;
+  if (sqlite3_exec(db, query, _db_result_to_list, result, &errmsg) ==
+      SQLITE_ABORT) {
+    t_log(ERROR, __func__,
+          "Callback returned non-zero - could not create result list");
+    free(query);
+    free_list(result);
+    sqlite3_free(errmsg);
+    return NULL;
+  }
 
-// bson_t_list *_get_by_time(char *key, time_t *value) {
-//   bson_t *query = bson_new();
-//   BSON_APPEND_TIME_T(query, key, *value);
-//   mongoc_cursor_t *cursor =
-//       mongoc_collection_find_with_opts(entries, query, NULL, NULL);
-//   bson_destroy(query);
+  if (errmsg != NULL) {
+    t_log(ERROR, __func__, "Could not parse SQL-statement: %s", errmsg);
+    free(query);
+    free_list(result);
+    sqlite3_free(errmsg);
+    return NULL;
+  }
 
-//   const bson_t *doc;
-//   bson_t_list *result = create_empty_list();
-//   if (!result) {
-//     t_log(ERROR, __func__, "Could not create empty list");
-//     return NULL;
-//   }
-//   while (mongoc_cursor_next(cursor, &doc)) {
-//     bson_t *current = bson_copy(doc);
-//     append_to_list(result, current);
-//   }
-//   mongoc_cursor_destroy(cursor);
-//   return result;
-// }
+  free(query);
+  return result;
+}
 
-// bson_t_list *get_by(char *key, void *value) {
-//   if (!key || !value) {
-//     t_log(ERROR, __func__, "Key or value is NULL");
-//     return NULL;
-//   }
+timer_result_list *_get_by_time(char *key, time_t *value) { return NULL; }
 
-//   if (!entries) {
-//     t_log(ERROR, __func__, "No collection");
-//     return NULL;
-//   }
+timer_result_list *get_by(char *key, void *value) {
+  if (!key || !value) {
+    t_log(ERROR, __func__, "Key or value is NULL");
+    return NULL;
+  }
 
-//   if (!strcmp(key, DB_KEY_ID)) {
-//     bson_oid_t *id = (bson_oid_t *)value;
-//     return create_list_from(_get_by_id(*id));
-//   }
+  if (!db) {
+    t_log(ERROR, __func__, "No open db");
+    return NULL;
+  }
 
-//   if (!strcmp(key, DB_KEY_ACTIVITY) || !strcmp(key, DB_KEY_CLIENT) ||
-//       !strcmp(key, DB_KEY_PROJECT)) {
-//     return _get_by_char(key, value);
-//   }
+  // TODO the DB should have a ID field
+  // if (!strcmp(key, DB_KEY_ID)) {
+  //   bson_oid_t *id = (bson_oid_t *)value;
+  //   return create_list_from(_get_by_id(*id));
+  // }
 
-//   if (!strcmp(key, DB_KEY_DURATION) || !strcmp(key, DB_KEY_START_TIME) ||
-//       !strcmp(key, DB_KEY_END_TIME)) {
-//     time_t *time = (time_t *)value;
-//     return _get_by_time(key, time);
-//   }
-//   t_log(ERROR, __func__, "Key [%s] is not supported", key);
-//   return NULL;
-// }
+  // strcmp -> 0 if eq
+  if (!(strcmp(key, DB_KEY_ACTIVITY) && strcmp(key, DB_KEY_CLIENT) &&
+        strcmp(key, DB_KEY_PROJECT))) {
+    return _get_by_char(key, value);
+  }
+
+  if (!(strcmp(key, DB_KEY_DURATION) && strcmp(key, DB_KEY_START_TIME) &&
+        strcmp(key, DB_KEY_END_TIME))) {
+    time_t *time = (time_t *)value;
+    return _get_by_time(key, time);
+  }
+  t_log(ERROR, __func__, "Key [%s] is not supported", key);
+  return NULL;
+}

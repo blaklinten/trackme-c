@@ -3,6 +3,7 @@
 
 #include "../lib/sqlite3.h"
 #include "timer.h"
+#include "util/timer_result_list.h"
 #include <stdbool.h>
 
 #define TRACKME_DB_FILENAME "./trackme.db"
@@ -19,6 +20,6 @@
 bool init_db();
 bool free_db();
 bool save(TimerResult *timer_result);
-// bson_t_list *get_by(char *key, void *value);
+timer_result_list *get_by(char *key, void *value);
 
 #endif // !DB_H

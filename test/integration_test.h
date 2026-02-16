@@ -12,6 +12,7 @@
 
 typedef struct {
   TimerResult *TEST_TIMER_RESULT;
+  TimerResult *TEST_TIMER_RESULT_2;
   StartInfo *default_start_info;
   sqlite3 *test_handle;
 } test_state_t;
