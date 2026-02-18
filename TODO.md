@@ -1,9 +1,12 @@
 # Change DB
     - MongoDB → SQLite
-        * Continue: implement get_by → timer_result_list
+        * Continue: implement db-id -> get_by_id
+# Update entry
+    - fetch all/latests
+    - view of fetched entries
 
 # Migrate FSDB
-    - FSDB → SQL
+    - FSDB files → SQL rows
 
 # Data structure
     - AoS -> SoA

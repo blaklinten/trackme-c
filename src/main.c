@@ -39,7 +39,7 @@ static void ev_handler(struct mg_connection *c, int ev, void *ev_data) {
     }
 
     else if (mg_match(hm->uri, mg_str("/edit_timer.html"), NULL)) {
-      // TODO this is possible error - is start time really 00:00:00??
+      // TODO this is a possible error - is start time really 00:00:00?? probably more epoch-start
       if (strcmp(get_start_time(), "00:00:00") == 0) {
         t_log(INFO, __func__, "Timer not started, can not edit");
         create_edit_html(NULL, NULL, NULL, NULL, NULL, NULL);
