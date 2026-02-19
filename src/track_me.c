@@ -59,37 +59,40 @@ StartInfo *_start_info_from_request_body(LOG_LEVEL log_level_missing_variable,
   char *var_key_activity = "activity";
   if (mg_http_get_var(request_body, var_key_activity, activity,
                       REQUEST_FIELD_SHORT_SIZE) < 1) {
-    t_log(log_level_missing_variable, __func__, "Variable [", var_key_activity,
-          "] could not be extracted from body. Not set or too "
-          "long?");
+    t_log(
+        log_level_missing_variable, __func__,
+        "Variable [%s] could not be extracted from body. Not set or too long?",
+        var_key_activity);
     strcpy(activity, NOT_SET);
   }
 
   char *var_key_client = "client";
   if (mg_http_get_var(request_body, var_key_client, client,
                       REQUEST_FIELD_SHORT_SIZE) < 1) {
-    t_log(log_level_missing_variable, __func__, "Variable [", var_key_client,
-          "] could not be extracted from body. Not set or too "
-          "long?");
+    t_log(
+        log_level_missing_variable, __func__,
+        "Variable [%s] could not be extracted from body. Not set or too long?",
+        var_key_client);
     strcpy(client, NOT_SET);
   }
 
   char *var_key_project = "project";
   if (mg_http_get_var(request_body, var_key_project, project,
                       REQUEST_FIELD_SHORT_SIZE) < 1) {
-    t_log(log_level_missing_variable, __func__, "Variable [", var_key_project,
-          "] could not be extracted from body. Not set or too "
-          "long?");
+    t_log(
+        log_level_missing_variable, __func__,
+        "Variable [%s] could not be extracted from body. Not set or too long?",
+        var_key_project);
     strcpy(project, NOT_SET);
   }
 
   char *var_key_description = "description";
   if (mg_http_get_var(request_body, var_key_description, description,
                       REQUEST_FIELD_SHORT_SIZE) < 1) {
-    t_log(log_level_missing_variable, __func__, "Variable [",
-          var_key_description,
-          "] could not be extracted from body. Not set or "
-          "too long?");
+    t_log(
+        log_level_missing_variable, __func__,
+        "Variable [%s] could not be extracted from body. Not set or too long?",
+        var_key_description);
     strcpy(description, NOT_SET);
   }
 
@@ -131,9 +134,10 @@ UpdateInfo *_update_info_from_request_body(struct mg_str *request_body) {
   char *var_key_start_time = "start_time";
   if (mg_http_get_var(request_body, var_key_start_time, start_time_str,
                       REQUEST_FIELD_SHORT_SIZE) < 1) {
-    t_log(INFO, __func__, "Variable [", var_key_start_time,
-          "] could not be extracted from body. Not set or "
-          "too long?");
+    t_log(
+        INFO, __func__,
+        "Variable [%s] could not be extracted from body. Not set or too long?",
+        var_key_start_time);
     strcpy(start_time_str, "0");
   }
   ui->start_time = atol(start_time_str);
@@ -142,9 +146,10 @@ UpdateInfo *_update_info_from_request_body(struct mg_str *request_body) {
   char *var_key_end_time = "end_time";
   if (mg_http_get_var(request_body, var_key_end_time, end_time_str,
                       REQUEST_FIELD_SHORT_SIZE) < 1) {
-    t_log(INFO, __func__, "Variable [", var_key_end_time,
-          "] could not be extracted from body. Not set or "
-          "too long?");
+    t_log(
+        INFO, __func__,
+        "Variable [%s] could not be extracted from body. Not set or too long?",
+        var_key_end_time);
     strcpy(end_time_str, "0");
   }
   ui->end_time = atol(end_time_str);
