@@ -66,6 +66,10 @@ target_link_libraries(unit_test
 target_link_libraries(integration_test
   cmocka)
 
-target_link_options(unit_test PRIVATE "LINKER:--wrap=time"
+target_link_options(unit_test PRIVATE "LINKER:--wrap=time,--wrap=save"
+  -fsanitize=undefined -fsanitize=address
+  )
+
+target_link_options(integration_test PRIVATE
   -fsanitize=undefined -fsanitize=address
   )

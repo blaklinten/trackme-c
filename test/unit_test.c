@@ -21,6 +21,8 @@ time_t __wrap_time(time_t *__timer) {
 
   return mock_time;
 }
+// Mock save(TimerResult *tr)
+bool __wrap_save(TimerResult *__tr) { return true; }
 
 static int group_setup(void **state) {
   test_state_t *s = malloc(sizeof(test_state_t));

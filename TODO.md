@@ -1,6 +1,7 @@
 # Change DB
     - MongoDB → SQLite
         * Continue: implement db-id -> get_by_id
+        * make sure unit_test does not depend/use db.
 # Update entry
     - fetch all/latests
     - view of fetched entries
