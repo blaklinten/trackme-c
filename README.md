@@ -15,8 +15,8 @@ make
 ```
 ## Testing
 Tests are written with the `cmocka` testing library.
-Test the project by running the `test_main` after successful compilation.
-To enable logging `export TRACKME_LOG_LEVEL` with values 1, 2 or 3 to have SUCCESS, ERROR, or INFO level.
+Test the project by running the `unit_test` or `integration_test` binary after successful compilation.
+To enable logging `export TRACKME_LOG_LEVEL` with values 0, 1, or 2 to have SUCCESS, ERROR, or INFO level.
 
 ## Utils
 Use `./util/serve_web.sh` to start the web server.

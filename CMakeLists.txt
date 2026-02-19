@@ -7,33 +7,40 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(TRACKME_LOG_LEVEL 2)
 
 set(MAIN_SOURCES
-  lib/mongoose.c
   lib/ctemplate.c
-  src/track_me.c
-  src/web.c
-  src/timer.c
+  lib/mongoose.c
+  lib/sqlite3.c
   src/db.c
-  src/util/bson_list.c
-  src/util/log.c)
+  src/timer.c
+  src/track_me.c
+  src/util/log.c
+  src/util/timer_result_list.c
+  src/web.c
+)
 
 set(UNIT_TEST_SOURCES
-  lib/mongoose.c
-  test/unit_test.c
-  test/test_timer.c
   test/test_list.c
-  test/test_trackme.c
+  lib/mongoose.c
+  lib/sqlite3.c
   src/db.c
-  src/track_me.c
   src/timer.c
-  src/util/bson_list.c
-  src/util/log.c)
+  src/track_me.c
+  src/util/log.c
+  src/util/timer_result_list.c
+  test/test_timer.c
+  test/test_trackme.c
+  test/unit_test.c
+)
 
 set(INTEGRATION_TEST_SOURCES
+  lib/sqlite3.c
+  src/db.c
+  src/timer.c
+  src/util/log
+  src/util/timer_result_list.c
   test/integration_test.c
   test/test_db.c
-  src/db.c
-  src/util/bson_list.c
-  src/util/log)
+)
 
 set(
   CMAKE_C_FLAGS
@@ -53,19 +60,16 @@ add_executable(integration_test
   ${INTEGRATION_TEST_SOURCES})
 set_property(TARGET integration_test PROPERTY CXX_STANDARD 23)
 
-find_package(mongoc REQUIRED)
-
-target_link_libraries(main
-  mongoc::shared)
-
 target_link_libraries(unit_test
-  mongoc::shared
   cmocka)
 
 target_link_libraries(integration_test
-  mongoc::shared
   cmocka)
 
-target_link_options(unit_test PRIVATE "LINKER:--wrap=time"
+target_link_options(unit_test PRIVATE "LINKER:--wrap=time,--wrap=save"
+  -fsanitize=undefined -fsanitize=address
+  )
+
+target_link_options(integration_test PRIVATE
   -fsanitize=undefined -fsanitize=address
   )

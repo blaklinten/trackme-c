@@ -1,7 +1,9 @@
 #include "track_me.h"
 #include "../lib/mongoose.h"
+#include "db.h"
 #include "timer.h"
 #include "util/log.h"
+#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -9,18 +11,6 @@
 
 Timer current_timer;
 TimerResult *current_timer_result = NULL;
-
-// TODO implement these -->
-bson_t *from_timer_result(TimerResult *tr) {
-  (void)tr;
-  return bson_new();
-}
-
-TimerResult *from_bson(bson_t *b) {
-  (void)b;
-  return malloc(sizeof(TimerResult));
-}
-// TODO <--
 
 /*** Private helper functions **/
 StartInfo *_start_info_from_request_body(LOG_LEVEL log_level_missing_variable,
@@ -71,37 +61,40 @@ StartInfo *_start_info_from_request_body(LOG_LEVEL log_level_missing_variable,
   char *var_key_activity = "activity";
   if (mg_http_get_var(request_body, var_key_activity, activity,
                       REQUEST_FIELD_SHORT_SIZE) < 1) {
-    t_log(log_level_missing_variable, __func__, "Variable [", var_key_activity,
-          "] could not be extracted from body. Not set or too "
-          "long?");
+    t_log(
+        log_level_missing_variable, __func__,
+        "Variable [%s] could not be extracted from body. Not set or too long?",
+        var_key_activity);
     strcpy(activity, NOT_SET);
   }
 
   char *var_key_client = "client";
   if (mg_http_get_var(request_body, var_key_client, client,
                       REQUEST_FIELD_SHORT_SIZE) < 1) {
-    t_log(log_level_missing_variable, __func__, "Variable [", var_key_client,
-          "] could not be extracted from body. Not set or too "
-          "long?");
+    t_log(
+        log_level_missing_variable, __func__,
+        "Variable [%s] could not be extracted from body. Not set or too long?",
+        var_key_client);
     strcpy(client, NOT_SET);
   }
 
   char *var_key_project = "project";
   if (mg_http_get_var(request_body, var_key_project, project,
                       REQUEST_FIELD_SHORT_SIZE) < 1) {
-    t_log(log_level_missing_variable, __func__, "Variable [", var_key_project,
-          "] could not be extracted from body. Not set or too "
-          "long?");
+    t_log(
+        log_level_missing_variable, __func__,
+        "Variable [%s] could not be extracted from body. Not set or too long?",
+        var_key_project);
     strcpy(project, NOT_SET);
   }
 
   char *var_key_description = "description";
   if (mg_http_get_var(request_body, var_key_description, description,
                       REQUEST_FIELD_SHORT_SIZE) < 1) {
-    t_log(log_level_missing_variable, __func__, "Variable [",
-          var_key_description,
-          "] could not be extracted from body. Not set or "
-          "too long?");
+    t_log(
+        log_level_missing_variable, __func__,
+        "Variable [%s] could not be extracted from body. Not set or too long?",
+        var_key_description);
     strcpy(description, NOT_SET);
   }
 
@@ -143,9 +136,10 @@ UpdateInfo *_update_info_from_request_body(struct mg_str *request_body) {
   char *var_key_start_time = "start_time";
   if (mg_http_get_var(request_body, var_key_start_time, start_time_str,
                       REQUEST_FIELD_SHORT_SIZE) < 1) {
-    t_log(INFO, __func__, "Variable [", var_key_start_time,
-          "] could not be extracted from body. Not set or "
-          "too long?");
+    t_log(
+        INFO, __func__,
+        "Variable [%s] could not be extracted from body. Not set or too long?",
+        var_key_start_time);
     strcpy(start_time_str, "0");
   }
   ui->start_time = atol(start_time_str);
@@ -154,9 +148,10 @@ UpdateInfo *_update_info_from_request_body(struct mg_str *request_body) {
   char *var_key_end_time = "end_time";
   if (mg_http_get_var(request_body, var_key_end_time, end_time_str,
                       REQUEST_FIELD_SHORT_SIZE) < 1) {
-    t_log(INFO, __func__, "Variable [", var_key_end_time,
-          "] could not be extracted from body. Not set or "
-          "too long?");
+    t_log(
+        INFO, __func__,
+        "Variable [%s] could not be extracted from body. Not set or too long?",
+        var_key_end_time);
     strcpy(end_time_str, "0");
   }
   ui->end_time = atol(end_time_str);
@@ -274,7 +269,7 @@ bool update_timer(struct mg_str *request_body) {
   if (!is_timer_running()) {
     return false;
   }
-  UpdateInfo *ui =_update_info_from_request_body(request_body); 
+  UpdateInfo *ui = _update_info_from_request_body(request_body);
   bool updated = update(&current_timer, ui);
   free_update_info(ui);
   return updated;
@@ -284,7 +279,19 @@ bool is_timer_running() {
   return current_timer_result == NULL && current_timer.start_time;
 }
 
-bool stop_timer() { return (current_timer_result = stop(&current_timer)); }
+bool stop_timer() {
+  current_timer_result = stop(&current_timer);
+  if (!current_timer_result) {
+    t_log(ERROR, __func__, "Could not stop timer");
+    return false;
+  }
+
+  if (!save(current_timer_result)) {
+    t_log(ERROR, __func__, "Could not save timer result");
+    return false;
+  }
+  return true;
+}
 
 char *get_start_time() {
   if (is_timer_running()) {

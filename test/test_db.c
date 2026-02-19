@@ -1,369 +1,427 @@
 #include "test_db.h"
 #include "../src/db.h"
-#include "../src/util/bson_list.h"
 #include "../src/util/log.h"
+#include "../src/util/timer_result_list.h"
 #include "integration_test.h"
-#include <bson/bson.h>
 #include <cmocka.h>
+#include <stdlib.h>
+#include <string.h>
 
 /*** Private helper functions ***/
-char **_get_oids_as_strings(bson_t *e1, bson_t *e2) {
-  bson_iter_t e1_iter, e2_iter;
-  if (!bson_iter_init(&e1_iter, e1) || !bson_iter_init(&e2_iter, e2)) {
-    t_log(ERROR, __func__, "Could not init iterator");
-    fail();
-  }
-  if (!bson_iter_find(&e1_iter, DB_KEY_ID) ||
-      !bson_iter_find(&e2_iter, DB_KEY_ID)) {
-    t_log(ERROR, __func__, "No %s found in document", DB_KEY_ID);
-    fail();
-  }
-  const bson_oid_t *oid1 = bson_iter_oid(&e1_iter);
-  const bson_oid_t *oid2 = bson_iter_oid(&e2_iter);
-  char *oid_string1 = malloc(25 * sizeof(char));
-  char *oid_string2 = malloc(25 * sizeof(char));
-  bson_oid_to_string(oid1, oid_string1);
-  bson_oid_to_string(oid2, oid_string2);
 
-  char **ret = malloc(2 * sizeof(char *));
-  ret[0] = oid_string1;
-  ret[1] = oid_string2;
-  return ret;
-}
-char **_get_bson_activities(bson_t *e1, bson_t *e2) {
-  bson_iter_t e1_iter, e2_iter;
-  if (!bson_iter_init(&e1_iter, e1) || !bson_iter_init(&e2_iter, e2)) {
-    t_log(ERROR, __func__, "Could not init iterator");
-    fail();
+bool _compare_timerresults(TimerResult *first, TimerResult *second) {
+  char *first_activity = first->info->activity;
+  char *second_activity = second->info->activity;
+  if (strcmp(first_activity, second_activity)) {
+    t_log(ERROR, __func__, "[%s] is not [%s]", first_activity, second_activity);
+    return false;
   }
-  if (!bson_iter_find(&e1_iter, DB_KEY_ACTIVITY) ||
-      !bson_iter_find(&e2_iter, DB_KEY_ACTIVITY)) {
-    t_log(ERROR, __func__, "No %s found in document", DB_KEY_ACTIVITY);
-    fail();
+
+  char *first_client = first->info->client;
+  char *second_client = second->info->client;
+  if (strcmp(first_client, second_client)) {
+    t_log(ERROR, __func__, "[%s] is not [%s]", first_client, second_client);
+    return false;
   }
-  const char *activity1 = bson_iter_utf8(&e1_iter, NULL);
-  const char *activity2 = bson_iter_utf8(&e2_iter, NULL);
-  char **ret = malloc(2 * sizeof(char *));
-  ret[0] = bson_strndup(activity1, strlen(activity1));
-  ret[1] = bson_strndup(activity2, strlen(activity2));
-  return ret;
-}
-char **_get_bson_clients(bson_t *e1, bson_t *e2) {
-  bson_iter_t e1_iter, e2_iter;
-  if (!bson_iter_init(&e1_iter, e1) || !bson_iter_init(&e2_iter, e2)) {
-    t_log(ERROR, __func__, "Could not init iterator");
-    fail();
+  char *first_project = first->info->project;
+  char *second_project = second->info->project;
+  if (strcmp(first_project, second_project)) {
+    t_log(ERROR, __func__, "[%s] is not [%s]", first_project, second_project);
+    return false;
   }
-  if (!bson_iter_find(&e1_iter, DB_KEY_CLIENT) ||
-      !bson_iter_find(&e2_iter, DB_KEY_CLIENT)) {
-    t_log(ERROR, __func__, "No %s found in document", DB_KEY_CLIENT);
-    fail();
+  char *first_description = first->info->description;
+  char *second_description = second->info->description;
+  if (strcmp(first_description, second_description)) {
+    t_log(ERROR, __func__, "[%s] is not [%s]", first_description,
+          second_description);
+    return false;
   }
-  const char *client1 = bson_iter_utf8(&e1_iter, NULL);
-  const char *client2 = bson_iter_utf8(&e2_iter, NULL);
-  char **ret = malloc(2 * sizeof(char *));
-  ret[0] = bson_strndup(client1, strlen(client1));
-  ret[1] = bson_strndup(client2, strlen(client2));
-  return ret;
+  int first_start_time = first->start_time;
+  int second_start_time = second->start_time;
+  if (first_start_time != second_start_time) {
+    t_log(ERROR, __func__, "[%s] is not [%s]", first_start_time,
+          second_start_time);
+    return false;
+  }
+  int first_end_time = first->end_time;
+  int second_end_time = second->end_time;
+  if (first_end_time != second_end_time) {
+    t_log(ERROR, __func__, "[%s] is not [%s]", first_end_time, second_end_time);
+    return false;
+  }
+  int first_duration = first->duration;
+  int second_duration = second->duration;
+  if (first_duration != second_duration) {
+    t_log(ERROR, __func__, "[%s] is not [%s]", first_duration, second_duration);
+    return false;
+  }
+  return true;
 }
 
-char **_get_bson_projects(bson_t *e1, bson_t *e2) {
-  bson_iter_t e1_iter, e2_iter;
-  if (!bson_iter_init(&e1_iter, e1) || !bson_iter_init(&e2_iter, e2)) {
-    t_log(ERROR, __func__, "Could not init iterator");
-    fail();
+bool _insert_test_data(test_state_t *s) {
+  sqlite3 *test_db_insert_handle = NULL;
+  sqlite3_stmt *insert_stmt = NULL, *insert_stmt_2 = NULL;
+
+  // clang-format off
+  const char *insert_query =
+      "INSERT INTO " TRACKME_DB_TABLE_TIMER_RESULT "("
+      DB_KEY_ACTIVITY ", "
+      DB_KEY_CLIENT ", "
+      DB_KEY_PROJECT ", "
+      DB_KEY_DESCRIPTION ", "
+      DB_KEY_START_TIME ", "
+      DB_KEY_END_TIME ", "
+      DB_KEY_DURATION 
+      ") VALUES ("
+      "?,?,?,?,?,?,?"
+      ")";
+  // clang-format on
+
+  if (sqlite3_open_v2(TRACKME_DB_FILENAME, &test_db_insert_handle,
+                      SQLITE_OPEN_READWRITE, NULL) != SQLITE_OK) {
+    t_log(ERROR, __func__, "Could not open db: %s",
+          sqlite3_errmsg(test_db_insert_handle));
+    return false;
   }
-  if (!bson_iter_find(&e1_iter, DB_KEY_PROJECT) ||
-      !bson_iter_find(&e2_iter, DB_KEY_PROJECT)) {
-    t_log(ERROR, __func__, "No %s found in document", DB_KEY_PROJECT);
-    fail();
-  }
-  const char *project1 = bson_iter_utf8(&e1_iter, NULL);
-  const char *project2 = bson_iter_utf8(&e2_iter, NULL);
-  char **ret = malloc(2 * sizeof(char *));
-  ret[0] = bson_strndup(project1, strlen(project1));
-  ret[1] = bson_strndup(project2, strlen(project2));
-  return ret;
-}
-
-time_t *_get_bson_durations(bson_t *e1, bson_t *e2) {
-  bson_iter_t e1_iter, e2_iter;
-  if (!bson_iter_init(&e1_iter, e1) || !bson_iter_init(&e2_iter, e2)) {
-    t_log(ERROR, __func__, "Could not init iterator");
-    fail();
-  }
-  if (!bson_iter_find(&e1_iter, DB_KEY_DURATION) ||
-      !bson_iter_find(&e2_iter, DB_KEY_DURATION)) {
-    t_log(ERROR, __func__, "No %s found in document", DB_KEY_DURATION);
-    fail();
+  // Prepare first insert
+  if (sqlite3_prepare(test_db_insert_handle, insert_query, -1, &insert_stmt,
+                      NULL) != SQLITE_OK) {
+    t_log(ERROR, __func__, "Could not prepare insert statement: %s",
+          sqlite3_errmsg(test_db_insert_handle));
+    return false;
   }
 
-  time_t *ret = malloc(2 * sizeof(time_t *));
-  ret[0] = bson_iter_time_t(&e1_iter);
-  ret[1] = bson_iter_time_t(&e2_iter);
-  return ret;
-}
+  if (sqlite3_bind_text(insert_stmt, 1, s->TEST_TIMER_RESULT->info->activity,
+                        -1, SQLITE_STATIC) != SQLITE_OK ||
+      sqlite3_bind_text(insert_stmt, 2, s->TEST_TIMER_RESULT->info->client, -1,
+                        SQLITE_STATIC) != SQLITE_OK ||
+      sqlite3_bind_text(insert_stmt, 3, s->TEST_TIMER_RESULT->info->project, -1,
+                        SQLITE_STATIC) != SQLITE_OK ||
+      sqlite3_bind_text(insert_stmt, 4, s->TEST_TIMER_RESULT->info->description,
+                        -1, SQLITE_STATIC) != SQLITE_OK ||
+      sqlite3_bind_int(insert_stmt, 5, s->TEST_TIMER_RESULT->start_time) !=
+          SQLITE_OK ||
+      sqlite3_bind_int(insert_stmt, 6, s->TEST_TIMER_RESULT->end_time) !=
+          SQLITE_OK ||
+      sqlite3_bind_int(insert_stmt, 7, s->TEST_TIMER_RESULT->duration) !=
+          SQLITE_OK) {
+    t_log(ERROR, __func__, "Could not bind parameters to insert statement: %s",
+          sqlite3_errmsg(test_db_insert_handle));
+    return false;
+  };
 
-time_t *_get_bson_start_times(bson_t *e1, bson_t *e2) {
-  bson_iter_t e1_iter, e2_iter;
-  if (!bson_iter_init(&e1_iter, e1) || !bson_iter_init(&e2_iter, e2)) {
-    t_log(ERROR, __func__, "Could not init iterator");
-    fail();
+  if (sqlite3_step(insert_stmt) != SQLITE_DONE) {
+    t_log(ERROR, __func__, "Could not execute insert statement: %s",
+          sqlite3_errmsg(test_db_insert_handle));
+    return false;
   }
-  if (!bson_iter_find(&e1_iter, DB_KEY_START_TIME) ||
-      !bson_iter_find(&e2_iter, DB_KEY_START_TIME)) {
-    t_log(ERROR, __func__, "No %s found in document", DB_KEY_START_TIME);
-    fail();
+
+  // Prepare second insert
+  if (sqlite3_prepare(test_db_insert_handle, insert_query, -1, &insert_stmt_2,
+                      NULL) != SQLITE_OK) {
+    t_log(ERROR, __func__, "Could not prepare insert statement: %s",
+          sqlite3_errmsg(test_db_insert_handle));
+    return false;
   }
-  time_t *ret = malloc(2 * sizeof(time_t *));
-  ret[0] = bson_iter_time_t(&e1_iter);
-  ret[1] = bson_iter_time_t(&e2_iter);
-  return ret;
-}
 
-time_t *_get_bson_end_times(bson_t *e1, bson_t *e2) {
-  bson_iter_t e1_iter, e2_iter;
-  if (!bson_iter_init(&e1_iter, e1) || !bson_iter_init(&e2_iter, e2)) {
-    t_log(ERROR, __func__, "Could not init iterator");
-    fail();
+  if (sqlite3_bind_text(insert_stmt_2, 1,
+                        s->TEST_TIMER_RESULT_2->info->activity, -1,
+                        SQLITE_STATIC) != SQLITE_OK ||
+      sqlite3_bind_text(insert_stmt_2, 2, s->TEST_TIMER_RESULT_2->info->client,
+                        -1, SQLITE_STATIC) != SQLITE_OK ||
+      sqlite3_bind_text(insert_stmt_2, 3, s->TEST_TIMER_RESULT_2->info->project,
+                        -1, SQLITE_STATIC) != SQLITE_OK ||
+      sqlite3_bind_text(insert_stmt_2, 4,
+                        s->TEST_TIMER_RESULT_2->info->description, -1,
+                        SQLITE_STATIC) != SQLITE_OK ||
+      sqlite3_bind_int(insert_stmt_2, 5, s->TEST_TIMER_RESULT_2->start_time) !=
+          SQLITE_OK ||
+      sqlite3_bind_int(insert_stmt_2, 6, s->TEST_TIMER_RESULT_2->end_time) !=
+          SQLITE_OK ||
+      sqlite3_bind_int(insert_stmt_2, 7, s->TEST_TIMER_RESULT_2->duration) !=
+          SQLITE_OK) {
+    t_log(ERROR, __func__, "Could not bind parameters to insert statement: %s",
+          sqlite3_errmsg(test_db_insert_handle));
+    return false;
+  };
+
+  if (sqlite3_step(insert_stmt_2) != SQLITE_DONE) {
+    t_log(ERROR, __func__, "Could not execute insert statement: %s",
+          sqlite3_errmsg(test_db_insert_handle));
+    return false;
   }
-  if (!bson_iter_find(&e1_iter, DB_KEY_END_TIME) ||
-      !bson_iter_find(&e2_iter, DB_KEY_END_TIME)) {
-    t_log(ERROR, __func__, "No %s found in document", DB_KEY_END_TIME);
-    fail();
-  }
-  time_t *ret = malloc(2 * sizeof(time_t *));
-  ret[0] = bson_iter_time_t(&e1_iter);
-  ret[1] = bson_iter_time_t(&e2_iter);
-  return ret;
-}
 
-bool _compare_entries(bson_t *e1, bson_t *e2) {
-
-  // OID
-  char **oids = _get_oids_as_strings(e1, e2);
-  assert_string_equal(oids[0], oids[1]);
-  free(oids[0]);
-  free(oids[1]);
-  free(oids);
-
-  // Activity
-  char **activities = _get_bson_activities(e1, e2);
-  assert_string_equal(activities[0], activities[1]);
-  bson_free(activities[0]);
-  bson_free(activities[1]);
-  free(activities);
-
-  // Client
-  char **clients = _get_bson_clients(e1, e2);
-  assert_string_equal(clients[0], clients[1]);
-  bson_free(clients[0]);
-  bson_free(clients[1]);
-  free(clients);
-
-  // Project
-  char **projects = _get_bson_projects(e1, e2);
-  assert_string_equal(projects[0], projects[1]);
-  bson_free(projects[0]);
-  bson_free(projects[1]);
-  free(projects);
-
-  // Duraion
-  time_t *durations = _get_bson_durations(e1, e2);
-  assert_int_equal(difftime(durations[0], durations[1]), 0);
-  free(durations);
-
-  // Start time
-  time_t *start_times = _get_bson_start_times(e1, e2);
-  assert_int_equal(difftime(start_times[0], start_times[1]), 0);
-  free(start_times);
-
-  // End time
-  time_t *end_times = _get_bson_end_times(e1, e2);
-  assert_int_equal(difftime(end_times[0], end_times[1]), 0);
-  free(end_times);
-
+  sqlite3_close_v2(test_db_insert_handle);
+  sqlite3_finalize(insert_stmt);
+  sqlite3_finalize(insert_stmt_2);
   return true;
 }
 
 /*** Tests begin ***/
 
-void test_db_connect(void **state) {
-  (void) state;
+void test_db_init(void **state) {
+  (void)state;
   // Given
-  bson_t *command = BCON_NEW("ping", BCON_INT32(1));
-  bson_t reply;
-  bson_error_t error;
+  sqlite3 *test_db_init_handle = NULL;
+  const char *contents_query = "SELECT * FROM " TRACKME_DB_TABLE_TIMER_RESULT;
+  sqlite3_stmt *table_contents_stmt;
+  // clang-format off
+  char *db_keys[NUMBER_OF_COLUMS] = {
+    DB_KEY_ACTIVITY,
+    DB_KEY_CLIENT,
+    DB_KEY_PROJECT,
+    DB_KEY_DESCRIPTION,
+    DB_KEY_START_TIME,
+    DB_KEY_END_TIME,
+    DB_KEY_DURATION
+  };
+  // clang-format on
 
   // When
-  bool sucess = mongoc_client_command_simple(db_client, "admin", command, NULL,
-                                        &reply, &error);
+  bool initialized = init_db();
+
   // Then
-  if (!sucess) {
-    t_log(ERROR, __func__, "Failed to ping db");
-    fail();
+  assert_true(initialized);
+  assert_int_equal(sqlite3_open_v2(TRACKME_DB_FILENAME, &test_db_init_handle,
+                                   SQLITE_OPEN_READWRITE, NULL),
+                   SQLITE_OK);
+  assert_int_equal(sqlite3_prepare_v2(test_db_init_handle, contents_query, -1,
+                                      &table_contents_stmt, NULL),
+                   SQLITE_OK);
+  assert_int_equal(sqlite3_step(table_contents_stmt), SQLITE_DONE);
+  assert_int_equal(sqlite3_column_count(table_contents_stmt), NUMBER_OF_COLUMS);
+
+  for (int i = 0; i < NUMBER_OF_COLUMS; i++) {
+    assert_string_equal(db_keys[i],
+                        sqlite3_column_name(table_contents_stmt, i));
   }
 
   // Finally
-  bson_destroy(&reply);
-  bson_destroy(command);
-}
+  sqlite3_finalize(table_contents_stmt);
+  sqlite3_close(test_db_init_handle);
+  free_db();
+};
 
 void test_db_save(void **state) {
   // Given
   test_state_t *s = (test_state_t *)*state;
+  sqlite3 *test_db_save_handle = NULL;
+  sqlite3_stmt *table_contents_stmt;
+  const char *contents_query = "SELECT * FROM " TRACKME_DB_TABLE_TIMER_RESULT;
+  char **errmsg = NULL;
+  // clang-format off
+  char *expected_db_contents_string[4] = {
+    s->TEST_TIMER_RESULT->info->activity,
+    s->TEST_TIMER_RESULT->info->client,
+    s->TEST_TIMER_RESULT->info->project,
+    s->TEST_TIMER_RESULT->info->description
+  };
+
+  time_t expected_db_contents_time[3] = {
+    s->TEST_TIMER_RESULT->start_time,
+    s->TEST_TIMER_RESULT->end_time,
+    s->TEST_TIMER_RESULT->duration
+  };
+  // clang-format on
+  init_db();
 
   // When
-  bool sucess = save(s->test_document_1);
+  bool sucess = save(s->TEST_TIMER_RESULT);
 
   // Then
-  bson_t_list *entry = get_by(DB_KEY_ID, &s->test_id_1);
-
-  bson_iter_t result_iter;
-  if (!bson_iter_init(&result_iter, entry->value)) {
-    t_log(ERROR, __func__, "Could not init iterator");
-    fail();
-  }
-
-  const char *activity;
-  if (bson_iter_find(&result_iter, DB_KEY_ACTIVITY)) {
-    activity = bson_iter_utf8(&result_iter, NULL);
-  } else {
-    t_log(ERROR, __func__, "No %s found in document", DB_KEY_ACTIVITY);
-    fail();
-  }
-
-  if (!bson_iter_init(&result_iter, entry->value)) {
-    t_log(ERROR, __func__, "Could not init iterator");
-    fail();
-  }
-  const bson_oid_t *oid = NULL;
-  if (bson_iter_find(&result_iter, DB_KEY_ID)) {
-    oid = bson_iter_oid(&result_iter);
-    char oid_string[25];
-    bson_oid_to_string(oid, oid_string);
-  } else {
-    t_log(ERROR, __func__, "No %s found in document", DB_KEY_ID);
-    fail();
-  }
-
-
   assert_true(sucess);
-  assert_non_null(entry);
-  assert_null(entry->next);
-  assert_true(bson_oid_equal(oid, &s->test_id_1));
-  assert_string_equal(activity, s->TEST_ACTIVITY_1);
+  assert_int_equal(sqlite3_open_v2(TRACKME_DB_FILENAME, &test_db_save_handle,
+                                   SQLITE_OPEN_READWRITE, NULL),
+                   SQLITE_OK);
+  assert_int_equal(sqlite3_prepare_v2(test_db_save_handle, contents_query, -1,
+                                      &table_contents_stmt, NULL),
+                   SQLITE_OK);
+  assert_int_equal(sqlite3_column_count(table_contents_stmt), NUMBER_OF_COLUMS);
+  assert_int_equal(sqlite3_step(table_contents_stmt), SQLITE_ROW);
+
+  for (int i = 0; i < 4; i++) {
+    assert_string_equal(expected_db_contents_string[i],
+                        (char *)sqlite3_column_text(table_contents_stmt, i));
+  }
+
+  for (int i = 0; i < 3; i++) {
+    assert_int_equal(expected_db_contents_time[i],
+                     sqlite3_column_int(table_contents_stmt, i + 4));
+  }
+  assert_int_equal(sqlite3_step(table_contents_stmt), SQLITE_DONE);
 
   // Finally
-  free_list(entry);
+  sqlite3_finalize(table_contents_stmt);
+  sqlite3_close(test_db_save_handle);
+  sqlite3_free(errmsg);
+  free_db();
 }
 
 void test_db_save_NULL(void **state) {
-  (void) state;
+  (void)state;
   // Given
+  sqlite3 *test_db_save_handle = NULL;
+  sqlite3_stmt *table_contents_stmt;
+  const char *contents_query = "SELECT * FROM " TRACKME_DB_TABLE_TIMER_RESULT;
+  char **errmsg = NULL;
+
+  init_db();
+
   // When
-  bool failed_null = save(NULL);
+  bool sucess = save(NULL);
 
   // Then
-  assert_false(failed_null);
+  assert_false(sucess);
+  assert_int_equal(sqlite3_open_v2(TRACKME_DB_FILENAME, &test_db_save_handle,
+                                   SQLITE_OPEN_READWRITE, NULL),
+                   SQLITE_OK);
+  assert_int_equal(sqlite3_prepare_v2(test_db_save_handle, contents_query, -1,
+                                      &table_contents_stmt, NULL),
+                   SQLITE_OK);
+  assert_int_equal(sqlite3_column_count(table_contents_stmt), NUMBER_OF_COLUMS);
+  // SQLITE_DONE means no result to process i.e. we did not save anything :)
+  assert_int_equal(sqlite3_step(table_contents_stmt), SQLITE_DONE);
 
   // Finally
+  sqlite3_finalize(table_contents_stmt);
+  sqlite3_close(test_db_save_handle);
+  sqlite3_free(errmsg);
+  free_db();
 }
 
-void test_db_insert_and_get(void **state) {
+void test_db_get_by_activity(void **state) {
   // Given
   test_state_t *s = (test_state_t *)*state;
-  bson_t *doc1 = bson_new();
-  BSON_APPEND_UTF8(doc1, DB_KEY_ACTIVITY, s->TEST_ACTIVITY_1);
+  sqlite3 *test_db_insert_handle = NULL;
+  char **errmsg = NULL;
 
-  bson_t *doc2 = bson_new();
-  BSON_APPEND_UTF8(doc2, DB_KEY_ACTIVITY, s->TEST_ACTIVITY_2);
-
-  if (!entries) {
-    t_log(ERROR, __func__, "No collection");
-    fail();
-  }
-
-  bson_t reply;
-  bson_error_t error;
+  init_db();
+  _insert_test_data(s);
 
   // When
-  if (!mongoc_collection_insert_one(entries, doc1, NULL, &reply, &error)) {
-    char *bson_as_json = bson_as_canonical_extended_json(doc1, NULL);
-    t_log(ERROR, __func__,
-          "failed to insert document: %s\n"
-          "error code: [%d]\n"
-          "error message: [%s]\n"
-          "error reply: [%s]\n",
-          bson_as_json, error.code, error.message,
-          bson_as_canonical_extended_json(&reply, NULL));
-    bson_free(bson_as_json);
-    bson_destroy(&reply);
-    fail();
-  }
-  if (!mongoc_collection_insert_one(entries, doc2, NULL, &reply, &error)) {
-    char *bson_as_json = bson_as_canonical_extended_json(doc2, NULL);
-    t_log(ERROR, __func__,
-          "failed to insert document: %s\n"
-          "error code: [%d]\n"
-          "error message: [%s]\n"
-          "error reply: [%s]\n",
-          bson_as_json, error.code, error.message,
-          bson_as_canonical_extended_json(&reply, NULL));
-    bson_free(bson_as_json);
-    bson_destroy(&reply);
-    fail();
-  }
+  timer_result_list *one_result =
+      get_by(DB_KEY_ACTIVITY, s->TEST_TIMER_RESULT->info->activity);
+  timer_result_list *no_result =
+      get_by(DB_KEY_ACTIVITY, "Not-a-match");
 
   // Then
-  bson_t *query = bson_new();
-  BSON_APPEND_UTF8(query, DB_KEY_ACTIVITY, s->TEST_ACTIVITY_1);
-  char *str;
-  mongoc_cursor_t *cursor =
-      mongoc_collection_find_with_opts(entries, query, NULL, NULL);
-  const bson_t *result;
-  int result_count = 0;
-  while (mongoc_cursor_next(cursor, &result)) {
-    result_count++;
-    str = bson_as_canonical_extended_json(&*result, NULL);
-    t_log(INFO, __func__, "Entry no: %d\n%s\n", result_count, str);
-    bson_free(str);
-  }
-
-  assert_int_equal(result_count, 1);
+  assert_non_null(one_result);
+  assert_non_null(no_result);
+  assert_int_equal(count_elements(one_result), 1);
+  assert_true(_compare_timerresults(one_result->value, s->TEST_TIMER_RESULT));
+  assert_int_equal(count_elements(no_result), 0);
 
   // Finally
-  bson_destroy(doc1);
-  bson_destroy(doc2);
-  mongoc_cursor_destroy(cursor);
-  bson_destroy(query);
+  free_list(one_result);
+  free_list(no_result);
+  sqlite3_close(test_db_insert_handle);
+  sqlite3_free(errmsg);
+  free_db();
 }
 
-void test_db_get_by(void **state) {
+void test_db_get_by_client(void **state) {
   // Given
   test_state_t *s = (test_state_t *)*state;
-  mongoc_collection_drop(entries, NULL);
+  sqlite3 *test_db_insert_handle = NULL;
+  char **errmsg = NULL;
+
+  init_db();
+  // Insert TEST_TIMER_RESULT and TEST_TIMER_RESULT_2 into db
+  _insert_test_data(s);
 
   // When
-  bool sucess_1 = save(s->test_document_1);
-  bool sucess_2 = save(s->test_document_2);
-  bson_t_list *entries_by_project = get_by(DB_KEY_PROJECT, s->TEST_PROJECT);
-  bson_t_list *entries_by_activity = get_by(DB_KEY_ACTIVITY, s->TEST_ACTIVITY_2);
-  bson_t_list *entries_by_duration =
-      get_by(DB_KEY_DURATION, &s->TEST_DURATION_S);
+  timer_result_list *two_results =
+      get_by(DB_KEY_CLIENT, s->TEST_TIMER_RESULT->info->client);
+  timer_result_list *no_result =
+      get_by(DB_KEY_CLIENT, "Not-a-match");
 
   // Then
-  assert_true(sucess_1);
-  assert_true(sucess_2);
-  assert_non_null(entries_by_project->value);
-  assert_non_null(entries_by_activity->value);
-  _compare_entries(s->test_document_1, entries_by_project->value);
-  _compare_entries(s->test_document_2, entries_by_activity->value);
-  _compare_entries(s->test_document_1, entries_by_duration->value);
-  assert_int_equal(count_elements(entries_by_duration), 2);
+  assert_non_null(two_results);
+  assert_non_null(no_result);
+  // The client is same for TEST_TIMER_RESULT and TEST_TIMER_RESULT_2
+  assert_int_equal(count_elements(two_results), 2);
+  assert_true(_compare_timerresults(two_results->value, s->TEST_TIMER_RESULT));
+  assert_true(_compare_timerresults(two_results->next->value, s->TEST_TIMER_RESULT_2));
+  assert_int_equal(count_elements(no_result), 0);
 
   // Finally
-  free_list(entries_by_project);
-  free_list(entries_by_activity);
-  free_list(entries_by_duration);
+  free_list(two_results);
+  free_list(no_result);
+  sqlite3_close(test_db_insert_handle);
+  sqlite3_free(errmsg);
+  free_db();
+}
+
+void test_db_get_by_project(void **state) {
+  // Given
+  test_state_t *s = (test_state_t *)*state;
+  sqlite3 *test_db_insert_handle = NULL;
+  char **errmsg = NULL;
+
+  init_db();
+  _insert_test_data(s);
+
+  // When
+  timer_result_list *one_result =
+      get_by(DB_KEY_PROJECT, s->TEST_TIMER_RESULT->info->project);
+  timer_result_list *no_result =
+      get_by(DB_KEY_PROJECT, "Not-a-match");
+
+  // Then
+  assert_non_null(one_result);
+  assert_non_null(no_result);
+  assert_int_equal(count_elements(one_result), 1);
+  assert_true(_compare_timerresults(one_result->value, s->TEST_TIMER_RESULT));
+  assert_int_equal(count_elements(no_result), 0);
+
+  // Finally
+  free_list(one_result);
+  free_list(no_result);
+  sqlite3_close(test_db_insert_handle);
+  sqlite3_free(errmsg);
+  free_db();
+}
+
+void test_db_get_by_null_key(void **state) {
+  // Given
+  test_state_t *s = (test_state_t *)*state;
+  sqlite3 *test_db_insert_handle = NULL;
+  char **errmsg = NULL;
+
+  init_db();
+  _insert_test_data(s);
+
+  // When
+  timer_result_list *no_result =
+      get_by(NULL, s->TEST_TIMER_RESULT->info->project);
+
+  // Then
+  assert_null(no_result);
+
+  // Finally
+  sqlite3_close(test_db_insert_handle);
+  sqlite3_free(errmsg);
+  free_db();
+}
+
+void test_db_get_by_null_value(void **state) {
+  // Given
+  test_state_t *s = (test_state_t *)*state;
+  sqlite3 *test_db_insert_handle = NULL;
+  char **errmsg = NULL;
+
+  init_db();
+  _insert_test_data(s);
+
+  // When
+  timer_result_list *no_result =
+      get_by(DB_KEY_PROJECT, NULL);
+
+  // Then
+  assert_null(no_result);
+
+  // Finally
+  sqlite3_close(test_db_insert_handle);
+  sqlite3_free(errmsg);
+  free_db();
 }

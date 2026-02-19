@@ -1,11 +1,13 @@
 #ifndef DB_H
 #define DB_H
 
-#include "util/bson_list.h"
-#include <mongoc/mongoc.h>
+#include "../lib/sqlite3.h"
+#include "timer.h"
+#include "util/timer_result_list.h"
+#include <stdbool.h>
 
-#define TRACKME_ENTRIES_COLLECTION "_entries"
-#define TRACKME_DB "trackme_db"
+#define TRACKME_DB_FILENAME "./trackme.db"
+#define TRACKME_DB_TABLE_TIMER_RESULT "_timer_result"
 #define DB_KEY_ID "_id"
 #define DB_KEY_ACTIVITY "_activity"
 #define DB_KEY_CLIENT "_client"
@@ -15,12 +17,9 @@
 #define DB_KEY_END_TIME "_end_time"
 #define DB_KEY_START_TIME "_start_time"
 
-extern mongoc_collection_t *entries;
-extern mongoc_client_t *db_client;
-
-int init_db(const char *uri);
-int free_db(void);
-bool save(bson_t *timer_result);
-bson_t_list *get_by(char *key, void *value);
+bool init_db();
+bool free_db();
+bool save(TimerResult *timer_result);
+timer_result_list *get_by(char *key, void *value);
 
 #endif // !DB_H

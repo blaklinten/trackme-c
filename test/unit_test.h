@@ -1,13 +1,14 @@
 #ifndef UNIT_TEST
 #define UNIT_TEST
 
-#include <bson/bson.h>
-#include <setjmp.h>
 #include <stdarg.h>
-
 #include <stddef.h>
 
+// Order is important here, cmocka >> timer.h
 #include <cmocka.h>
+#ifdef stop
+#undef stop
+#endif // stop
 
 #include "../src/timer.h"
 
@@ -17,10 +18,7 @@ int check_pointer(CMockaValueData value, CMockaValueData expected);
 typedef struct {
   StartInfo *default_start_info;
   UpdateInfo *default_update_info;
-  bson_t *test_document_1;
-  bson_t *test_document_2;
-  bson_oid_t test_id_1;
-  bson_oid_t test_id_2;
+  TimerResult *TEST_TIMER_RESULT;
   char *TEST_ACTIVITY_1;
   char *TEST_ACTIVITY_2;
   char *TEST_CLIENT;

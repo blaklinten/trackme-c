@@ -1,8 +1,11 @@
 #include "unit_test.h"
 
-#include "../src/timer.h"
-// #include "../src/track_me.h"
 #include <cmocka.h>
+#ifdef stop
+#undef stop
+#endif // stop
+
+#include "../src/timer.h"
 #include <stdlib.h>
 
 /*** Helper functions ***/

@@ -2,7 +2,6 @@
 #define TRACK_ME
 
 #include "../lib/mongoose.h"
-#include <bson/bson.h>
 
 #define REQUEST_FIELD_SHORT_SIZE 50
 #define REQUEST_FIELD_LONG_SIZE 500
