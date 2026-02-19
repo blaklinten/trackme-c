@@ -1,7 +1,9 @@
 #include "track_me.h"
 #include "../lib/mongoose.h"
+#include "db.h"
 #include "timer.h"
 #include "util/log.h"
+#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -277,7 +279,19 @@ bool is_timer_running() {
   return current_timer_result == NULL && current_timer.start_time;
 }
 
-bool stop_timer() { return (current_timer_result = stop(&current_timer)); }
+bool stop_timer() {
+  current_timer_result = stop(&current_timer);
+  if (!current_timer_result) {
+    t_log(ERROR, __func__, "Could not stop timer");
+    return false;
+  }
+
+  if (!save(current_timer_result)) {
+    t_log(ERROR, __func__, "Could not save timer result");
+    return false;
+  }
+  return true;
+}
 
 char *get_start_time() {
   if (is_timer_running()) {
